@@ -1,0 +1,36 @@
+/*
+ *
+ *  Created on: Mar 15, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef DEFINE_MESH_H_
+#define DEFINE_MESH_H_
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+namespace atop{
+//using namespace dealii;
+	class DefineMesh{
+		int dim;
+	public:
+		//Saves the coordinates for physical dimensions of the mesh
+		std::vector<std::vector<double> > coordinates;
+
+		//Provides number of subdivisions along each physical dimension of the mesh
+		std::vector<unsigned int> subdivisions;
+
+		//Saves the path of the input mesh (if supplied, else empty)
+		std::string input_file;
+		DefineMesh(int);
+
+		void showdata();
+	};
+
+}
+
+
+#endif /* DEFINE_MESH_H_ */

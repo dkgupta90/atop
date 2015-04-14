@@ -1,0 +1,644 @@
+/*
+ * step1.cpp
+ *
+ *  Created on: Jun 20, 2014 at Precision & Microsystems Engineering group, TU Delft
+ *      Author: Deepak K. Gupta
+ */
+
+
+#include <deal.II/base/quadrature_lib.h>
+#include <deal.II/base/function.h>
+#include <deal.II/base/logstream.h>
+#include <deal.II/lac/vector.h>
+#include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/sparse_matrix.h>
+#include <deal.II/lac/solver_cg.h>
+#include <deal.II/lac/precondition.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/grid/grid_refinement.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+#include <deal.II/grid/tria_boundary_lib.h>
+#include <deal.II/grid/grid_tools.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/dofs/dof_tools.h>
+#include <deal.II/fe/fe_values.h>
+#include <deal.II/numerics/vector_tools.h>
+#include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/numerics/data_out.h>
+#include <deal.II/numerics/error_estimator.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <atop/TopologyOptimization/DensityValues.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <atop/math_tools/algebra/MatrixVector.h>
+#include <atop/TopologyOptimization/design_analysis.h>
+#include<deal.II/grid/grid_refinement.h>
+#include<deal.II/numerics/error_estimator.h>
+#include <deal.II/numerics/data_out_dof_data.h>
+#include <atop/TopologyOptimization/RefinementIndicator.h>
+#include <time.h>
+#include <math.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+//#include <nlopt.hpp>
+#include <iostream>
+#include <fstream>
+#include <stddef.h>
+
+namespace Step1 {
+	using namespace dealii;
+	using namespace topopt;
+	template <int dim>
+
+	class TopOptimization {
+	public:
+		double xmin, xmax, ymin, ymax;	//Limits for the rectangular domain
+		unsigned int x_count, y_count;	//analysis mesh size
+		unsigned int design_x_count, design_y_count;	//design mesh size
+		double E0, Emin, nu;	//Elasticity parameters
+		double penal_power;		//SIMP penal power
+		unsigned int nq, den_choice;
+		double init_density;
+		unsigned int penalization_model;
+		std::vector<double> density_mesh;
+		std::vector<double> old_density_mesh;
+		std::ofstream myfile;
+
+		std::vector<double> x;
+		unsigned int model_problem;
+		std::vector<double> density_values;
+
+		TopOptimization();
+		~TopOptimization();
+
+		void run();
+
+	private:
+		void fem_solver(int itr);
+		void setup_system();
+		void assemble_system();
+		void boundary_info();
+		void solve();
+
+		void get_Dmatrix(FullMatrix<double> &Dmatrix, double nu);
+		double get_Evalue(double E0, double Emin, double rho);
+		void update_density_values(std::vector<double> &density_values,
+				std::vector<Point<dim> > &qpoints);
+
+
+		typedef struct{
+			double a;
+			unsigned int elem_count;
+		}my_constraint_data;
+
+		void output_results(const unsigned int cycle) const;
+		Triangulation<dim> triangulation;	//Defines dim dimensional triangulation object
+		DoFHandler<dim> dof_handler;
+		FESystem<dim> fe;
+		ConstraintMatrix hanging_node_constraints;
+		SparsityPattern sparsity_pattern;
+		SparseMatrix<double> system_matrix;
+		Vector<double> solution;
+		Vector<double> system_rhs;
+		DensityValues rho_values;
+		StoreElasticData elastic_data;
+	};
+
+
+	template <int dim>
+	class RightHandSide: public Function<dim>{
+	public:
+		RightHandSide();
+		virtual void vector_value(const Point<dim> &p,
+				Vector<double> &values) const;
+		virtual void vector_value_list(const std::vector<Point<dim>> &points,
+				std::vector<Vector<double>> &value_list) const;
+	};
+
+	template <int dim>
+	class BoundaryValues : public Function<dim>{
+	public:
+		BoundaryValues(): Function<dim>() {}
+		virtual void vector_value(const Point<dim> &p,
+				Vector<double> &values) const;
+		virtual void vector_value_list (const std::vector<Point<dim>> & points,
+				std::vector<Vector<double>> &value_list) const;
+	};
+
+	template <int dim>
+	RightHandSide<dim>::RightHandSide() : Function<dim>(dim){}; //constructor for the base class
+
+	template <int dim>
+	inline
+	void RightHandSide<dim>::vector_value(const Point<dim> &p,
+			Vector<double> &values) const{
+		Assert (values.size() == dim,
+				ExcDimensionMismatch(values.size(), dim));
+		Assert(dim >= 2,
+				ExcNotImplemented());
+	}
+
+	template <int dim>
+	void RightHandSide<dim>::vector_value_list(const std::vector<Point<dim>> &points,
+			std::vector<Vector<double>> &value_list) const {
+		Assert (value_list.size() == points.size(),
+				ExcDimensionMismatch(value_list.size(), points.size()));
+		const unsigned int n_points = points.size();
+
+		for (unsigned int p = 0; p < n_points; ++p){
+			RightHandSide<dim>::vector_value(points[p],
+					value_list[p]);
+		}
+	}
+
+	template <int dim>
+	inline
+	void BoundaryValues<dim>::vector_value(const Point<dim> &p,
+			Vector<double> &values) const{
+		Assert (values.size() == dim,
+				ExcDimensionMismatch(values.size(), dim));
+		Assert(dim >= 2,
+				ExcNotImplemented());
+		unsigned int model_problem = 1;
+		double xmin, xmax, ymin, ymax;
+		if (model_problem == 1){
+			//MBB problem
+			xmin = 0, ymin = 0, xmax = 0.04, ymax = 0.03;
+/*			if (std::fabs(p(0) - (xmin)) < 1e-12){
+				values(0) = 0;
+				values(1) = 0;
+			}*/
+			if ((std::fabs(p(0) - (xmin)) < 1e-12) && (std::fabs(p(1) - (ymin)) < 1e-12)){
+				values(0) = 0;
+				values(1) = 0;
+				std::cout<<p(0)<<"    "<<p(1)<<std::endl;
+			}
+
+			if ((std::fabs(p(0) - (xmin)) < 1e-12) && (std::fabs(p(1) - (ymax)) < 1e-12)){
+				values(0) = 0;
+				values(1) = 0;
+				std::cout<<p(0)<<"    "<<p(1)<<std::endl;
+			}
+		}
+
+	}
+
+	template <int dim>
+	void BoundaryValues<dim>::vector_value_list(const std::vector<Point<dim>> &points,
+			std::vector<Vector<double>> &value_list) const {
+		Assert (value_list.size() == points.size(),
+				ExcDimensionMismatch(value_list.size(), points.size()));
+		const unsigned int n_points = points.size();
+
+		for (unsigned int p = 0; p < n_points; ++p){
+			BoundaryValues<dim>::vector_value(points[p],
+					value_list[p]);
+		}
+	}
+
+
+	template <int dim>
+	TopOptimization<dim>::TopOptimization():
+		dof_handler(triangulation),
+		fe(FE_Q<dim>(1), dim)
+		{}
+
+	template <int dim>
+	TopOptimization<dim>::~TopOptimization(){
+		dof_handler.clear();
+	}
+
+
+	template <int dim>
+	void TopOptimization<dim>::get_Dmatrix(FullMatrix<double> &Dmatrix,
+			double nu){
+		double k = 1/(1 - (nu*nu));
+		Dmatrix(0, 0) = k;
+		Dmatrix(0, 1) = nu*k;
+		Dmatrix(0, 2) = 0;
+		Dmatrix(1, 0) = nu*k;
+		Dmatrix(1, 1) = k;
+		Dmatrix(1, 2) = 0;
+		Dmatrix(2, 0) = 0;
+		Dmatrix(2, 1) = 0;
+		Dmatrix(2, 2) = ((1 - nu)*k)/2;
+	}
+
+	template <int dim>
+	double TopOptimization<dim>::get_Evalue(double E0, double Emin, double rho){
+		double E_value = (Emin + (E0 - Emin)*(pow(rho, penal_power)));
+		return E_value;
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::update_density_values(std::vector<double> &density_values,
+			std::vector<Point<dim> > &qpoints){
+		if(qpoints.size() != density_values.size()){
+			std::cerr<<"Size mismatch error"<<std::endl;
+		}
+		for(unsigned int  i = 0; i < qpoints.size(); ++i){
+			Point<dim> point1 = qpoints[i];
+			Point<dim> point2(0, 0);
+			Point<dim> extreme(xmax, ymax);
+			double density;
+			if(den_choice == 0){
+				density = init_density;
+			}
+			else if(den_choice == 1){
+				density = 1 - (point1(0)/xmax)*0.5;
+			}
+			else if(den_choice == 2){
+				density = 1 - (pow(point1(0)/xmax, 2)) *0.5;
+			}
+			else if(den_choice == 3){
+				density = 1 - (point2.distance(point1))/(point2.distance(extreme))*0.5;
+			}
+
+			std::cout<<point1(0)<<"   "<<point1(1)<<"   "<<density<<std::endl;
+			density_values[i] = density;
+		}
+
+	}
+
+
+	template <int dim>
+	void TopOptimization<dim>::setup_system(){
+		//std::cout<<"Entered setup_system()"<<std::endl;
+		//Density mesh
+/*		density_hanging_node_constraints.clear();
+		DoFTools::make_hanging_node_constraints(density_dof_handler,
+				density_hanging_node_constraints);
+		density_hanging_node_constraints.close();*/
+		//FE mesh
+		dof_handler.distribute_dofs(fe);
+		hanging_node_constraints.clear();
+		DoFTools::make_hanging_node_constraints(dof_handler,
+						hanging_node_constraints);
+		hanging_node_constraints.close();
+
+		sparsity_pattern.reinit(dof_handler.n_dofs(),
+				dof_handler.n_dofs(),
+				dof_handler.max_couplings_between_dofs());
+
+		DoFTools::make_sparsity_pattern(dof_handler, sparsity_pattern);
+
+		hanging_node_constraints.condense(sparsity_pattern);
+		sparsity_pattern.compress();
+		system_matrix.reinit(sparsity_pattern);
+
+		solution.reinit(dof_handler.n_dofs());
+		system_rhs.reinit(dof_handler.n_dofs());
+
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::assemble_system(){
+		std::cout<<"Entered assemble_system()"<<std::endl;
+
+		//Declaring the required local variables
+		const unsigned int dofs_per_cell = fe.dofs_per_cell;
+		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+		FullMatrix<double> Bmatrix(3, dofs_per_cell);
+		FullMatrix<double> Dmatrix(3, 3);
+		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+		Vector<double> cell_rhs(dofs_per_cell);
+		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+		elastic_data.nu = nu;
+		//elastic_data.fe = fe;
+		density_mesh.clear();
+		Penalization penal;
+
+		QGauss<dim> quadrature_formula(nq);
+		FEValues<dim> fe_values(fe,
+				quadrature_formula,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+
+		//updating the user indices to connect cell with cell_itr
+		typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
+
+		RightHandSide<dim> right_hand_side;
+
+		unsigned cell_itr = 0;
+		for (; cell != endc; ++cell){
+			cell_matrix = 0;
+			cell_rhs = 0;
+
+			fe_values.reinit(cell);
+			unsigned int n_q_points = quadrature_formula.size();
+			//std::cout<<"Reached here  "<<cell_itr<<std::endl;
+			std::vector<Vector<double>> rhs_values(n_q_points,
+					Vector<double>(dim));
+			right_hand_side.vector_value_list(fe_values.get_quadrature_points(),
+					rhs_values);
+
+			//std::vector<Point<dim> > qpoints = fe_values.get_quadrature_points();
+/*			//printing the coordinates of Gauss points
+			for(unsigned int v = 0; v < qpoints.size() ; ++v){
+				std::cout<<qpoints[v](0)<<" "<<qpoints[v](1)<<std::endl;
+
+			}*/
+
+			density_values.clear();
+			density_values.resize(nq*nq);
+			std::vector<Point<dim> > qpoints = fe_values.get_quadrature_points();
+			update_density_values(density_values, qpoints);
+
+			//Constructing the normalized matrix at Gauss point and adding to K_e
+			for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+				//Getting B Matrix
+				Bmatrix = 0;
+				for (unsigned int k = 0; k < 3; ++k){
+					for(unsigned int i = 0; i < dofs_per_cell; ++i){
+						if (k == 2){
+							int t1, t2;
+							if (i % 2 == 0){
+								t1 = 1;
+								t2 = i + 1;
+							}
+							else{
+								t1 = 0;
+								t2 = i - 1;
+							}
+							Bmatrix(k, i) = Bmatrix(t1, t2);
+						}
+						else{
+							unsigned int comp_i = fe.system_to_component_index(i).first;
+							if (comp_i == k){
+								Bmatrix(k, i) = fe_values.shape_grad(i, q_point)[k];
+								//std::cout<<B_matrix(k, i)<<std::endl;
+							}
+							else{
+								Bmatrix(k, i) = 0;
+							}
+							//std::cout<<B_matrix(k, i)<<" "<<i<<" "<<q_point<<std::endl;
+						}
+					}
+				}
+
+
+				get_Dmatrix(Dmatrix, nu);
+				normalized_matrix = 0;
+				normalized_matrix.triple_product(Dmatrix,
+						Bmatrix,
+						Bmatrix,
+						true,
+						false,
+						fe_values.JxW(q_point));
+				double E_value = get_Evalue(E0, Emin, density_values[q_point]);
+				cell_matrix.add(E_value, normalized_matrix);
+
+			}
+/*			unsigned int cols = cell_matrix.n_cols();
+			unsigned int rows = cell_matrix.n_rows();
+			for(unsigned int i = 0; i < rows; ++i){
+				for(unsigned int j = 0; j < cols; ++j){
+					std::cout<<cell_matrix(i, j)<<"  ";
+				}
+				std::cout<<std::endl;
+			}
+			std::cout<<std::endl;*/
+
+			for(unsigned int i = 0; i < dofs_per_cell; ++i){
+				const unsigned int component_i = fe.system_to_component_index(i).first;
+				for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+					cell_rhs(i) += fe_values.shape_value(i, q_point) *
+							rhs_values[q_point](component_i) *
+							fe_values.JxW(q_point);
+				}
+			}
+			cell->get_dof_indices(local_dof_indices);
+
+			for(unsigned int i = 0; i < dofs_per_cell; ++i){
+				for(unsigned int j = 0; j < dofs_per_cell; ++j){
+					system_matrix.add(local_dof_indices[i],
+							local_dof_indices[j],
+							cell_matrix(i, j));
+				}
+				system_rhs(local_dof_indices[i]) += cell_rhs(i);
+			}
+			++cell_itr;
+		}
+
+		//Define first point force
+		const Point<dim> load_point1(xmax, ymin);//(ymax+ymin)/2);
+		const Point<dim> load1(0.015, 0);
+		VectorTools::create_point_source_vector(dof_handler, load_point1, load1, system_rhs);
+		//Define second point force
+		Vector<double> temp_system_rhs(system_rhs.size());
+		const Point<dim> load_point2(xmax, ymax);//(ymax+ymin)/2);
+		const Point<dim> load2(0.015, 0);
+		VectorTools::create_point_source_vector(dof_handler, load_point2, load2, temp_system_rhs);
+		//Adding the second point force vector
+		system_rhs += temp_system_rhs;
+
+		hanging_node_constraints.condense(system_matrix);
+		hanging_node_constraints.condense(system_rhs);
+
+		std::map<types::global_dof_index, double> boundary_values;
+		VectorTools::interpolate_boundary_values(dof_handler,
+				42,
+				BoundaryValues<dim>(),
+				boundary_values);
+		MatrixTools::apply_boundary_values(boundary_values,
+				system_matrix,
+				solution,
+				system_rhs);
+
+
+
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::boundary_info(){
+		//This function defines the fixed degrees of freedom
+		for (typename Triangulation<dim>::active_cell_iterator
+				cell = triangulation.begin();
+				cell != triangulation.end();
+				++cell ){
+			for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
+				//std::cout<<cell->face(f)->center()(0)<<std::endl;
+				if(model_problem == 1){
+					if (std::fabs(cell->face(f)->center()(0) - (xmin)) < 1e-12){
+						cell->face(f)->set_boundary_indicator(42);
+					}
+				}
+			}
+		}
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::solve(){
+
+		SolverControl solver_control(5000, 1e-11);
+		SolverCG<> cg(solver_control);
+
+		PreconditionSSOR<> preconditioner;
+		preconditioner.initialize(system_matrix, 1.2);
+		cg.solve(system_matrix,
+				solution,
+				system_rhs,
+				preconditioner);
+
+		hanging_node_constraints.distribute(solution);
+		//solution.
+	}
+
+
+	template <int dim>
+	void TopOptimization<dim>::output_results(unsigned int iter) const{
+		std::string filename = "solution-";
+		std::string density_filename = "density-";
+		std::stringstream ss;
+		filename += ss.str();
+		density_filename += ss.str();
+		//Assert(cycle < 10, ExcInternalError());
+		filename += ".vtk";
+		density_filename += ".vtk";
+
+		std::ofstream output(filename.c_str());
+		DataOut<dim> data_out;
+		data_out.attach_dof_handler(dof_handler);
+
+		std::vector<std::string> solution_names;
+		switch(dim){
+		case 1:
+			solution_names.push_back("displacement");
+			break;
+		case 2:
+			solution_names.push_back("x_displacement");
+			solution_names.push_back("y_displacement");
+			break;
+		case 3:
+			solution_names.push_back("x_displacement");
+			solution_names.push_back("y_displacement");
+			solution_names.push_back("z_displacement");
+			break;
+		default:
+			Assert(false, ExcNotImplemented);
+		}
+
+		data_out.add_data_vector(solution, solution_names);
+		data_out.build_patches();
+		data_out.write_vtk(output);
+	}
+
+	template<int dim>
+	void TopOptimization<dim>::fem_solver(
+			int itr){
+			//physical size of the design domain
+			if(model_problem == 1){
+				xmin = 0;
+				ymin = 0;
+				xmax = 0.04;
+				ymax = 0.03;
+			}
+			const Point<2> point1(xmin, ymin);
+			const Point<2> point2(xmax, ymax);
+			std::vector<unsigned int> repetitions; // It defines the number of subdivisions in each direction
+			repetitions.push_back(x_count);
+			repetitions.push_back(y_count);
+			GridGenerator::subdivided_hyper_rectangle(triangulation,
+					repetitions,
+					point1,
+					point2,
+					false
+					);
+			std::cout<<"Active cells: "
+					<<triangulation.n_active_cells();
+			boundary_info();
+			//setup_system();
+;
+
+		std::ofstream myfile1;
+			std::string output_fname = "output.txt";
+			myfile1.open(output_fname.c_str(), std::ofstream::app);
+			myfile1<<"FE mesh: "<<triangulation.n_active_cells()<<"\n";
+			//myfile1<<"Design mesh: "<<design_x_count*design_y_count<<"\n";
+			myfile1.close();
+		boundary_info();
+		setup_system();
+		std::cout<<"No. of degrees of freedom  : "
+				<<dof_handler.n_dofs()
+				<<std::endl;
+		std::cout<<"Iteration: "<<itr + 1<<std::endl;
+		assemble_system();
+		solve();
+	}
+
+
+
+	template <int dim>
+	void TopOptimization<dim>::run(){
+
+		std::string output_fname = "output.txt";
+		std::ofstream myfile1;
+		myfile1.open(output_fname.c_str(), std::ofstream::out);
+		myfile1<<"FE mesh: "<<x_count<<" "<<y_count<<"\n";
+		myfile1.close();
+
+		fem_solver(0); //Solves the finite element mesh
+		output_results(0);
+		system_matrix.clear();
+	}
+}
+
+int main()
+{
+	try{
+		using namespace Step1;
+		deallog.depth_console(0);
+
+		Step1::TopOptimization<2> topopt2d;
+		topopt2d.E0 = 2e7;
+		topopt2d.Emin = 1e-9;
+		topopt2d.nu = 0.3;
+		topopt2d.penalization_model = 1; //SIMP model
+		topopt2d.model_problem = 1;
+		topopt2d.penal_power = 1.0;
+		if(topopt2d.model_problem == 1){
+			//This model refers to a MBB
+			topopt2d.x_count = 500;
+			topopt2d.y_count = 500;
+			topopt2d.nq = 2;
+			topopt2d.init_density = 1;
+			topopt2d.den_choice = 0;
+		}
+
+		topopt2d.run();
+		std::cout<<"Success"<<std::endl;
+	}
+	catch(std::exception &exc){
+		std::cerr<<std::endl<<std::endl
+				<<"------------------------------------------------------"
+				<<std::endl;
+		std::cerr<<"Exception on processing "<<std::endl
+				<<exc.what()<<std::endl
+				<<"Aborting! "<<std::endl
+				<<"------------------------------------------------------"
+				<<std::endl;
+		return 1;
+
+	}
+	catch(...){
+		std::cerr<<std::endl<<std::endl
+				<<"------------------------------------------------------"
+				<<std::endl;
+		std::cerr<<"EUnknown Exception "<<std::endl
+				<<"Aborting! "<<std::endl
+				<<"------------------------------------------------------"
+				<<std::endl;
+		return 1;
+
+	}
+}

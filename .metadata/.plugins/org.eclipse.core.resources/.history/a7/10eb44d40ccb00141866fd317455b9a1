@@ -1,0 +1,19 @@
+/*
+ *
+ *  Created on: Mar 14, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <iostream>
+#include <atop/fem/define_mesh.h>
+
+using namespace atop;
+
+int main(){
+
+	//Define the mesh
+	DefineMesh<2> mesh();
+	mesh.a = 10;
+	std::cout<<"Completed successfully"<<std::endl;
+}

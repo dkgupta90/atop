@@ -1,0 +1,41 @@
+/*
+ *
+ *  Created on: Mar 15, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef DEFINE_MESH_H_
+#define DEFINE_MESH_H_
+
+#include <iostream>
+#include <vector>
+
+namespace atop{
+//using namespace dealii;
+	class DefineMesh{
+		int dim;
+	public:
+		std::vector<std::vector<double> > coordinates;
+		DefineMesh(int dim):dim(dim){};
+		std::vector<unsigned int> subdivisions;
+		void showdata();
+	};
+
+	// Just wondering, why do you use dim as a template
+	//because i am creating a general files for 1, 2 and 3 dimensions in
+	//space
+	// But dim could just be a parameter in the constructor?
+	//no, leave it
+	// What is the advantage?
+	////leave it.
+	//i dont want to pass it to every function
+	//there will be many
+	// Nojust store it in a members in the constructor
+	// Because, though c++ provides these, it is a weird use of templates
+	// and I haven't seem this before deal_II
+	//u solve the error first
+}
+
+
+#endif /* DEFINE_MESH_H_ */
