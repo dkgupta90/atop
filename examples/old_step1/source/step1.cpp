@@ -73,6 +73,7 @@ namespace Step1 {
 		std::vector<double> density_mesh;
 		std::vector<double> old_density_mesh;
 		std::ofstream myfile;
+		std::string densityType;
 
 		double objective;	//compliance objective
 		double volfrac;
@@ -302,6 +303,7 @@ namespace Step1 {
 		std::vector<types::global_dof_index> local_density_indices(density_per_cell);
 		ConstantFunction<dim> lambda(1.), mu(1.);
 		rho_values.cycle = cycle;
+
 		if (cycle  == 0 && itr_count == 0){
 			elastic_data.current_quad_rule = current_quad_rule;
 			elastic_data.running_quad_rule = running_quad_rule;
@@ -332,6 +334,7 @@ namespace Step1 {
 		}
 
 		if(itr_count == 0){
+
 			double time1 = clock();
 			std::cout<<"Looking for neighbours;   ";
 			rho_values.create_neighbours(cellprop,
@@ -526,9 +529,7 @@ namespace Step1 {
 				density_triangulation,
 				cellprop,
 				elastic_data);
-		if(cycle > 0){
-			std::cout<<"Reached here"<<std::endl;
-		}
+
 		triangulation.execute_coarsening_and_refinement();
 		density_triangulation.execute_coarsening_and_refinement();
 		update_cellprop();
@@ -643,7 +644,6 @@ namespace Step1 {
 				preconditioner);
 
 		hanging_node_constraints.distribute(solution);
-		//solution.
 	}
 
 	template <int dim>
@@ -699,6 +699,7 @@ namespace Step1 {
 			else{
 				l2 = lmid;
 			}
+			std::cout<<"Volfrac: "<<(density_sum/(x_count*y_count))<<std::endl;
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<(density_sum/(x_count*y_count))<<std::endl;
@@ -881,6 +882,7 @@ namespace Step1 {
 			for(unsigned int i = 0; i < dofs_per_cell; ++i){
 				cell_array[i] = solution(local_dof_indices[i]);
 			}
+
 			Vector<double> temp_array(dofs_per_cell);
 			temp_array = 0;
 			MatrixVector matvec;
@@ -935,6 +937,10 @@ namespace Step1 {
 			for(unsigned int i = 0; i < dofs_per_cell; ++i){
 				cell_array[i] = solution(local_dof_indices[i]);
 			}
+
+			//cleaning the dcdx vector
+			cellprop[cell_itr].dcdx.clear();
+			double sum_dobj = 0.0;
 			for(int q_point = 0; q_point < n_q_points; ++q_point){
 				cell_matrix = 0;
 				double dobj;
@@ -968,9 +974,27 @@ namespace Step1 {
 				dobj = matvec.vector_vector_inner_product(
 						temp_array,
 						cell_array);
-				dobj_ddn.push_back(-dobj);
+
+				if (densityType != "const_density"){
+					dobj_ddn.push_back(-dobj);
+				}
+				else{
+					sum_dobj -= dobj;
+					cellprop[cell_itr].dcdx.push_back(-dobj);
+				}
+
+			}
+
+			if (densityType == "const_density"){
+				for(unsigned int q = 0;q < n_q_points; ++q){
+					dobj_ddn.push_back(sum_dobj/4);
+					cellprop[cell_itr].avg_const_sens = sum_dobj/4;
+				}
 			}
 			cell_itr++;
+		}
+		for(unsigned int i =0; i < dobj_ddn.size(); ++i){
+			std::cout<<dobj_ddn[i]<<std::endl;
 		}
 		std::cout<<"Size of sensitivity vector : "<<dobj_ddn.size()<<std::endl;
 		double time2 = clock();
@@ -1125,6 +1149,7 @@ int main()
 		topopt2d.Emin = 1e-9;
 		topopt2d.nu = 0.3;
 		topopt2d.penalization_model = 1; //SIMP model
+		topopt2d.densityType = "const_density";
 		topopt2d.model_problem = 1;
 		topopt2d.penal_power = 3.0;
 		topopt2d.start_penal = 1.0;
@@ -1134,8 +1159,8 @@ int main()
 		if(topopt2d.model_problem == 1){
 			//This model refers to a MBB
 			topopt2d.volfrac = 0.45; //volume constraint
-			topopt2d.x_count = 40;
-			topopt2d.y_count = 20;
+			topopt2d.x_count = 200;
+			topopt2d.y_count = 100;
 			topopt2d.design_x_count = 320; // mesh size for the design mesh
 			topopt2d.design_y_count = 160; //mesh size for the design mesh
 		}
@@ -1147,11 +1172,11 @@ int main()
 			topopt2d.design_x_count = 360; // mesh size for the design mesh
 			topopt2d.design_y_count = 240; //mesh size for the design mesh
 		}
-		topopt2d.no_iterations =50;
-		topopt2d.max_projection_radius = 0.07;
+		topopt2d.no_iterations = 20;
+		topopt2d.max_projection_radius = 0.012;
 		topopt2d.gamma = 1.0;
 		topopt2d.cycle = 0;
-		topopt2d.no_cycles = 3;
+		topopt2d.no_cycles = 1;
 		std::cout<<"Topology optimization initiated "<<std::endl;
 
 		//Generating a random number for output files

@@ -7,6 +7,7 @@
  */
 
 #include <atop/TopologyOptimization/penalization.h>
+#include <atop/TopologyOptimization/cell_prop.h>
 #include<vector>
 #include <math.h>
 #include <iostream>
@@ -32,9 +33,36 @@ void Penalization::set_param(double E0, double Emin,
 	}
 }
 
+Penalize::Penalize(){}
 
 Penalize::Penalize(std::string scheme){
 	//This function initializes the penalization scheme
 	this->scheme = scheme;
+}
+
+void Penalize::update_param(
+		double E0,
+		std::vector<CellInfo> &cell_info_vector){
+	double Emin = E0 * factmin;
+	unsigned int no_cells = cell_info_vector.size();
+
+	//Iterating over every cell
+	for(unsigned int i = 0; i < no_cells; ++i){
+		unsigned int n_qpoints =cell_info_vector[i].density.size();
+		cell_info_vector[i].E_values.resize(n_qpoints);
+		cell_info_vector[i].dE_values.resize(n_qpoints);
+
+		for(unsigned int q_point = 0; q_point < n_qpoints; ++q_point){
+			double density = cell_info_vector[i].density[q_point];
+			double Evalue, dEvalue;
+			if (scheme == "SIMP"){
+				Evalue = (Emin + (E0 - Emin)*(pow(density, penal_power)));
+				dEvalue = penal_power * ((E0 - Emin)*(pow(density, penal_power-1)));
+			}
+
+			cell_info_vector[i].E_values[q_point] = Evalue;
+			cell_info_vector[i].dE_values[q_point] = dEvalue;
+		}
+	}
 }
 

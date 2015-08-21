@@ -1,0 +1,79 @@
+/*
+ *
+ *  Created on: Apr 2, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/optimizedesign.h>
+#include <atop/fem/define_mesh.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <nlopt.hpp>
+#include <algorithm>
+#include <string>
+#include <vector>
+
+
+using namespace atop;
+
+
+Penalize penal;
+std::string opt_algorithm;
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data);
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *data);
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(){}
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(
+		DefineMesh<dim> &obj_mesh,
+		Penalize &obj_penal,
+		const std::string &obj_algorithm
+		){
+	mesh = obj_mesh;
+	penal = obj_penal;
+	opt_algorithm = obj_algorithm;
+
+	//Perform optimization
+	optimize();
+}
+
+template <int dim>
+void Optimizedesign<dim>::optimize(){
+
+	std::transform(opt_algorithm.begin(), opt_algorithm.end(),opt_algorithm.begin(), ::toupper);
+
+	//Create the FE mesh
+	mesh.createMesh();
+
+	//Choosing the optimizer
+	if(opt_algorithm == "MMA"){
+		nlopt::opt opt(nlopt::LD_MMA, dim);
+	}
+}
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data){
+	return 0;
+
+}
+
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *data){
+	return 0;
+}
+
+
+

@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../source/old_step.cpp 
+../source/simple_fem.cpp 
 
 OBJS += \
-./source/old_step.o 
+./source/simple_fem.o 
 
 CPP_DEPS += \
-./source/old_step.d 
+./source/simple_fem.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

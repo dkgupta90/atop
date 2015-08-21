@@ -1,0 +1,35 @@
+/*
+ *
+ *  Created on: Aug 19, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef OPTIMALITY_CRITERIA_H_
+#define OPTIMALITY_CRITERIA_H_
+
+#include <iostream>
+#include <vector>
+
+namespace atop{
+	class OC{
+	public:
+		unsigned int no_design;
+		std::vector<double> lb, ub;
+		OC(unsigned int);
+		void set_lower_bounds(
+				std::vector<double> &);
+		void set_upper_bounds(
+				std::vector<double> &);
+		double (*myvfunc)(const std::vector<double> &x,
+				std::vector<double> &grad,
+				void *my_func_data);
+		double (*myvconstraint)(
+				const std::vector<double> &x,
+				std::vector<double> &grad,
+				void *my_func_data);
+	};
+}
+
+
+#endif /* OPTIMALITY_CRITERIA_H_ */

@@ -1,0 +1,23 @@
+/*
+ *
+ *  Created on: Aug 16, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef GENERAL_H_
+#define GENERAL_H_
+
+
+
+namespace atop{
+	class GeneralConstraints{
+
+		//material volume constraint
+		double volumeConstraint();
+	};
+}
+
+
+
+#endif /* GENERAL_H_ */

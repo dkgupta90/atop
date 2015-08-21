@@ -13,11 +13,14 @@
 #include <deal.II/base/point.h>
 #include <deal.II/numerics/vector_tools.h>
 #include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/grid/grid_tools.h>
+#include <deal.II/fe/fe_values.h>
 #include <atop/TopologyOptimization/neighbors.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <math.h>
 using namespace topopt;
 using namespace dealii;
+using namespace atop;
 
 void DensityValues::update_density_mesh(
 		std::vector<CellProperties> &cellprop,
@@ -85,7 +88,6 @@ void DensityValues::create_neighbours(
 		neighbor_iterators.clear();
 		double drmin = rmin + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
 		neighbor_iterators.push_back(cell1);
-
 		//The following function gets the neighbors of the current cell lying within a distance of drmin
 		neighbor_search(cell1, cell1, neighbor_iterators, drmin);
 
@@ -127,7 +129,7 @@ void DensityValues::create_neighbours(
 			else{
 				rminlevel = 0;
 			}
-			double exfactor1= pow(0.6, (rminlevel));
+			double exfactor1= pow(0.5, (rminlevel));
 			double rmin1;
 			rmin1 = rmin * exfactor1;
 			for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
@@ -229,7 +231,6 @@ void DensityValues::filter(std::vector<CellProperties> &cellprop){
 			cellprop[cell_itr].xPhys[qpoint] = xPhys;
 		}
 	}
-
 }
 
 double DensityValues::get_dxPhys_dx(CellProperties &cellp,
@@ -247,5 +248,234 @@ double DensityValues::get_dxPhys_dx(CellProperties &cellp,
 	}
 }
 
+//---------------------DENSITYFIELD CLASS MODULES-------------------------------------------------------------------
 
+template <int dim>
+void DensityField<dim>::create_neighbors(
+		std::vector<CellInfo> &cell_info_vector,
+		FESystem<dim> &fe,
+		FESystem<dim> &density_fe,
+		DoFHandler<dim> &dof_handler,
+		DoFHandler<dim> &density_dof_handler,
+		Projection &projection,
+		bool mesh_coupling
+		){
 
+	unsigned int cell_itr1 = 0;
+	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
+				endc1= dof_handler.end();
+	for(; cell1 != endc1; ++cell1){
+		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
+		FEValues<dim> fe_values1(fe,
+				quadrature_formula1,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+		fe_values1.reinit(cell1);
+
+		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		neighbor_iterators.clear();
+		double proj_radius = projection.radius;
+		double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
+
+		//Indentifying the density cell which contains the centroid of this FE cell
+		typename DoFHandler<dim>::active_cell_iterator density_cell1;
+		if (mesh_coupling == true){
+			density_cell1 = cell1;
+		}
+		else{
+			density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
+		}
+
+		//The following function gets the neighbors of the current cell lying within a distance of drmin
+		neighbor_iterators.push_back(density_cell1);
+		neighbor_search(density_cell1, density_cell1, neighbor_iterators, drmin);
+
+		//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+		if(neighbor_iterators.size() == 0){
+			std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
+		}
+		std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
+		cell_info_vector[cell_itr1].neighbour_cells.clear();
+		cell_info_vector[cell_itr1].neighbour_distance.clear();
+		cell_info_vector[cell_itr1].neighbour_cells.resize(qpoints1.size());
+		cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
+
+		unsigned int density_cell_itr2;
+		typename DoFHandler<2>::active_cell_iterator density_cell2;
+		//Iterate over all neighboring cells to check distance with Gauss points
+		for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
+			density_cell2 = neighbor_iterators[ng_itr];
+			density_cell_itr2 = density_cell2->user_index() - 1;
+
+			double distance;
+
+			double exfactor1= 1;
+			double rmin1;
+			rmin1 = proj_radius * exfactor1;
+			for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+					distance  = 0.0;
+					distance = qpoints1[q_point1].distance(density_cell2->center());
+					if(distance > rmin1){
+						continue;
+					}
+					cell_info_vector[cell_itr1].neighbour_cells[q_point1].push_back(density_cell_itr2);
+					cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
+			}
+		}
+
+		//std::cout<<cell_itr1<<"    "<<qpoints1.size()<<"   "<<cellprop[cell_itr1].neighbour_cells[0].size()<<std::endl;
+		calculate_weights(cell_info_vector,
+				cell_itr1,
+				proj_radius);
+		++cell_itr1;
+	}
+}
+
+template <int dim>
+void DensityField<dim>::neighbor_search(DoFHandler<2>::active_cell_iterator cell1,
+		DoFHandler<2>::active_cell_iterator cell,
+		std::vector<DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+		double rmin
+		){
+	for(unsigned int iface = 0; iface < GeometryInfo<2>::faces_per_cell; ++iface){
+		if(cell->at_boundary(iface)) continue;
+		if(cell->neighbor(iface)->active()){
+			if(cell1->center().distance(cell->neighbor(iface)->center()) < rmin){
+				if(find(neighbor_iterators.begin(), neighbor_iterators.end(), cell->neighbor(iface)) == neighbor_iterators.end()){
+					neighbor_iterators.push_back(cell->neighbor(iface));
+					neighbor_search(cell1, cell->neighbor(iface), neighbor_iterators, rmin);
+				}
+			}
+		}
+		else{
+			for(unsigned int ichildface = 0; ichildface < cell->face(iface)->n_children(); ++ichildface){
+				if(cell1->center().distance(cell->neighbor_child_on_subface(iface, ichildface)->center()) < rmin){
+					if(find(neighbor_iterators.begin(), neighbor_iterators.end(), cell->neighbor_child_on_subface(iface, ichildface)) == neighbor_iterators.end()){
+						neighbor_iterators.push_back(cell->neighbor_child_on_subface(iface, ichildface));
+						neighbor_search(cell1, cell->neighbor_child_on_subface(iface, ichildface), neighbor_iterators, rmin);
+					}
+				}
+			}
+		}
+	}
+}
+
+template <int dim>
+void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vector,
+		unsigned int cell_itr1,
+		double rmin){
+	unsigned int n_q_points = cell_info_vector[cell_itr1].neighbour_distance.size();
+	cell_info_vector[cell_itr1].neighbour_weights.resize(n_q_points);
+	for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
+		cell_info_vector[cell_itr1].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr1].neighbour_distance[qpoint].size());
+		double sum_weights = 0;
+		for(unsigned int i = 0 ; i < cell_info_vector[cell_itr1].neighbour_distance[qpoint].size(); ++i){
+			double temp1 = rmin - cell_info_vector[cell_itr1].neighbour_distance[qpoint][i];
+			double area_factor = 1;//cellprop[cell_itr1].cell_area/max_cell_area;
+			temp1 = temp1*area_factor;
+			cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] = temp1;
+			sum_weights += temp1;
+		}
+
+		for(unsigned int i = 0; i < cell_info_vector[cell_itr1].neighbour_weights[qpoint].size(); ++i){
+			if(sum_weights == 0){
+				std::cerr<<"atop::DensityField:calculate_weights(..) : Divide by zero exception"<<std::endl;
+			}
+			else{
+				//Corresponds to dx
+				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
+			}
+		}
+	}
+}
+
+template <int dim>
+void DensityField<dim>::smoothing(
+		std::vector<CellInfo> &cell_info_vector,
+		std::vector<CellInfo> &density_cell_info_vector
+		){
+	unsigned int no_cells = cell_info_vector.size();
+	for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
+		for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
+			double xPhys = 0.0;
+			unsigned int density_cell_itr2;
+			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
+				density_cell_itr2 = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];
+				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i] * density_cell_info_vector[density_cell_itr2].density[0];
+
+			}
+			cell_info_vector[cell_itr].density[qpoint] = xPhys;
+		}
+	}
+}
+
+/**
+ * This function updates the design_vector
+ * Design_vector is used for for the optimization purpose
+ */
+template <int dim>
+void DensityField<dim>::update_design_vector(
+		std::vector<CellInfo> &density_cell_info_vector,
+		std::vector<double> &design_vector){
+	design_vector.clear();
+	unsigned int cell_count = density_cell_info_vector.size();
+	for(unsigned int i = 0; i < cell_count; ++i){
+		for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
+			design_vector.push_back(density_cell_info_vector[i].density[j]);
+		}
+	}
+
+}
+
+template <int dim>
+double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
+		unsigned int q_point,
+		unsigned int density_cell_itr2){
+	unsigned int n_cell;
+	for(unsigned int i = 0 ; i < cell_info.neighbour_cells[q_point].size(); ++i){
+		n_cell = cell_info.neighbour_cells[q_point][i];
+		if(n_cell == density_cell_itr2){
+			double output = cell_info.neighbour_weights[q_point][i];
+			return output;
+		}
+	}
+}
+
+template <int dim>
+double DensityField<dim>::get_vol_fraction(
+		std::vector<CellInfo> &cell_info_vector
+		){
+	double volume = 0.0;
+	for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
+		unsigned int quad_rule = cell_info_vector[i].quad_rule - 1;
+
+		cell_info_vector[i].cell_density = 0.0;
+		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
+			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
+		}
+		double area_fraction = cell_info_vector[i].cell_area / max_cell_area;
+		volume += (cell_info_vector[i].cell_density * area_fraction);
+	}
+	volume /= initial_no_cells;
+	//std::cout<<"Volume fraction: "<<volume<<std::endl;
+	return volume;
+}
+
+template <int dim>
+void DensityField<dim>::update_density_cell_info_vector(
+		std::vector<CellInfo> &density_cell_info_vector,
+		const std::vector<double> &design_vector){
+	//std::cout<<density_cell_info_vector.size()<<"..........."<<design_vector.size()<<std::endl;
+	unsigned int cell_count = density_cell_info_vector.size();
+	unsigned int design_count = 0;
+	for(unsigned int i = 0; i < cell_count; ++i){
+		for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
+			density_cell_info_vector[i].density[j] = design_vector[design_count];
+			++design_count;
+		}
+	}
+
+}

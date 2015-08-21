@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{array}
+\usepackage{datetime}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz, pgfplots}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\title{ATOP Result}
+\author{Deepak K. Gupta}
+\begin{document}
+\maketitle
+\section{C++ generated output}
+\subsection{Some subtitle here}
+{\fontfamily{lmtt}\selectfont
+Results generated  on Fri Aug 14 11:58:50 2015
+\\File Access code : 9257747\\ 
+--------------------------------------------------------\\ 
+No. of refinement cycles : 1\\
+Maximum allowed number of iterations per cycle : 1\\
+Initial number of elem : 0\\ 
+Initial FE mesh: 2 1\\ 
+Max. projection: 1.2 Shrinkage factor : 1\\ 
+--------------------------------------------------------\\ 
+Cycle : 1\qquad No. of elem : 2\qquad Iterations : 2\qquad Obj. value : 0\qquad 
+}
+\begin{figure}[H] 
+\centering 
+\begin{subfigure}{.45\linewidth} \centering 
+\begin{tikzpicture}[scale = 0.75] 
+\begin{axis}[ thick, axis x line=bottom, axis y line=left, 
+xlabel = {Total no. of iterations}, ylabel = {Penalization value} ] 
+\addplot[scatter, mark=*, mark size=1, gray, point meta = \thisrow{cycle} ] 
+table[x=iter,y=penal] {obj_output9257747.dat}; 
+\end{axis}  
+\end{tikzpicture}  
+\end{subfigure}  
+\hfill  
+\begin{subfigure}{.45\linewidth} \centering 
+\begin{tikzpicture}[scale = 0.75] 
+\begin{axis}[ thick, axis x line=bottom, axis y line=left, 
+xlabel = {Total no. of iterations}, ylabel = {Objective value} ] 
+\addplot[scatter, mark=*, mark size=1, gray, point meta = \thisrow{cycle} ] 
+table[x=iter,y=obj] {obj_output9257747.dat}; 
+\end{axis}  
+\end{tikzpicture}  
+\end{subfigure}  
+\end{figure}  
+\end{document}

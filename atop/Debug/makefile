@@ -8,11 +8,15 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include source/physics/mechanics/subdir.mk
 -include source/physics/subdir.mk
+-include source/optimizer/subdir.mk
 -include source/math_tools/algebra/subdir.mk
 -include source/fem/subdir.mk
 -include source/examples/subdir.mk
+-include source/derivatives/subdir.mk
 -include source/data_format/subdir.mk
+-include source/TopologyOptimization/constraints/subdir.mk
 -include source/TopologyOptimization/subdir.mk
 -include subdir.mk
 -include objects.mk

@@ -1,0 +1,112 @@
+/*
+ *
+ *  Created on: Jun 18, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef FEM_H_
+#define FEM_H_
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+#include <deal.II/grid/tria.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <atop/fem/define_mesh.h>
+#include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/dofs/dof_tools.h>
+#include <deal.II/lac/vector.h>
+#include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/sparse_matrix.h>
+#include <deal.II/lac/solver_cg.h>
+#include <deal.II/lac/precondition.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/physics/mechanics/elastic.h>
+
+using namespace dealii;
+
+namespace atop{
+	template <int dim>
+	class FEM{
+	public:
+		FEM() = default;
+		FEM& operator=(FEM&&) = default;
+
+		//DOFHandler objects
+		DoFHandler<dim> *dof_handler, *density_dof_handler;
+
+		//Objects for cell and density cell properties
+		std::vector<CellInfo> *cell_info_vector;
+		std::vector<CellInfo> *density_cell_info_vector;
+
+		//Object storing parameters related to the physics of the problem
+		ElasticData elastic_data;
+		LinearElastic<dim> *linear_elastic;
+		//FESystem objects
+		FESystem<dim> *fe, *density_fe;
+
+		//Projection object for defining the regularization properties
+		Projection *projection;
+
+		//Some comment to be added
+		ConstraintMatrix hanging_node_constraints;
+		SparsityPattern sparsity_pattern;
+		SparseMatrix<double> system_matrix;
+		Vector<double> solution;
+		Vector<double> system_rhs;
+		Vector<double> nodal_density;
+
+
+		unsigned int cycle, itr_count;
+
+		unsigned int current_quad_rule; //For integrating over an element
+		unsigned int running_quad_rule; //Used for quad related adaptivity
+
+		double volfrac;	//maximum permissible volume fraction
+
+		//Constructor for initializing the dof_handlers
+		FEM(
+		Triangulation<dim>&,
+		Triangulation<dim>&,
+		DoFHandler<dim>&,
+		DoFHandler<dim>&,
+		std::vector<CellInfo>&,
+		std::vector<CellInfo>&,
+		DefineMesh<dim>*);
+
+		//Solving the FE problem
+		void solve();
+
+		//For the physics of the problem
+		void problemType(LinearElastic<dim>&);
+
+		//For the regularizarion type
+		void projectionType(Projection&);
+		//Destructor for the class
+		~FEM();
+
+	private:
+		double projection_radius;
+
+		void setup_system();
+		void assemble_system();
+		void reset();
+		void initialize_cycle();
+
+
+	};
+	template class FEM<2>;
+}
+
+
+#endif /* FEM_H_ */

@@ -1,0 +1,194 @@
+/*
+ *
+ *  Created on: Aug 13, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/derivatives/compliance.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/fe/fe_values.h>
+#include <atop/physics/mechanics/elastic.h>
+
+using namespace dealii;
+using namespace atop;
+
+template <int dim>
+void Compliance<dim>::set_input(
+		DoFHandler<dim> &obj_dof_handler,
+		std::vector<CellInfo> &obj_cell_info_vector,
+		std::vector<CellInfo> &obj_density_cell_info_vector,
+		FESystem<dim> &obj_fe,
+		ElasticData &elastic_data
+		){
+
+	//Setting the dof_handler object
+	this->dof_handler = &obj_dof_handler;
+	this->cell_info_vector = &obj_cell_info_vector;
+	this->density_cell_info_vector = &obj_density_cell_info_vector;
+	this->fe = &obj_fe;
+}
+
+template <int dim>
+void Compliance<dim>::compute(
+		double &objective,
+		std::vector<double> &obj_grad){
+	objective = 0.0;
+
+	/**
+	 * Iterating over all the cells and including the contributions
+	 */
+	unsigned int cell_itr = 0;
+	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+			endc = dof_handler->end();
+	for(; cell != endc; ++cell){
+		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
+		QGauss<dim> quadrature_formula(quadrature_rule);
+		FEValues<dim> fe_values(*fe,
+				quadrature_formula,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+		const unsigned int dofs_per_cell = fe->dofs_per_cell;
+		const unsigned int n_q_points = quadrature_formula.size();
+		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+		fe_values.reinit(cell);
+		cell_matrix = 0;
+		std::vector<double> E_values, dE_values;
+		E_values = (*cell_info_vector)[cell_itr].E_values;
+		dE_values = (*cell_info_vector)[cell_itr].dE_values;
+		unsigned int quad_index = elastic_data.get_quad_index(quadrature_rule);
+		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+			FullMatrix<double> normalized_matrix = elastic_data.elem_stiffness_array[quad_index][q_point];
+			double area_factor = 1;//(cellprop[cell_itr].cell_area)/max_cell_area;
+			cell_matrix.add((E_values[q_point])*area_factor,
+					normalized_matrix);
+			//std::cout<<cellprop[cell_itr].material_density[q_point]<<std::endl;
+		}
+		//Extracting the nodal values of solution vector
+		Vector<double> cell_array(dofs_per_cell);
+		cell_array = 0;
+		cell->get_dof_indices(local_dof_indices);
+		for(unsigned int i = 0; i < dofs_per_cell; ++i){
+			cell_array[i] = solution(local_dof_indices[i]);
+		}
+		Vector<double> temp_array(dofs_per_cell);
+		temp_array = 0;
+		MatrixVector matvec;
+		matvec.vector_matrix_multiply(
+				cell_array,
+				cell_matrix,
+				temp_array,
+				dofs_per_cell,
+				dofs_per_cell);
+		objective += matvec.vector_vector_inner_product(
+				temp_array,
+				cell_array);
+		++cell_itr;
+	}
+	std::cout<<"Objective: "<<objective<<std::endl;
+
+	//Writing the output for convergence plot
+	std::ofstream myfile2;
+	myfile2.open(obj_fname.c_str(), std::ofstream::app);
+	myfile2<<cycle+1<<"\t"<<adaptive_penal<<"\t"<<sum_itr<<"\t"<<objective<<"\n";
+	myfile2.close();
+	//Calculating the sensitivities with respect to the density space design variables
+	std::cout<<"Computing sensitivity response "<<std::endl;
+	double time1 = clock();
+	cell_itr = 0;
+	dobj_ddn.clear();
+	cell = dof_handler.begin_active(),
+					endc = dof_handler.end();
+	for(; cell != endc; ++cell){
+		unsigned int quadrature_rule = cellprop[cell_itr].quadrature_formula;
+		unsigned int quad_index = elastic_data.get_quad_index(quadrature_rule);
+		QGauss<dim> quadrature_formula(quadrature_rule);
+		FEValues<dim> fe_values(fe,
+				quadrature_formula,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+		const unsigned int dofs_per_cell = fe.dofs_per_cell;
+		const unsigned int n_q_points = quadrature_formula.size();
+		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+		fe_values.reinit(cell);
+		std::vector<double> E_values, dE_values;
+		dE_values = cellprop[cell_itr].dE_values;
+
+		//Extracting the nodal values of solution vector
+		Vector<double> cell_array(dofs_per_cell);
+		cell_array = 0;
+		cell->get_dof_indices(local_dof_indices);
+		for(unsigned int i = 0; i < dofs_per_cell; ++i){
+			cell_array[i] = solution(local_dof_indices[i]);
+		}
+
+		//cleaning the dcdx vector
+		cellprop[cell_itr].dcdx.clear();
+		double sum_dobj = 0.0;
+		for(int q_point = 0; q_point < n_q_points; ++q_point){
+			cell_matrix = 0;
+			double dobj;
+			for(unsigned int i = 0 ; i < cellprop[cell_itr].neighbour_cells[q_point].size(); ++i){
+				unsigned int cell_itr2 = cellprop[cell_itr].neighbour_cells[q_point][i].first;
+				unsigned int q_point2 = cellprop[cell_itr].neighbour_cells[q_point][i].second;
+				unsigned int quad_index2 = elastic_data.get_quad_index(cellprop[cell_itr2].quadrature_formula);
+				FullMatrix<double> normalized_matrix = elastic_data.elem_stiffness_array[quad_index2][q_point2];
+				double dE_dxPhys = cellprop[cell_itr2].dE_values[q_point2];
+				double dxPhys_dx = rho_values.get_dxPhys_dx(cellprop[cell_itr2],
+						q_point,
+						cell_itr,
+						q_point2);
+				double dEfactor = dE_dxPhys * dxPhys_dx;
+				double area_factor = cellprop[cell_itr2].cell_area/max_cell_area;
+				cell_matrix.add(dEfactor,//*area_factor,
+						normalized_matrix);
+			}
+
+			Vector<double> temp_array(dofs_per_cell);
+			temp_array = 0;
+			MatrixVector matvec;
+			matvec.vector_matrix_multiply(
+					cell_array,
+					cell_matrix,
+					temp_array,
+					dofs_per_cell,
+					dofs_per_cell);
+			dobj = matvec.vector_vector_inner_product(
+					temp_array,
+					cell_array);
+
+			if (densityType != "const_density"){
+				dobj_ddn.push_back(-dobj);
+			}
+			else{
+				sum_dobj -= dobj;
+				cellprop[cell_itr].dcdx.push_back(-dobj);
+			}
+
+		}
+
+		if (densityType == "const_density"){
+			for(unsigned int q = 0;q < n_q_points; ++q){
+				dobj_ddn.push_back(sum_dobj/4);
+				cellprop[cell_itr].avg_const_sens = sum_dobj/4;
+			}
+		}
+		cell_itr++;
+	}
+	std::cout<<"Size of sensitivity vector : "<<dobj_ddn.size()<<std::endl;
+	double time2 = clock();
+	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
+	std::cout<<"CPU time for sensitivity analysis: "<<time2<<" seconds"<<std::endl;
+	std::cout.precision(15);
+}
+

@@ -1,0 +1,44 @@
+/*
+ *
+ *  Created on: Apr 2, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/optimizedesign.h>
+#include <atop/fem/define_mesh.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <nlopt.hpp>
+#include <algorithm>
+#include <string>
+
+
+using namespace atop;
+
+DefineMesh mesh;
+Penalize penal;
+std::string opt_algorithm;
+
+Optimizedesign::Optimizedesign(){}
+
+Optimizedesign::Optimizedesign(
+		DefineMesh &obj_mesh,
+		Penalize &obj_penal,
+		const std::string &obj_algorithm
+		){
+	mesh = obj_mesh;
+	penal = obj_penal;
+	opt_algorithm = obj_algorithm;
+
+}
+
+void Optimizedesign::optimize(){
+
+	std::transform(opt_algorithm.begin(), opt_algorithm.end(),opt_algorithm.begin(), ::toupper);
+	//Choosing the optimizer
+	if(tolopt_algorithm)
+
+}
+
+
+

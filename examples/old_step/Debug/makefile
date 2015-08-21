@@ -38,19 +38,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: old_step
+all: simple_fem
 
 # Tool invocations
-old_step: $(OBJS) $(USER_OBJS)
+simple_fem: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	g++ -L/usr/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -o "old_step" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -o "simple_fem" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) old_step
+	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(CPP_DEPS)$(EXECUTABLES)$(CXX_DEPS)$(C_UPPER_DEPS) simple_fem
 	-@echo ' '
 
 .PHONY: all clean dependents

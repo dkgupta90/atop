@@ -23,10 +23,14 @@ C_UPPER_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+source/physics/mechanics \
 source/physics \
+source/optimizer \
 source/math_tools/algebra \
 source/fem \
 source/examples \
+source/derivatives \
 source/data_format \
 source/TopologyOptimization \
+source/TopologyOptimization/constraints \
 

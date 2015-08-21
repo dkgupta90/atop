@@ -10,6 +10,7 @@
 
 #include<vector>
 #include <string>
+#include <atop/TopologyOptimization/cell_prop.h>
 
 namespace topopt{
 	class Penalization{
@@ -27,12 +28,20 @@ namespace topopt{
 namespace atop{
 	class Penalize{
 	public:
+		//Default constructor
+		Penalize();
+
 		std::string scheme;
 		double factmin;	//Factor for determining the lower bound for material property
 						// for e.g. Emin = factmin * E;
 		double penal_power;
 		//Constructor for initializing the penalization scheme
 		Penalize(std::string);
+
+		void update_param(
+				double,
+				std::vector<CellInfo>&);
+
 	};
 }
 

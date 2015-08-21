@@ -1,0 +1,220 @@
+/*
+ *
+ *  Created on: Jun 18, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <string>
+#include <iostream>
+#include <atop/fem/fem.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <atop/fem/define_mesh.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/base/quadrature_lib.h>
+
+
+#include<vector>
+
+
+
+
+using namespace atop;
+using namespace dealii;
+
+//Constructor for initialization
+template<int dim>
+FEM<dim>::FEM(
+		Triangulation<dim> &triangulation,
+		Triangulation<dim> &density_triangulation,
+		DoFHandler<dim> &dof_handler,
+		DoFHandler<dim> &density_dof_handler,
+		std::vector<CellInfo> &cell_info_vector,
+		std::vector<CellInfo> &density_cell_info_vector,
+		DefineMesh<dim> *mesh){
+
+	this->dof_handler = &dof_handler;
+	this->density_dof_handler = &density_dof_handler;
+	this->cell_info_vector = &cell_info_vector;
+	this->density_cell_info_vector = &density_cell_info_vector;
+
+	//Choosing the types of elements for FE mesh
+	if(mesh->elementType == "FE_Q"){
+		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
+	}
+
+	//Choosing the type of element for density mesh
+	if(mesh->density_elementType == "FE_DGQ"){
+		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+	}
+
+}
+
+template <int dim>
+FEM<dim>::~FEM(){
+	delete dof_handler, density_dof_handler, fe, density_fe;
+}
+
+//Function that step-by-step solves the FE problem
+template <int dim>
+void FEM<dim>::solve(){
+	//Setting up the Fe system
+
+	itr_count++;	//Iterating the counter for the no. of iterations
+	setup_system();
+	assemble_system();
+}
+
+//Function for setting up the FE system
+template <int dim>
+void FEM<dim>::setup_system(){
+
+	//FE mesh
+	dof_handler->distribute_dofs(*fe);
+	hanging_node_constraints.clear();
+	DoFTools::make_hanging_node_constraints(*dof_handler,
+			hanging_node_constraints);
+	hanging_node_constraints.close();
+	sparsity_pattern.reinit(dof_handler->n_dofs(),
+			dof_handler->n_dofs(),
+			dof_handler->max_couplings_between_boundary_dofs());
+	DoFTools::make_sparsity_pattern(*dof_handler,
+			sparsity_pattern);
+	hanging_node_constraints.condense(sparsity_pattern);
+	sparsity_pattern.compress();
+	system_matrix.reinit(sparsity_pattern);
+	solution.reinit(dof_handler->n_dofs());
+	system_rhs.reinit(dof_handler->n_dofs());
+
+	//Density mesh
+	density_dof_handler->distribute_dofs(*density_fe);
+	nodal_density.reinit(density_dof_handler->n_dofs());
+}
+
+/**
+ * This function assembles the contributions from each element.
+ * It creates the system matrix and the global RHS
+ */
+template <int dim>
+void FEM<dim>::assemble_system(){
+	std::cout<<"Assembling the system ..."<<std::endl;
+	const unsigned int dofs_per_cell = fe->dofs_per_cell;
+	const unsigned int density_per_cell = density_fe->dofs_per_cell;
+
+	FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+	FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+
+	Vector<double> cell_rhs(dofs_per_cell);
+	Vector<double> cell_density(density_per_cell);
+
+	std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+	std::vector<types::global_dof_index> local_density_indices(density_per_cell);
+
+	//Initialize cell_info and density_cell_info objects
+	if(cycle == 0 && itr_count == 0){
+		reset();	//Initializes the variables and vectors
+	}
+
+	//Initialize the components of every cycle
+	if (itr_count == 0){
+		initialize_cycle();
+	}
+
+}
+
+template<int dim>
+void FEM<dim>::problemType(LinearElastic<dim>& obj_linear_elastic){
+	this->linear_elastic = &obj_linear_elastic;
+}
+
+template<int dim>
+void FEM<dim>::projectionType(Projection &projection){
+	this->projection = &projection;
+}
+
+template <int dim>
+void FEM<dim>::reset(){
+	//initializing the current and running quad rules
+	current_quad_rule = 2;
+	running_quad_rule = 2;
+
+	elastic_data.current_quad_rule = current_quad_rule;
+	elastic_data.running_quad_rule = running_quad_rule;
+	//current_quad_rule  will be updated on adaptivity in quadrature
+
+	//Initializing the quadrature rule for all the elements
+	QGauss<2> temp_quad(current_quad_rule);
+
+	elastic_data.nu = linear_elastic->poisson;
+
+	/**
+	 * Initialize the cell parameters for all the FE cells
+	 */
+	for(std::vector<CellInfo>::iterator cell_info_itr = cell_info_vector->begin();
+			cell_info_itr != cell_info_vector->end();
+			++cell_info_itr){
+		(*cell_info_itr).quad_rule = current_quad_rule;
+		QGauss<dim> temp_quad(current_quad_rule);
+		(*cell_info_itr).n_q_points = temp_quad.size();
+		(*cell_info_itr).cell_area = 0.00001;
+		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, volfrac);
+	}
+
+	//Initialize the density cell parameters for all the density cells
+	for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
+			density_info_itr != density_cell_info_vector->end();
+			++density_info_itr){
+
+		//Setting the density quad rule to 1
+		(*density_info_itr).quad_rule = 1;
+		(*density_info_itr).n_q_points = 1; //	located at the centroid
+		(*density_info_itr).cell_area = 0.00001;	//area of the density cell
+		(*density_info_itr).density.resize((*density_info_itr).n_q_points, volfrac);
+	}
+
+	/**
+	 * Link the cell_info_vector to the FE triangulation
+	 * user_index is 1, 2, 3.......
+	 */
+	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+			endc = dof_handler->end();
+	unsigned int cell_itr = 0;
+	for(; cell != endc; ++cell){
+		cell->set_user_index(cell_itr + 1);
+		++cell_itr;
+	}
+
+	/**
+	 * Link the density_cell_info_vector to the density triangulation
+	 * user index is 1, 2, 3, ...
+	 */
+	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler->begin_active(),
+			density_endc = density_dof_handler->end();
+	unsigned int density_cell_itr = 0;
+	for(; density_cell != density_endc; ++density_cell){
+		density_cell->set_user_index(density_cell_itr + 1);
+		++density_cell_itr;
+	}
+}
+
+template <int dim>
+void FEM<dim>::initialize_cycle(){
+	double time1 = clock();
+	std::cout<<"Looking for neighbours;   ";
+	density_field.create_neighbors(
+			cell_info_vector,
+			fe,
+			dof_handler,
+			projection_radius);
+	double time2 = clock();
+	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
+	std::cout<<"Neighbours' indices stored : time taken = "<<time2<<" seconds"<<std::endl;
+}

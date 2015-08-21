@@ -1,0 +1,19 @@
+/*
+ *
+ *  Created on: Aug 19, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef OPTIMALITY_CRITERIA_H_
+#define OPTIMALITY_CRITERIA_H_
+
+namespace atop{
+	class OC{
+	public:
+
+	};
+}
+
+
+#endif /* OPTIMALITY_CRITERIA_H_ */

@@ -1,0 +1,53 @@
+/*
+ *
+ *  Created on: Jun 18, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <string>
+#include <iostream>
+#include <atop/fem/fem.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <atop/fem/define_mesh.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+
+
+
+using namespace atop;
+using namespace dealii;
+
+//Constructor for initialization
+template<int dim>
+FEM<dim>::FEM(
+		Triangulation<dim> &triangulation,
+		Triangulation<dim> &density_triangulation,
+		DoFHandler<dim> &dof_handler,
+		DoFHandler<dim> &density_dof_handler,
+		DefineMesh<dim> &mesh){
+	this->dof_handler = &dof_handler;
+	this->density_dof_handler = &density_dof_handler;
+
+	if(mesh.elementType == "FE_Q"){
+		fe = new FESystem<dim>(FE_Q<dim>(mesh.el_order), dim);
+	}
+
+	if(mesh.density_elementType == "FE_DGQ"){
+		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh.el_order), 1);
+	}
+
+	std::cout<<"We did it"<<std::endl;
+}
+
+template <int dim>
+FEM<dim>::~FEM(){
+	delete dof_handler, density_dof_handler, fe, density_fe;
+}
+
+

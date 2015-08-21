@@ -120,6 +120,8 @@ source/step1.d: ../source/step1.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/neighbors.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/data_format/bitmap/bitmap_image.hpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/data_format/bitmap.h \
@@ -368,6 +370,10 @@ source/step1.d: ../source/step1.cpp \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 

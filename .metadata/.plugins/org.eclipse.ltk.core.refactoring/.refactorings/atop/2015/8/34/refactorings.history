@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;atop/source/TopologyOptimization/constraints/general.h&apos; to &apos;general.cpp&apos;" description="Rename resource &apos;general.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="source/TopologyOptimization/constraints/general.h" name="general.cpp" stamp="1439747624468" updateReferences="true"/>
+</session>

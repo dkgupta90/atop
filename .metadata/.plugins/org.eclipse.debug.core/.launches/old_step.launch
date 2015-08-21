@@ -7,10 +7,10 @@
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_ID" value="org.eclipse.cdt.debug.mi.core.CDebuggerNew"/>
 <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="run"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/old_step"/>
-<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="old_step"/>
+<stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="simple_fem"/>
 <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.config.gnu.cross.exe.debug.1721928633"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/old_step"/>
+<listEntry value="/simple_fem"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>

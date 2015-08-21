@@ -17,6 +17,8 @@
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/physics/elasticity.h>
 #include <deal.II/dofs/dof_handler.h>
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/physics/mechanics/elastic.h>
 
 using namespace dealii;
 namespace topopt{
@@ -32,6 +34,7 @@ namespace topopt{
 		double gamma;
 		Point<2> design_point;
 		unsigned int cycle;
+
 		std::vector<std::vector<double> > density2d;
 		void update_density_mesh(
 				std::vector<CellProperties> &cellprop,
@@ -68,6 +71,69 @@ namespace topopt{
 	};
 }
 
+namespace atop{
+	template <int dim>
+	class DensityField{
+	public:
+		double max_cell_area;
+		unsigned int initial_no_cells;
+		double volfrac;
+		void create_neighbors(
+				std::vector<CellInfo> &cell_info_vector,
+				FESystem<dim> &fe,
+				FESystem<dim> &density_fe,
+				DoFHandler<dim> &dof_handler,
+				DoFHandler<dim> &density_dof_handler,
+				Projection &projection,
+				bool mesh_coupling
+				);
+
+		/**
+		 * Function for applying projection/filter operation on density values
+		 */
+		void smoothing(
+				std::vector<CellInfo> &cell_info_vector,
+				std::vector<CellInfo> &density_cell_info_vector
+				);
+
+		void update_design_vector(
+				std::vector<CellInfo> &density_cell_info_vector,
+				std::vector<double> &design_vector);
+		void update_density_cell_info_vector(
+				std::vector<CellInfo> &density_cell_info_vector,
+				const std::vector<double> &design_vector);
+
+		double get_dxPhys_dx(CellInfo &cell_info,
+				unsigned int q_point,
+				unsigned int density_cell_itr2);
+
+		double get_vol_fraction(
+				std::vector<CellInfo> &cell_info_vector
+				);
+	private:
+
+		/**
+		 * This function needs to be overloaded since there are at the moment
+		 * some unknown issues in creating the template for this function.
+		 * Currently, the implementation is only for dim = 2.
+		 */
+		void neighbor_search(
+				DoFHandler<2>::active_cell_iterator cell1,
+				DoFHandler<2>::active_cell_iterator cell,
+				std::vector<DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+				double rmin
+				);
+
+		void calculate_weights(
+				std::vector<CellInfo>  &cell_info_vector,
+				unsigned int cell_itr1,
+				double rmin);
+
+
+	};
+
+	template class DensityField<2>;
+}
 
 
 #endif /* DENSITYVALUES_H_ */

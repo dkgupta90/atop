@@ -1,0 +1,38 @@
+/*
+ *
+ *  Created on: Aug 19, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/optimizer/optimality_criteria.h>
+#include <math.h>
+
+using namespace atop;
+
+OC::OC(unsigned int n){
+	no_design = n;
+}
+
+void OC::set_lower_bounds(
+		std::vector<double> &vec1){
+	this->lb = &vec1;
+}
+
+void OC::set_upper_bounds(
+		std::vector<double> &vec1){
+	this->ub = &vec1;
+}
+
+void OC::optimize(
+		std::vector<double> &vec1){
+	this->design_vector = &vec1;
+
+	double old_objective = 9999999999, objective;
+
+	do{
+
+	}while(fabs(old_objective - objective) > min_obj_change);
+
+
+}

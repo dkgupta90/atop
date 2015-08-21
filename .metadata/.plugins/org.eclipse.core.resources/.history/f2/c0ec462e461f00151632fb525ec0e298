@@ -1,0 +1,140 @@
+/*
+ *
+ *  Created on: Apr 2, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include<deal.II/dofs/dof_handler.h>
+#include <atop/TopologyOptimization/optimizedesign.h>
+#include <atop/fem/define_mesh.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <atop/fem/fem.h>
+#include <atop/physics/mechanics/elastic.h>
+#include <nlopt.hpp>
+#include <algorithm>
+#include <string>
+#include <vector>
+
+
+using namespace atop;
+using namespace dealii;
+
+
+Penalize penal;
+std::string opt_algorithm;
+
+
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *data){
+	return 0;
+}
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data);
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *data);
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(){
+}
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(
+		DefineMesh<dim> &obj_mesh,
+		Penalize &obj_penal,
+		const std::string &obj_algorithm):
+		dof_handler(triangulation),
+		density_dof_handler(density_triangulation){
+	this->mesh = &obj_mesh;
+	penal = obj_penal;
+	opt_algorithm = obj_algorithm;
+	no_cycles = 5;
+
+
+}
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(
+		DefineMesh<dim> &obj_mesh,
+		Penalize &obj_penal,
+		const std::string &obj_algorithm,
+		unsigned int cycles):
+		dof_handler(triangulation),
+		density_dof_handler(density_triangulation){
+	this->mesh = &obj_mesh;
+	penal = obj_penal;
+	opt_algorithm = obj_algorithm;
+	no_cycles = cycles;
+
+
+
+}
+
+template <int dim>
+void Optimizedesign<dim>::problemType(LinearElastic<dim> &obj_linear_elastic){
+	this->linear_elastic = &obj_linear_elastic;
+}
+
+template <int dim>
+void Optimizedesign<dim>::optimize(){
+
+	std::transform(opt_algorithm.begin(), opt_algorithm.end(),opt_algorithm.begin(), ::toupper);
+
+	//Create the mesh
+	this->mesh->createMesh(
+			triangulation,
+			density_triangulation);
+
+	//Assign the dof handlers and element types
+	obj_fem = new FEM<dim>(
+			triangulation,
+			density_triangulation,
+			dof_handler,
+			density_dof_handler,
+			cell_info_vector,
+			density_cell_info_vector,
+			this->mesh);
+
+
+	//Running the number of refinement cycles
+	for(unsigned int cycle = 0; cycle < no_cycles; ++cycle){
+		itr_count = 0;
+
+		//Choosing the optimizer
+		if(opt_algorithm == "MMA"){
+			nlopt::opt opt(nlopt::LD_MMA, dim);
+			opt.set_min_objective(myvfunc, (void*)this);
+		}
+	}
+
+}
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data){
+
+	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
+	if(opt_design2d != NULL){
+		//Solve the FEM problem
+		opt_design2d->obj_fem->solve();
+	}
+	Optimizedesign<3> *opt_design3d = static_cast<Optimizedesign<3>*>(my_func_data);
+	if(opt_design3d != NULL){
+
+	}
+
+	//obj_fem->solve();
+	return 0;
+
+}
+
+
+

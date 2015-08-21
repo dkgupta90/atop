@@ -1,0 +1,58 @@
+/*
+ *
+ *  Created on: Jun 18, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <string>
+#include <iostream>
+#include <atop/fem/fem.h>
+#include <deal.II/fe/fe_q.h>
+#include <deal.II/fe/fe_dgq.h>
+#include <atop/fem/define_mesh.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+
+
+
+using namespace atop;
+using namespace dealii;
+
+//Constructor for initialization
+template<int dim>
+FEM<dim>::FEM(
+		Triangulation<dim> &triangulation,
+		Triangulation<dim> &density_triangulation){
+	fe = new FESystem<dim>(FE_Q<dim>(1), dim);
+	density_fe = new FESystem<dim>(FE_DGQ<dim>(1), 1);
+}
+
+template <int dim>
+FEM<dim>::~FEM(){
+	delete dof_handler, density_dof_handler, fe, density_fe;
+}
+
+template<int dim>
+void FEM<dim>::initialize(
+		DoFHandler<dim> &obj_dof_handler,
+		DoFHandler<dim> &obj_density_dof_handler
+		){
+	//Initializing the dof_handlers
+	this->dof_handler = &obj_dof_handler;
+	this->density_dof_handler = &obj_density_dof_handler;
+
+	typename DoFHandler<dim>::active_cell_iterator cell = this->dof_handler->begin_active(),
+			endc = this->dof_handler->end();
+	for(; cell != endc; ++cell){
+		unsigned int index = cell->index();
+		std::cout<<index<<std::endl;
+	}
+
+	//defining the types of elements for the meshes
+}
+

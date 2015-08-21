@@ -1,0 +1,12 @@
+/*
+ *
+ *  Created on: Aug 16, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/constraints/general.h>
+
+using namespace atop;
+
+double GeneralConstraints::

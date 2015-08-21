@@ -32,6 +32,24 @@ using namespace dealii;
 	};
 }
 
+namespace atop{
+using namespace dealii;
+	class Matrix_Vector{
+	public:
+		void vector_matrix_multiply(
+				Vector<double> &array,
+				FullMatrix<double> &matrix,
+				Vector<double> &output,
+				int i_length,
+				int j_length);
+
+		double vector_vector_inner_product(
+				Vector<double> &vector1,
+				Vector<double> &vector2
+				);
+	};
+}
+
 
 
 #endif /* MATRIXVECTOR_H_ */

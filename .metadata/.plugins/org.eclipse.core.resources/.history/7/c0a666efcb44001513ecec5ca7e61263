@@ -1,0 +1,27 @@
+/*
+ *
+ *  Created on: Aug 16, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef GENERAL_H_
+#define GENERAL_H_
+
+#include <atop/TopologyOptimization/cell_prop.h>
+
+
+namespace atop{
+	class GeneralConstraints{
+	public:
+		//material volume constraint
+		double volumeConstraint(
+				std::vector<double> &volume_grad_vector,
+				std::vector<CellInfo> &cell_info_vector,
+				std::vector<CellInfo> &density_cell_info_vector);
+	};
+}
+
+
+
+#endif /* GENERAL_H_ */

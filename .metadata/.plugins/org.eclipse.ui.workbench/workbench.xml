@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workbench progressCount="28" version="2.0">
+<workbench progressCount="29" version="2.0">
 <workbenchAdvisor/>
-<window height="596" maximized="true" width="947" x="0" y="0">
+<window height="567" maximized="true" width="941" x="266" y="227">
 <fastViewData fastViewLocation="1024"/>
 <perspectiveBar>
 <itemSize x="160"/>
@@ -10,6 +10,8 @@
 <coolItem id="group.file" itemType="typeGroupMarker"/>
 <coolItem id="org.eclipse.ui.workbench.file" itemType="typeToolBarContribution" x="280" y="30"/>
 <coolItem id="additions" itemType="typeGroupMarker"/>
+<coolItem id="com.python.pydev.debug.actionSet" itemType="typeToolBarContribution" x="96" y="30"/>
+<coolItem id="com.python.pydev.navigate.actionSet" itemType="typeToolBarContribution" x="40" y="30"/>
 <coolItem id="org.eclipse.cdt.ui.CElementCreationActionSet" itemType="typeToolBarContribution" x="204" y="30"/>
 <coolItem id="org.eclipse.debug.ui.launch.toolbar" itemType="typeToolBarContribution" x="-1" y="-1"/>
 <coolItem id="org.eclipse.debug.ui.launchActionSet" itemType="typeToolBarContribution" x="156" y="30"/>
@@ -35,49 +37,64 @@
 <part id="2"/>
 <part id="3"/>
 <part id="4"/>
+<part id="5"/>
+<part id="6"/>
+<part id="7"/>
+<part id="8"/>
+<part id="9"/>
+<part id="10"/>
 </presentation>
 </folder>
 </info>
 </editorArea>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="step1.cpp" partName="step1.cpp" path="/home/dkgupta/WORK/projects/atop/backupproj/source/examples/step1.cpp" title="step1.cpp" tooltip="backupproj/source/examples/step1.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/backupproj/source/examples/step1.cpp"/>
-<editorState selectionHorizontalPixel="6" selectionLength="0" selectionOffset="33398" selectionTopPixel="17112"/>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="step-1.cpp" partName="step-1.cpp" path="/home/dkgupta/WORK/projects/atop/examples/step-1/source/step-1.cpp" title="step-1.cpp" tooltip="step-1/source/step-1.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/step-1/source/step-1.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1829" selectionTopPixel="412"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.cpp" partName="DensityValues.cpp" path="/home/dkgupta/WORK/projects/atop/backupproj/source/TopologyOptimization/DensityValues.cpp" title="DensityValues.cpp" tooltip="backupproj/source/TopologyOptimization/DensityValues.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/backupproj/source/TopologyOptimization/DensityValues.cpp"/>
-<editorState selectionHorizontalPixel="32" selectionLength="0" selectionOffset="9790" selectionTopPixel="3470"/>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.cpp" partName="optimizedesign.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/optimizedesign.cpp" title="optimizedesign.cpp" tooltip="atop/source/TopologyOptimization/optimizedesign.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/optimizedesign.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="4504" selectionTopPixel="2482"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="penalization.cpp" partName="penalization.cpp" path="/home/dkgupta/WORK/projects/atop/backupproj/source/TopologyOptimization/penalization.cpp" title="penalization.cpp" tooltip="backupproj/source/TopologyOptimization/penalization.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/backupproj/source/TopologyOptimization/penalization.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3" selectionTopPixel="0"/>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.h" partName="optimizedesign.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h" title="optimizedesign.h" tooltip="atop/include/atop/TopologyOptimization/optimizedesign.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/optimizedesign.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1403" selectionTopPixel="282"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.cpp" partName="cell_prop.cpp" path="/home/dkgupta/WORK/projects/atop/backupproj/source/TopologyOptimization/cell_prop.cpp" title="cell_prop.cpp" tooltip="backupproj/source/TopologyOptimization/cell_prop.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/backupproj/source/TopologyOptimization/cell_prop.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3" selectionTopPixel="0"/>
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="compliance.cpp" partName="compliance.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/derivatives/compliance.cpp" title="compliance.cpp" tooltip="atop/source/derivatives/compliance.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/derivatives/compliance.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="6950" selectionTopPixel="2554"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.h" partName="cell_prop.h" path="/home/dkgupta/WORK/projects/atop/backupproj/include/topopt/TopologyOptimization/cell_prop.h" title="cell_prop.h" tooltip="backupproj/include/topopt/TopologyOptimization/cell_prop.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/backupproj/include/topopt/TopologyOptimization/cell_prop.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="200" selectionTopPixel="0"/>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="compliance.h" partName="compliance.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h" title="compliance.h" tooltip="atop/include/atop/derivatives/compliance.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/derivatives/compliance.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="882" selectionTopPixel="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="step1.cpp" partName="step1.cpp" path="/home/dkgupta/WORK/projects/atop/examples/old_step1/source/step1.cpp" title="step1.cpp" tooltip="old_step1/source/step1.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/old_step1/source/step1.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="20358" selectionTopPixel="10387"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="fem.cpp" partName="fem.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/fem.cpp" title="fem.cpp" tooltip="atop/source/fem/fem.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/fem.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="15401" selectionTopPixel="8262"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.h" partName="DensityValues.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h" title="DensityValues.h" tooltip="atop/include/atop/TopologyOptimization/DensityValues.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/DensityValues.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2097" selectionTopPixel="894"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="elastic.cpp" partName="elastic.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/physics/mechanics/elastic.cpp" title="elastic.cpp" tooltip="atop/source/physics/mechanics/elastic.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/physics/mechanics/elastic.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="6" selectionTopPixel="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="fem.h" partName="fem.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h" title="fem.h" tooltip="atop/include/atop/fem/fem.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/fem.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2103" selectionTopPixel="736"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.cpp" partName="DensityValues.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/DensityValues.cpp" title="DensityValues.cpp" tooltip="atop/source/TopologyOptimization/DensityValues.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/DensityValues.cpp"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3" selectionTopPixel="4202"/>
 </editor>
 </editors>
 <views>
 <view id="org.eclipse.ui.navigator.ProjectExplorer" partName="Project Explorer">
 <viewState CommonNavigator.LINKING_ENABLED="0" org.eclipse.cdt.ui.cview.groupincludes="false" org.eclipse.cdt.ui.cview.groupmacros="false" org.eclipse.cdt.ui.editor.CUChildren="true" org.eclipse.ui.navigator.resources.workingSets.showTopLevelWorkingSets="0"/>
-</view>
-<view id="org.eclipse.ui.views.ProblemView" partName="Problems">
-<viewState PRIMARY_SORT_FIELD="org.eclipse.ui.ide.severityAndDescriptionField" categoryGroup="org.eclipse.ui.ide.severity" markerContentGenerator="org.eclipse.ui.ide.problemsGenerator" partName="Problems">
-<expanded>
-<category IMemento.internal.id="Warnings (66 items)"/>
-<category IMemento.internal.id="Warnings"/>
-<category IMemento.internal.id="Errors"/>
-</expanded>
-<columnWidths org.eclipse.ui.ide.locationField="105" org.eclipse.ui.ide.markerType="253" org.eclipse.ui.ide.pathField="140" org.eclipse.ui.ide.resourceField="105" org.eclipse.ui.ide.severityAndDescriptionField="522"/>
-<visible IMemento.internal.id="org.eclipse.ui.ide.severityAndDescriptionField"/>
-<visible IMemento.internal.id="org.eclipse.ui.ide.resourceField"/>
-<visible IMemento.internal.id="org.eclipse.ui.ide.pathField"/>
-<visible IMemento.internal.id="org.eclipse.ui.ide.locationField"/>
-<visible IMemento.internal.id="org.eclipse.ui.ide.markerType"/>
-</viewState>
 </view>
 <view id="org.eclipse.ui.console.ConsoleView" partName="Console">
 <viewState/>
@@ -98,7 +115,7 @@
 <viewState/>
 </view>
 </views>
-<perspectives activePart="org.eclipse.cdt.ui.editor.CEditor" activePerspective="org.eclipse.cdt.ui.CPerspective">
+<perspectives activePart="org.eclipse.ui.navigator.ProjectExplorer" activePerspective="org.eclipse.cdt.ui.CPerspective">
 <perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
 <descriptor class="org.eclipse.ui.internal.ide.application.ResourcePerspective" id="org.eclipse.ui.resourcePerspective" label="Resource"/>
 <alwaysOnActionSet id="org.eclipse.ui.cheatsheets.actionSet"/>
@@ -216,8 +233,6 @@
 <hide_toolbar_item_id id="org.eclipse.ui.edit.text.toggleShowSelectedElementOnly"/>
 <view id="org.eclipse.ui.navigator.ProjectExplorer"/>
 <view id="org.eclipse.ui.console.ConsoleView"/>
-<view id="org.eclipse.ui.views.ProblemView"/>
-<view id="org.eclipse.ui.views.ContentOutline"/>
 <fastViewBars/>
 <layout>
 <mainWindow>
@@ -240,7 +255,7 @@
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
 </folder>
 </info>
-<info part="org.eclipse.ui.editorss" ratio="0.1654013" ratioLeft="305" ratioRight="1539" relationship="2" relative="topLeft"/>
+<info part="org.eclipse.ui.editorss" ratio="0.13286334" ratioLeft="245" ratioRight="1599" relationship="2" relative="topLeft"/>
 <info folder="true" part="topRight" ratio="0.5286458" ratioLeft="812" ratioRight="724" relationship="2" relative="org.eclipse.ui.editorss">
 <folder appearance="2" expanded="2">
 <page content="org.eclipse.cdt.make.ui.views.MakeView" label="LabelNotFound"/>
@@ -249,184 +264,182 @@
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
 </folder>
 </info>
-<info folder="true" part="org.eclipse.ui.internal.ViewStack@5c902354" ratio="0.6203704" ratioLeft="804" ratioRight="492" relationship="2" relative="org.eclipse.ui.editorss">
+</mainWindow>
+<detachedWindow height="1040" width="1875" x="1745" y="34">
 <folder activePageID="org.eclipse.ui.console.ConsoleView" appearance="2" expanded="2">
 <page content="org.eclipse.ui.console.ConsoleView" label="Console"/>
-<page content="org.eclipse.ui.views.ProblemView" label="Problems"/>
-<page content="org.eclipse.ui.views.ContentOutline" label="Outline"/>
+<page content="org.eclipse.ui.views.ProblemView" label="LabelNotFound"/>
+<page content="org.eclipse.ui.views.ContentOutline" label="LabelNotFound"/>
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
 <part id="0"/>
-<part id="1"/>
-<part id="2"/>
 </presentation>
 </folder>
-</info>
-</mainWindow>
+</detachedWindow>
 </layout>
 </perspective>
 </perspectives>
 <workingSets/>
 <navigationHistory>
 <editors>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/fem.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/derivatives/compliance.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/optimizedesign.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/output.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/fem/output.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/old_step1/source/step1.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/examples/step1.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/TopologyOptimization/cell_prop.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/TopologyOptimization/DensityValues.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/TopologyOptimization/penalization.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/TopologyOptimization/RefinementIndicator.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/source/TopologyOptimization/cell_prop.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/include/topopt/TopologyOptimization/cell_prop.h"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/backupproj/include/topopt/physics/elasticity.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/step-1/source/step-1.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/derivatives/compliance.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/DensityValues.cpp"/>
 </editors>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="20052" y="0"/>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="2313" y="0"/>
 </item>
-<item historyLabel="cell_prop.cpp" index="2">
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="2397" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="1">
+<position info="not_deleted" x="5652" y="0"/>
+</item>
+<item historyLabel="optimizedesign.cpp" index="2">
+<position info="not_deleted" x="4504" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="11986" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="359" y="0"/>
+</item>
+<item historyLabel="output.h" index="4">
+<position info="not_deleted" x="514" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="359" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="613" y="0"/>
+</item>
+<item historyLabel="output.h" index="4">
+<position info="not_deleted" x="556" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="668" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="11986" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="613" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="11986" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="4942" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="5618" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="11450" y="0"/>
+</item>
+<item historyLabel="output.cpp" index="3">
+<position info="not_deleted" x="726" y="0"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="11450" y="0"/>
+</item>
+<item historyLabel="step1.cpp" index="5">
+<position info="not_deleted" x="31849" y="0"/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="940" y="1"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="3113" y="54"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="5730" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="5548" y="0"/>
+</item>
+<item historyLabel="step1.cpp" index="5">
+<position info="not_deleted" x="20480" y="5"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="4855" y="5"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="5813" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="940" y="1"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="15392" y="3"/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="940" y="1"/>
+</item>
+<item historyLabel="fem.cpp" index="0">
+<position info="not_deleted" x="15401" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="4700" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6491" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6473" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="7032" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="7066" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="7053" y="0"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6489" y="0"/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="940" y="1"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6491" y="0"/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="940" y="1"/>
+</item>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6491" y="0"/>
+</item>
+<item historyLabel="step-1.cpp" index="6">
+<position info="not_deleted" x="1829" y="0"/>
+</item>
+<item historyLabel="step1.cpp" index="5">
+<position info="not_deleted" x="20358" y="0"/>
+</item>
+<item historyLabel="DensityValues.cpp" index="8">
 <position info="not_deleted" x="3" y="0"/>
 </item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="3" y="0"/>
+<item historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6491" y="0"/>
 </item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="32876" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="32875" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="0">
-<position info="not_deleted" x="14448" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="17743" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="20702" y="12"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="9631" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="18946" y="10"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="4159" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="19186" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="4159" y="0"/>
-</item>
-<item historyLabel="penalization.cpp" index="4">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="RefinementIndicator.cpp" index="5">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="penalization.cpp" index="4">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="10346" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="10346" y="0"/>
-</item>
-<item historyLabel="cell_prop.cpp" index="6">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="cell_prop.h" index="7">
-<position info="not_deleted" x="200" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="10346" y="0"/>
-</item>
-<item historyLabel="cell_prop.h" index="7">
-<position info="not_deleted" x="200" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="10346" y="0"/>
-</item>
-<item historyLabel="cell_prop.h" index="7">
-<position info="not_deleted" x="200" y="0"/>
-</item>
-<item historyLabel="cell_prop.cpp" index="6">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="penalization.cpp" index="4">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="cell_prop.h" index="7">
-<position info="not_deleted" x="200" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="10346" y="0"/>
-</item>
-<item historyLabel="elasticity.h" index="8">
-<position info="not_deleted" x="3" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="30181" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="30181" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29457" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29457" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29350" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29350" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29350" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="8611" y="0"/>
-</item>
-<item historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29350" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="3">
-<position info="not_deleted" x="9790" y="0"/>
-</item>
-<item active="true" historyLabel="step1.cpp" index="1">
-<position info="not_deleted" x="29350" y="0"/>
+<item active="true" historyLabel="compliance.cpp" index="7">
+<position info="not_deleted" x="6767" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
@@ -445,50 +458,50 @@
 </trimLayout>
 </window>
 <mruList>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="elasticity.h" tooltip="backupproj/include/topopt/physics/elasticity.h">
-<persistable path="/backupproj/include/topopt/physics/elasticity.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.h" tooltip="backupproj/include/topopt/TopologyOptimization/cell_prop.h">
-<persistable path="/backupproj/include/topopt/TopologyOptimization/cell_prop.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.cpp" tooltip="backupproj/source/TopologyOptimization/cell_prop.cpp">
-<persistable path="/backupproj/source/TopologyOptimization/cell_prop.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="RefinementIndicator.cpp" tooltip="backupproj/source/TopologyOptimization/RefinementIndicator.cpp">
-<persistable path="/backupproj/source/TopologyOptimization/RefinementIndicator.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="penalization.cpp" tooltip="backupproj/source/TopologyOptimization/penalization.cpp">
-<persistable path="/backupproj/source/TopologyOptimization/penalization.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.cpp" tooltip="backupproj/source/TopologyOptimization/DensityValues.cpp">
-<persistable path="/backupproj/source/TopologyOptimization/DensityValues.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="step1.cpp" tooltip="backupproj/source/examples/step1.cpp">
-<persistable path="/backupproj/source/examples/step1.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="step1.cpp" tooltip="old_step1/source/step1.cpp">
-<persistable path="/old_step1/source/step1.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="penalization.h" tooltip="atop/include/atop/TopologyOptimization/penalization.h">
-<persistable path="/atop/include/atop/TopologyOptimization/penalization.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="elasticity.cpp" tooltip="atop/source/physics/elasticity.cpp">
-<persistable path="/atop/source/physics/elasticity.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.cpp" tooltip="atop/source/TopologyOptimization/optimizedesign.cpp">
-<persistable path="/atop/source/TopologyOptimization/optimizedesign.cpp"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="elastic.h" tooltip="atop/include/atop/physics/mechanics/elastic.h">
-<persistable path="/atop/include/atop/physics/mechanics/elastic.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.h" tooltip="atop/include/atop/TopologyOptimization/optimizedesign.h">
-<persistable path="/atop/include/atop/TopologyOptimization/optimizedesign.h"/>
-</file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.cpp" tooltip="atop/source/TopologyOptimization/DensityValues.cpp">
 <persistable path="/atop/source/TopologyOptimization/DensityValues.cpp"/>
 </file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="output.h" tooltip="atop/include/atop/fem/output.h">
+<persistable path="/atop/include/atop/fem/output.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="output.cpp" tooltip="atop/source/fem/output.cpp">
+<persistable path="/atop/source/fem/output.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="general.cpp" tooltip="atop/source/TopologyOptimization/constraints/general.cpp">
+<persistable path="/atop/source/TopologyOptimization/constraints/general.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="general.h" tooltip="atop/source/TopologyOptimization/constraints/general.h">
+<persistable path="/atop/source/TopologyOptimization/constraints/general.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.h" tooltip="atop/include/atop/TopologyOptimization/cell_prop.h">
+<persistable path="/atop/include/atop/TopologyOptimization/cell_prop.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="general.h" tooltip="atop/include/atop/TopologyOptimization/constraints/general.h">
+<persistable path="/atop/include/atop/TopologyOptimization/constraints/general.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="fem.h" tooltip="atop/include/atop/fem/fem.h">
+<persistable path="/atop/include/atop/fem/fem.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="elastic.cpp" tooltip="atop/source/physics/mechanics/elastic.cpp">
+<persistable path="/atop/source/physics/mechanics/elastic.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="cell_prop.cpp" tooltip="atop/source/TopologyOptimization/cell_prop.cpp">
+<persistable path="/atop/source/TopologyOptimization/cell_prop.cpp"/>
+</file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.h" tooltip="atop/include/atop/TopologyOptimization/DensityValues.h">
 <persistable path="/atop/include/atop/TopologyOptimization/DensityValues.h"/>
+</file>
+<file factoryID="org.eclipse.cdt.ui.ExternalEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="dof_tools.h" tooltip="/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h">
+<persistable path="/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h" project="atop"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="MatrixVector.h" tooltip="atop/include/atop/math_tools/algebra/MatrixVector.h">
+<persistable path="/atop/include/atop/math_tools/algebra/MatrixVector.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="MatrixVector.cpp" tooltip="atop/source/math_tools/algebra/MatrixVector.cpp">
+<persistable path="/atop/source/math_tools/algebra/MatrixVector.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="fem.cpp" tooltip="atop/source/fem/fem.cpp">
+<persistable path="/atop/source/fem/fem.cpp"/>
 </file>
 </mruList>
 </workbench>

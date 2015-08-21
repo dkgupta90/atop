@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;atop/include/atop/fem/mesh_data.h&apos;" deleteContents="false" description="Delete resource &apos;atop/include/atop/fem/mesh_data.h&apos;" element1="/atop/include/atop/fem/mesh_data.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1434895439547"/>&#x0A;<refactoring comment="Delete resource &apos;atop/source/physics/mechanics/elastic.h&apos;" deleteContents="false" description="Delete resource &apos;atop/source/physics/mechanics/elastic.h&apos;" element1="/atop/source/physics/mechanics/elastic.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1434896046644"/>
+</session>
