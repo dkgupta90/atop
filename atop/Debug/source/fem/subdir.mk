@@ -4,20 +4,29 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../source/fem/define_mesh.cpp 
+../source/fem/boundary_values.cpp \
+../source/fem/define_mesh.cpp \
+../source/fem/fem.cpp \
+../source/fem/output.cpp 
 
 OBJS += \
-./source/fem/define_mesh.o 
+./source/fem/boundary_values.o \
+./source/fem/define_mesh.o \
+./source/fem/fem.o \
+./source/fem/output.o 
 
 CPP_DEPS += \
-./source/fem/define_mesh.d 
+./source/fem/boundary_values.d \
+./source/fem/define_mesh.d \
+./source/fem/fem.d \
+./source/fem/output.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 source/fem/%.o: ../source/fem/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross G++ Compiler'
-	g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

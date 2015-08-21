@@ -44,7 +44,7 @@ all: step-1
 step-1: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross G++ Linker'
-	g++ -L"/home/dkgupta/WORK/projects/atop/atop/Debug" -o "step-1" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -o "step-1" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -3,7 +3,6 @@
 	<name>atop</name>
 	<comment></comment>
 	<projects>
-		<project>atop</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

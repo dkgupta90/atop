@@ -10,7 +10,8 @@ CPP_SRCS += \
 ../source/TopologyOptimization/design_analysis.cpp \
 ../source/TopologyOptimization/neighbors.cpp \
 ../source/TopologyOptimization/optimizedesign.cpp \
-../source/TopologyOptimization/penalization.cpp 
+../source/TopologyOptimization/penalization.cpp \
+../source/TopologyOptimization/projection.cpp 
 
 OBJS += \
 ./source/TopologyOptimization/DensityValues.o \
@@ -19,7 +20,8 @@ OBJS += \
 ./source/TopologyOptimization/design_analysis.o \
 ./source/TopologyOptimization/neighbors.o \
 ./source/TopologyOptimization/optimizedesign.o \
-./source/TopologyOptimization/penalization.o 
+./source/TopologyOptimization/penalization.o \
+./source/TopologyOptimization/projection.o 
 
 CPP_DEPS += \
 ./source/TopologyOptimization/DensityValues.d \
@@ -28,14 +30,15 @@ CPP_DEPS += \
 ./source/TopologyOptimization/design_analysis.d \
 ./source/TopologyOptimization/neighbors.d \
 ./source/TopologyOptimization/optimizedesign.d \
-./source/TopologyOptimization/penalization.d 
+./source/TopologyOptimization/penalization.d \
+./source/TopologyOptimization/projection.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
 source/TopologyOptimization/%.o: ../source/TopologyOptimization/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross G++ Compiler'
-	g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

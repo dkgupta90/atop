@@ -55,7 +55,4 @@ public:
 }
 
 
-
-
-
 #endif /* ELASTICITY_H_ */

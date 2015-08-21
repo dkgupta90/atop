@@ -88,9 +88,14 @@ namespace Step1 {
 		double min_projection_radius, gamma;
 		double old_objective;
 		unsigned int model_problem;
+		double adaptive_penal, start_penal;
 		unsigned int max_quadrature_rule;
 		unsigned int running_quad_rule, current_quad_rule;
 		unsigned int max_levels;
+		unsigned int sum_itr;
+		unsigned int rand_no;
+		std::string output_fname;
+		std::string obj_fname;
 
 		TopOptimization();
 		~TopOptimization();
@@ -114,7 +119,9 @@ namespace Step1 {
 				unsigned int,
 				unsigned int,
 				unsigned int);
-
+		void generate_latex_output(std::string &output_file);
+		void generate_convergence_plot();
+		void end_latex_file(std::string &output_file);
 
 		typedef struct{
 			double a;
@@ -196,7 +203,7 @@ namespace Step1 {
 				ExcDimensionMismatch(values.size(), dim));
 		Assert(dim >= 2,
 				ExcNotImplemented());
-		unsigned int model_problem = 2;
+		unsigned int model_problem = 1;
 		double xmin, xmax, ymin, ymax;
 		if (model_problem == 1){
 			//MBB problem
@@ -378,7 +385,7 @@ namespace Step1 {
 					Vector<double>(dim));
 			right_hand_side.vector_value_list(fe_values.get_quadrature_points(),
 					rhs_values);
-			double adaptive_penal = get_penal_power(
+			adaptive_penal = get_penal_power(
 					penal_power,
 					itr_count,
 				   no_iterations,
@@ -456,41 +463,6 @@ namespace Step1 {
 
 	}
 
-	template <int dim>
-	void TopOptimization<dim>::boundary_info(){
-		//This function defines the fixed degrees of freedom
-		for (typename Triangulation<dim>::active_cell_iterator
-				cell = triangulation.begin();
-				cell != triangulation.end();
-				++cell ){
-			for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
-				//std::cout<<cell->face(f)->center()(0)<<std::endl;
-				if(model_problem == 1){
-					if (std::fabs(cell->face(f)->center()(0) - (xmin)) < 1e-12){
-						cell->face(f)->set_boundary_indicator(42);
-					}
-				}
-				else if (model_problem == 2) {
-					double rball = 0.02;
-					Point<dim> center_point;
-					center_point(0) = xmin + rball;
-					center_point(1) = (ymax+ymin)/2;
-					Point<dim> temp_point = cell->face(f)->center();
-					if (temp_point.distance(center_point) < rball){
-						cell->face(f)->set_boundary_indicator(42);
-					}
-				}
-
-/*				for(unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_face; ++v){
-					if((std::fabs(cell->face(f)->vertex(v)(0) - (2)) < 1e-12)
-											&& (std::fabs(cell->face(f)->vertex(v)(1) - (-1)) < 1e-12))
-					{
-						cell->face(f)->set_boundary_indicator(42);
-					}
-				}*/
-			}
-		}
-	}
 
 	template <int dim>
 	void TopOptimization<dim>::filter(){
@@ -613,9 +585,12 @@ namespace Step1 {
 		double dpenal = penal_power - 1.0;
 		double dp = dpenal/(no_iterations*(no_cycles-1));
 		//double dp = dpenal/((no_iterations-50)*(no_cycles));
+		//double dp = 1.0/((no_iterations-50)*(no_cycles));
 		double output = 1.0;
 		output += dp * ((cycle)*no_iterations + itr_count + 1);
+		//output += pow(dp * ((cycle)*no_iterations + itr_count + 1), 1.0) * dpenal ;
 		output = (output > 3) ? 3:output;
+		//output = 3.0;
 		return output;
 	}
 
@@ -766,60 +741,8 @@ namespace Step1 {
 	template<int dim>
 	void TopOptimization<dim>::fem_solver(
 			int itr){
-		if (cycle == 0 && itr == 0){
-			//physical size of the design domain
-			if(model_problem == 1){
-				xmin = 0;
-				ymin = 0;
-				xmax = 2;
-				ymax = 1;
-			}
-			else if (model_problem == 2) {
-				xmin = 0;
-				ymin = 0;
-				xmax = 1.5;
-				ymax = 1;
-			}
-			const Point<2> point1(xmin, ymin);
-			const Point<2> point2(xmax, ymax);
-			std::vector<unsigned int> repetitions; // It defines the number of subdivisions in each direction
-			repetitions.push_back(x_count);
-			repetitions.push_back(y_count);
-			GridGenerator::subdivided_hyper_rectangle(triangulation,
-					repetitions,
-					point1,
-					point2,
-					false
-					);
-			GridGenerator::subdivided_hyper_rectangle(density_triangulation,
-					repetitions,
-					point1,
-					point2,
-					false
-					);
-			std::cout<<"Active cells: "
-					<<triangulation.n_active_cells();
-			boundary_info();
-			//setup_system();
-;
 
-		}
-		if(cycle > 0 && itr == 0){
-			//triangulation.refine_global(1);
-			refine_grid();
-			std::cout<<"Active cells: "
-					<<triangulation.n_active_cells()
-					<<std::endl;
-		}
-		std::ofstream myfile1;
-		if(itr_count == 0){
-			std::string output_fname = "output.txt";
-			myfile1.open(output_fname.c_str(), std::ofstream::app);
-			myfile1<<"FE mesh: "<<triangulation.n_active_cells()<<"\n";
-			//myfile1<<"Design mesh: "<<design_x_count*design_y_count<<"\n";
-			myfile1.close();
-		}
-		boundary_info();
+
 		setup_system();
 		std::cout<<"No. of degrees of freedom  : "
 				<<dof_handler.n_dofs()
@@ -885,12 +808,12 @@ namespace Step1 {
 			++cell_itr;
 		}
 		std::cout<<"Objective: "<<objective<<std::endl;
-		std::ofstream myfile1;
-		std::string output_fname = "output.txt";
-		myfile1.open(output_fname.c_str(), std::ofstream::app);
 
-		myfile1<<"Cycle: "<<std::setw(3)<<cycle<<"            Iteration : "<<std::setw(6)<<itr_count<<"               Obj : "<<std::setw(10)<<objective<<std::endl;
-		myfile1.close();
+		//Writing the output for convergence plot
+		std::ofstream myfile2;
+		myfile2.open(obj_fname.c_str(), std::ofstream::app);
+		myfile2<<cycle+1<<"\t"<<adaptive_penal<<"\t"<<sum_itr<<"\t"<<objective<<"\n";
+		myfile2.close();
 		//Calculating the sensitivities with respect to the density space design variables
 		std::cout<<"Computing sensitivity response "<<std::endl;
 		double time1 = clock();
@@ -969,22 +892,106 @@ namespace Step1 {
 	}
 
 	template <int dim>
+	void TopOptimization<dim>::generate_latex_output(std::string &output_file){
+		std::ofstream myfile1;
+		myfile1.open(output_file.c_str(), std::ofstream::out);
+		myfile1<<"\\documentclass{article}\n";
+		myfile1<<"\\usepackage[margin=1in]{geometry}\n";
+		myfile1<<"\\usepackage{amsmath}\n";
+		myfile1<<"\\usepackage{caption}\n";
+		myfile1<<"\\usepackage{array}\n";
+		myfile1<<"\\usepackage{datetime}\n";
+		myfile1<<"\\usepackage[utf8]{inputenc}\n";
+		myfile1<<"\\usepackage{tikz, pgfplots}\n";
+		myfile1<<"\\usepackage{graphicx}\n";
+		myfile1<<"\\usepackage{subcaption}\n";
+		myfile1<<"\\usepackage{float}\n";
+
+		myfile1<<"\\title{ATOP Result}\n";
+		myfile1<<"\\author{Deepak K. Gupta}\n";
+		myfile1<<"\\begin{document}\n";
+		myfile1<<"\\maketitle\n";
+		myfile1<<"\\section{C++ generated output}\n";
+		myfile1<<"\\subsection{Some subtitle here}\n";
+		myfile1<<"{\\fontfamily{lmtt}\\selectfont\n";
+		std::time_t current_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		myfile1<<"Results generated  on "<<std::ctime(&current_time)<<"\\\\";
+		myfile1<<"File Access code : "<<rand_no<<"\\\\ \n";
+		myfile1<<"--------------------------------------------------------"<<"\\\\ \n";
+		myfile1<<"No. of refinement cycles : "<<no_cycles<<"\\\\\n";
+		myfile1<<"Maximum allowed number of iterations per cycle : "<<no_iterations<<"\\\\\n";
+		myfile1<<"Initial number of elem : "<<triangulation.n_active_cells()<<"\\\\ \n";
+		myfile1<<"Initial FE mesh: "<<x_count<<" "<<y_count<<"\\\\ \n";
+		myfile1<<"Max. projection: "<<max_projection_radius<<" Shrinkage factor : "<<gamma<<"\\\\ \n";
+		myfile1<<"--------------------------------------------------------"<<"\\\\ \n";
+		myfile1.close();
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::generate_convergence_plot(){
+		std::ofstream myfile1;
+		myfile1.open(output_fname, std::ofstream::app);
+
+		myfile1<<"\\begin{figure}[H] \n";
+		myfile1<<"\\centering \n";
+		myfile1<<"\\begin{subfigure}{.45\\linewidth} \\centering \n";
+		myfile1<<"\\begin{tikzpicture}[scale = 0.75] \n";
+		myfile1<<"\\begin{axis}[ thick, axis x line=bottom, axis y line=left, \n";
+		myfile1<<"xlabel = {Total no. of iterations}, ylabel = {Penalization value} ] \n";
+		myfile1<<"\\addplot[scatter, mark=*, mark size=1, gray, point meta = \\thisrow{cycle} ] \n";
+		myfile1<<"table[x=iter,y=penal] {obj_output"<<rand_no<<".dat}; \n";
+		myfile1<<"\\end{axis}  \n";
+		myfile1<<"\\end{tikzpicture}  \n";
+		myfile1<<"\\end{subfigure}  \n";
+		myfile1<<"\\hfill  \n";
+		myfile1<<"\\begin{subfigure}{.45\\linewidth} \\centering \n";
+		myfile1<<"\\begin{tikzpicture}[scale = 0.75] \n";
+		myfile1<<"\\begin{axis}[ thick, axis x line=bottom, axis y line=left, \n";
+		myfile1<<"xlabel = {Total no. of iterations}, ylabel = {Objective value} ] \n";
+		myfile1<<"\\addplot[scatter, mark=*, mark size=1, gray, point meta = \\thisrow{cycle} ] \n";
+		myfile1<<"table[x=iter,y=obj] {obj_output"<<rand_no<<".dat}; \n";
+		myfile1<<"\\end{axis}  \n";
+		myfile1<<"\\end{tikzpicture}  \n";
+		myfile1<<"\\end{subfigure}  \n";
+		myfile1<<"\\end{figure}  \n";
+
+	}
+
+	template <int dim>
+	void TopOptimization<dim>::end_latex_file(std::string &output_file){
+		std::ofstream myfile1;
+		myfile1.open(output_file.c_str(), std::ofstream::app);
+		myfile1<<"}\n";
+		myfile1.close();
+		//Add the convergence plot
+		generate_convergence_plot();
+
+		myfile1.open(output_file.c_str(), std::ofstream::app);
+		myfile1<<"\\end{document}\n";
+		myfile1.close();
+	}
+
+	template <int dim>
 	void TopOptimization<dim>::run(){
 		old_objective = 9999999999;
 		double min_change = 1e-3;
-		std::string output_fname = "output.txt";
-		std::ofstream myfile1;
-		myfile1.open(output_fname.c_str(), std::ofstream::out);
-		myfile1<<"FE mesh: "<<x_count<<" "<<y_count<<"\n";
-		myfile1<<"Design mesh: "<<design_x_count<<" "<<design_y_count<<"\n";
-		myfile1<<"Max projection radius: "<<max_projection_radius<<"\n";
-		myfile1<<"Gamma: "<<gamma<<"\n";
-		myfile1.close();
+		std::stringstream ss;
+		ss<<rand_no;
+		output_fname = "output/output" + ss.str() + ".tex";
+		obj_fname = "output/obj_output" + ss.str() + ".dat";
+		std::ofstream myfile2;
+		myfile2.open(obj_fname, std::ofstream::out);
+		myfile2<<"cycle\tpenal\titer\tobj\n";
+		myfile2.close();
+		generate_latex_output(output_fname);
+
+		sum_itr = 0;
 		for(; cycle < no_cycles; ++cycle){
 			elem_neighbors.clear();
 			std::cout<<"Cycle : "<<cycle + 1<<std::endl;
 			itr_count = 0;
 			for (; itr_count < no_iterations; ++itr_count){
+				sum_itr++;
 				fem_solver(itr_count); //Solves the finite element mesh
 				calculate_sensitivities();
 				old_density_mesh.clear();
@@ -1009,7 +1016,12 @@ namespace Step1 {
 				}
 				old_objective = objective;
 			}
+			std::ofstream myfile1;
+			myfile1.open(output_fname, std::ofstream::app);
+
+			myfile1.close();
 		}
+		end_latex_file(output_fname);
 	}
 }
 
@@ -1027,6 +1039,8 @@ int main()
 		topopt2d.penalization_model = 1; //SIMP model
 		topopt2d.model_problem = 1;
 		topopt2d.penal_power = 3.0;
+		topopt2d.start_penal = 1.0;
+		topopt2d.adaptive_penal = topopt2d.start_penal;
 		topopt2d.current_quad_rule = 2;
 		topopt2d.running_quad_rule = 2;
 		if(topopt2d.model_problem == 1){
@@ -1045,12 +1059,18 @@ int main()
 			topopt2d.design_x_count = 360; // mesh size for the design mesh
 			topopt2d.design_y_count = 240; //mesh size for the design mesh
 		}
-		topopt2d.no_iterations =100;
-		topopt2d.max_projection_radius = 0.054;
+		topopt2d.no_iterations =50;
+		topopt2d.max_projection_radius = 0.06;
 		topopt2d.gamma = 1.0;
 		topopt2d.cycle = 0;
 		topopt2d.no_cycles = 5;
 		std::cout<<"Topology optimization initiated "<<std::endl;
+
+		//Generating a random number for output files
+		std::random_device rd;
+		std::mt19937 mt(rd());
+		std::uniform_int_distribution<unsigned int> dist(1, 9999999);
+		topopt2d.rand_no = dist(mt);
 		topopt2d.run();
 		std::cout<<"Success"<<std::endl;
 	}

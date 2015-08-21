@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -ldeal_II_g -ldeal_II.g
+LIBS := -ldeal_II_g -ldeal_II.g -ldeal_II
 
