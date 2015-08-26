@@ -624,7 +624,7 @@ namespace Step1 {
 		double dp = 1.0/((no_iterations-50)*(no_cycles));
 		double output = 1.0;
 		//output += dp * ((cycle)*no_iterations + itr_count + 1);
-		output += pow(dp * ((cycle)*no_iterations + itr_count + 1), 1.0) * dpenal ;
+		output += pow(dp * ((cycle)*no_iterations + itr_count + 1), 1.0) * dpenal;
 		output = (output > 3) ? 3:output;
 		output = 3.0;
 		return output;

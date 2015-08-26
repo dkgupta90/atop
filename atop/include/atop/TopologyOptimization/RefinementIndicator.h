@@ -37,4 +37,6 @@ public:
 }
 
 
+
+
 #endif /* REFINEMENTINDICATOR_H_ */

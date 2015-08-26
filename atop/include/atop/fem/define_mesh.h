@@ -38,6 +38,7 @@ namespace atop{
 		//defines the type of element e.g. scalar lagrange element
 		std::string elementType;
 		std::string density_elementType;
+		std::string adaptivityType;
 
 		//defines the element order
 		unsigned int el_order;

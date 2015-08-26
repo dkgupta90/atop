@@ -30,8 +30,9 @@ template <int dim>
 	public:
 
 	Triangulation<dim> triangulation;
+	Triangulation<dim> fe_density_triangulation;
 	Triangulation<dim> density_triangulation;
-	DoFHandler<dim> dof_handler, density_dof_handler;
+	DoFHandler<dim> dof_handler, density_handler, density_dof_handler;
 	std::vector<CellInfo> cell_info_vector;
 	std::vector<CellInfo> density_cell_info_vector;
 	DefineMesh<dim>* mesh;

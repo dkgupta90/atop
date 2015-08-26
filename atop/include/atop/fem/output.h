@@ -24,9 +24,7 @@ namespace atop{
 				std::string &filename,
 				DoFHandler<dim> &dof_handler,
 				Vector<double> &solution,
-				std::vector<std::string> &solution_names,
-				Vector<double> &nodal_density,
-				std::vector<std::string> &density_names);
+				std::vector<std::string> &solution_names);
 	};
 
 	template class OutputData<2>;

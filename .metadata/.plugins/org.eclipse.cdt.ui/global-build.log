@@ -1,8 +1,8 @@
-09:59:59 **** Clean-only build of configuration Debug for project step-1 ****
+10:52:14 **** Clean-only build of configuration Debug for project step-1 ****
 make clean 
 rm -rf  ./source/step-1.o  ./source/step-1.d  step-1
  
-10:00:00 **** Build of configuration Debug for project step-1 ****
+10:52:16 **** Build of configuration Debug for project step-1 ****
 make all 
 Building file: ../source/step-1.cpp
 Invoking: Cross G++ Compiler

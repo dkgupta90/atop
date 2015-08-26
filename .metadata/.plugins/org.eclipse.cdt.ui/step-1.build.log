@@ -1,4 +1,4 @@
-10:00:00 **** Build of configuration Debug for project step-1 ****
+10:52:16 **** Build of configuration Debug for project step-1 ****
 make all 
 Building file: ../source/step-1.cpp
 Invoking: Cross G++ Compiler
@@ -121,5 +121,5 @@ g++ -L/usr/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -o
 Finished building target: step-1
  
 
-10:00:03 Build Finished (took 3s.712ms)
+10:52:20 Build Finished (took 3s.662ms)
 

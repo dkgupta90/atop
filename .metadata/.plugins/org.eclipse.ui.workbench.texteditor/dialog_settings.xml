@@ -4,7 +4,7 @@
 		<item value="330" key="DIALOG_WIDTH"/>
 		<item value="204" key="DIALOG_Y_ORIGIN"/>
 		<item value="1226" key="DIALOG_X_ORIGIN"/>
-		<item value="428" key="DIALOG_HEIGHT"/>
+		<item value="456" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="ldp" key="selection"/>
+		<item value="nodal_density" key="selection"/>
 		<list key="findhistory">
-			<item value="ldp"/>
-			<item value="solve"/>
-			<item value="cell_density"/>
-			<item value="nodal_den"/>
 			<item value="nodal_density"/>
-			<item value="flush"/>
-			<item value="precision"/>
-			<item value="level"/>
+			<item value="system_matrix"/>
+			<item value="density_tria"/>
+			<item value="density_triangulation"/>
+			<item value="execute_"/>
+			<item value="execute_refinem"/>
+			<item value="execute_refinement"/>
+			<item value="Refinemen"/>
 		</list>
 		<list key="replacehistory">
 			<item value="Simple_Bar"/>

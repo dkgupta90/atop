@@ -42,8 +42,10 @@ using namespace dealii;
 template<int dim>
 FEM<dim>::FEM(
 		Triangulation<dim> &obj_triangulation,
-		Triangulation<dim> &density_triangulation,
+		Triangulation<dim> &obj_fe_density_triang,
+		Triangulation<dim> &obj_density_triangulation,
 		DoFHandler<dim> &dof_handler,
+		DoFHandler<dim> &density_handler,
 		DoFHandler<dim> &density_dof_handler,
 		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &density_cell_info_vector,
@@ -51,7 +53,10 @@ FEM<dim>::FEM(
 		std::vector<double> &obj_design_vector){
 
 	this->dof_handler = &dof_handler;
+	this->density_handler = &density_handler;
 	this->triangulation = &obj_triangulation;
+	this->fe_density_triangulation = &obj_fe_density_triang;
+	this->density_triangulation = &obj_density_triangulation;
 	this->density_dof_handler = &density_dof_handler;
 	this->cell_info_vector = &cell_info_vector;
 	this->density_cell_info_vector = &density_cell_info_vector;
@@ -63,6 +68,7 @@ FEM<dim>::FEM(
 	//Choosing the types of elements for FE mesh
 	if(obj_mesh.elementType == "FE_Q"){
 		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
+		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 
 	//Choosing the type of element for density mesh
@@ -74,7 +80,8 @@ FEM<dim>::FEM(
 
 template <int dim>
 FEM<dim>::~FEM(){
-	delete dof_handler, density_dof_handler, fe, density_fe;
+	delete dof_handler, density_handler, density_dof_handler;
+	delete fe, fe_density, density_fe;
 }
 
 //Function that step-by-step solves the FE problem
@@ -100,6 +107,7 @@ void FEM<dim>::setup_system(){
 
 	//FE mesh
 	dof_handler->distribute_dofs(*fe);
+	density_handler->distribute_dofs(*fe_density);
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(*dof_handler,
 			hanging_node_constraints);
@@ -114,7 +122,8 @@ void FEM<dim>::setup_system(){
 	system_matrix.reinit(sparsity_pattern);
 	solution.reinit(dof_handler->n_dofs());
 	system_rhs.reinit(dof_handler->n_dofs());
-	nodal_density.reinit(dof_handler->n_dofs());
+	nodal_density.reinit(density_handler->n_dofs());
+	cells_adjacent_per_node.reinit(density_handler->n_dofs());
 
 	//Density mesh
 	density_dof_handler->distribute_dofs(*density_fe);
@@ -197,42 +206,46 @@ void FEM<dim>::solve(){
 
 template <int dim>
 void FEM<dim>::output_results(){
+
+	//Writing the state solution
 	std::string filename = "solution-";
 	std::stringstream ss;
 	ss<< cycle +1<<"_"<<itr_count+1;
 	filename += ss.str();
 	filename += ".vtk";
 	std::vector<std::string> solution_names;
-	std::vector<std::string> density_names;
 	solution_names.clear();
-	density_names.clear();
 	switch(dim){
 	case 1:
 		solution_names.push_back("displacement");
-		density_names.push_back("density_0");
 		break;
 	case 2:
 		solution_names.push_back("x_displacement");
 		solution_names.push_back("y_displacement");
-		density_names.push_back("density_0");
-		density_names.push_back("density_1");
 		break;
 	case 3:
 		solution_names.push_back("x_displacement");
 		solution_names.push_back("y_displacement");
 		solution_names.push_back("z_displacement");
-		density_names.push_back("density_0");
-		density_names.push_back("density_1");
-		density_names.push_back("density_2");
 		break;
 	default:
 		Assert(false, ExcNotImplemented);
 	}
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, *dof_handler,
-			solution, solution_names,
-			nodal_density, density_names);
+			solution, solution_names);
 	std::cout<<"Solution written"<<std::endl;
+
+	//Writing the density solution
+	filename = "density-";
+	filename += ss.str();
+	filename += ".vtk";
+	std::vector<std::string> density_names;
+	density_names.clear();
+	density_names.push_back("density");
+	out_soln.write_fe_solution(filename, *density_handler,
+			nodal_density, density_names);
+	std::cout<<"Density field written"<<std::endl;
 
 }
 template <int dim>
@@ -339,21 +352,25 @@ void FEM<dim>::update_physics(){
 template <int dim>
 void FEM<dim>::assembly(){
 	const unsigned int dofs_per_cell = fe->dofs_per_cell;
-	const unsigned int density_per_cell = density_fe->dofs_per_cell;
+	const unsigned int density_per_fe_cell = fe_density->dofs_per_cell;
 
 	FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 	FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
 
 	Vector<double> cell_rhs(dofs_per_cell);
-	Vector<double> cell_density(dofs_per_cell);
+	Vector<double> cell_density(density_per_fe_cell);
 
 	std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-	std::vector<types::global_dof_index> local_density_indices(density_per_cell);
+	std::vector<types::global_dof_index> local_density_indices(density_per_fe_cell);
 
 	//Iterators for the FE mesh
 	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 	unsigned int cell_itr = 0;
+
+	//Iterator for density points on the FE mesh
+	typename DoFHandler<dim>::active_cell_iterator fe_den_cell = density_handler->begin_active(),
+			fe_den_endc = density_handler->end();
 
 	//Iterators for the density mesh
 	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler->begin_active(),
@@ -373,7 +390,16 @@ void FEM<dim>::assembly(){
 				update_JxW_values
 				);
 
+		FEValues<dim> fe_density_values(*fe_density,
+				quadrature_formula,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+
 		fe_values.reinit(cell);
+		fe_density_values.reinit(fe_den_cell);
 		unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
 
 		//Add source function to the right hand side
@@ -391,7 +417,7 @@ void FEM<dim>::assembly(){
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
 
-			total_weight += fe_values.JxW(q_point);
+			total_weight += fe_density_values.JxW(q_point);
 		}
 
 		//Calculating cell_rhs
@@ -416,22 +442,24 @@ void FEM<dim>::assembly(){
 			system_rhs(local_dof_indices[i]) += cell_rhs(i);
 		}
 
+
 		//density_cell->get_dof_indices(local_density_indices);
 
 
 		//Calculating the nodal densities and cell density
-		(*cell_info_vector)[cell_itr].cell_density = 0.0;
+/*		(*cell_info_vector)[cell_itr].cell_density = 0.0;
 		unsigned int dofs_per_node = dofs_per_cell/(GeometryInfo<dim>::vertices_per_cell);
 		for(unsigned int i = 0; i < dofs_per_cell; ++i){
-/*			std::vector<typename DoFHandler<dim>::active_cell_iterator> shared_cells = GridTools::find_cells_adjacent_to_vertex(
+			std::vector<typename DoFHandler<dim>::active_cell_iterator> shared_cells = GridTools::find_cells_adjacent_to_vertex(
 					*dof_handler,
-					cell->vertex_index((const unsigned int)(floor(i/dofs_per_node))));*/
+					cell->vertex_index((const unsigned int)(floor(i/dofs_per_node))));
 			for(unsigned int q_point = 0 ; q_point < n_q_points; ++q_point){
 				cell_density(i) +=  (*cell_info_vector)[cell_itr].density[q_point] *
 						(fe_values.JxW(q_point)/total_weight);
 
 			}
-			nodal_density(local_dof_indices[i]) += (cell_density(i)/4);//shared_cells.size());
+			nodal_density(local_dof_indices[i]) += (cell_density(i));//shared_cells.size());
+			cells_adjacent_per_node(local_dof_indices[i]) += 1;
 		}
 
 		(*cell_info_vector)[cell_itr].density_weights.clear();
@@ -440,12 +468,42 @@ void FEM<dim>::assembly(){
 			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_values.JxW(qpoint)/total_weight);
 			(*cell_info_vector)[cell_itr].cell_density += (*cell_info_vector)[cell_itr].density_weights[qpoint] * (*cell_info_vector)[cell_itr].density[qpoint];
 
+		}*/
+
+		fe_den_cell->get_dof_indices(local_density_indices);
+		for(unsigned int i = 0; i < density_per_fe_cell; ++i){
+			for(unsigned int q_point = 0 ; q_point < n_q_points; ++q_point){
+				cell_density(i) += 	(*cell_info_vector)[cell_itr].density[q_point] *
+						(fe_density_values.JxW(q_point)/total_weight);
+			}
+			nodal_density(local_density_indices[i]) += cell_density(i);
+			cells_adjacent_per_node(local_density_indices[i]) += 1;
 		}
 
+
+		//Adding the density weights to the cell_info_vector
+		(*cell_info_vector)[cell_itr].density_weights.clear();
+		for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
+			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_density_values.JxW(qpoint)/total_weight);
+		}
+
+		++fe_den_cell;
 		++density_cell;
 		++cell_itr;
 	}
-	std::cout<<"Passed here2"<<std::endl;
+
+	//Normalizing the nodal density vector
+	for(unsigned int i = 0; i < nodal_density.size(); ++i){
+		unsigned int denom = cells_adjacent_per_node(i);
+		if (denom <= 0){
+			std::cerr<<"ERROR!! Wrong no. of cells adjacent to node found"<<std::endl;
+		}
+		else{
+			nodal_density(i) /= denom;
+		}
+	}
+
+
 	//Updating the design_vector field for optimization
 	if(itr_count == 0){
 		density_field.update_design_vector(*density_cell_info_vector,
@@ -540,6 +598,8 @@ void FEM<dim>::clean_trash(){
 	system_matrix.clear();
 	solution = 0;
 	system_rhs = 0;
+	nodal_density = 0;
+	cells_adjacent_per_node = 0;
 
 	//cleaning contents of the storage vectors
 	for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
