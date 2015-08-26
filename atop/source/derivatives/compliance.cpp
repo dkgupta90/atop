@@ -141,9 +141,6 @@ void Compliance<dim>::compute(
 			cell_array[i] = fem->solution(local_dof_indices[i]);
 		}
 
-		if(cell_itr == 0 || cell_itr == 24){
-			//cell_array.print(std::cout);
-		}
 		/**
 		 * cleaning the dcdx vector for cell_info_vector
 		 * This vector stores the dc_dxPhys for each of the quadrature points
@@ -189,22 +186,8 @@ void Compliance<dim>::compute(
 				dobj = matvec.vector_vector_inner_product(
 						temp_array,
 						cell_array);
-/*				if(cell_itr == 0 || cell_itr == 1 || cell_itr == 8 || cell_itr == 9 || cell_itr == 16 || cell_itr == 17 || cell_itr == 24 || cell_itr == 25){
-					std::cout<<dobj<<std::setw(8)<<"   "<<density_cell_itr2<<"  "<<cell_itr<<std::endl;
-				}*/
 				//Adding to the grad vector
 				obj_grad[density_cell_itr2] -= dobj;
-
-				if(density_cell_itr2 == 0 && cell_itr == 9){
-					//std::cout<<dEfactor<<"  "<<dobj<<std::endl;
-					//cell_array.print(std::cout);
-					//normalized_matrix.print(std::cout);
-				}
-				if(density_cell_itr2 == 24 && cell_itr == 17){
-					//std::cout<<dE_dxPhys<<"   "<<dxPhys_dx<<"  "<<dobj<<std::endl;
-					//cell_array.print(std::cout);
-					//normalized_matrix.print(std::cout);
-				}
 
 			}
 

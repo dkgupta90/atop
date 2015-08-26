@@ -7,6 +7,7 @@
 
 #include<deal.II/dofs/dof_handler.h>
 #include <deal.II/grid/tria.h>
+#include <deal.II/grid/grid_refinement.h>
 #include <atop/TopologyOptimization/optimizedesign.h>
 #include <atop/fem/define_mesh.h>
 #include <atop/TopologyOptimization/penalization.h>
@@ -14,6 +15,7 @@
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/optimizer/optimality_criteria.h>
+#include <atop/TopologyOptimization/adaptivity.h>
 #include <nlopt.hpp>
 #include <algorithm>
 #include <string>
@@ -58,6 +60,7 @@ Optimizedesign<dim>::Optimizedesign(
 		const std::string &obj_algorithm,
 		unsigned int cycles):
 		dof_handler(triangulation),
+		density_handler(fe_density_triangulation),
 		density_dof_handler(density_triangulation){
 	this->mesh = &obj_mesh;
 	this->penal = &obj_penal;
@@ -87,8 +90,10 @@ void Optimizedesign<dim>::optimize(){
 	//Assign the dof handlers and element types
 	obj_fem = new FEM<dim>(
 			triangulation,
+			fe_density_triangulation,
 			density_triangulation,
 			dof_handler,
+			density_dof_handler,
 			density_dof_handler,
 			cell_info_vector,
 			density_cell_info_vector,
@@ -155,11 +160,17 @@ void Optimizedesign<dim>::optimize(){
 		}
 
 		/**
-		 * Temporary code for testing the FEM routines.
-		 * Once nlopt is configured, the code below this gets deleted.
+		 * Refinement of the mesh
 		 */
-		//run_system();
 
+		//Choosing the cells for refinement and coarsening
+		Adaptivity<dim> adaptivity;
+		adaptivity.update(*obj_fem);
+
+		//Execute refinement
+		triangulation.execute_coarsening_and_refinement();
+		density_triangulation.execute_coarsening_and_refinement();
+		std::cout<<"No. of cells after refinement "<<triangulation.n_active_cells()<<std::endl;
 	}
 
 
@@ -181,6 +192,9 @@ void Optimizedesign<dim>::run_system(){
 	obj_sens.run(
 			objective,
 			grad_vector);
+
+	//Update the ATOP parameters
+
 }
 
 template <int dim>

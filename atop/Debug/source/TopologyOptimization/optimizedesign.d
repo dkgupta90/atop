@@ -40,6 +40,7 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_refinement.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h \
@@ -116,7 +117,8 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h:
 
@@ -197,6 +199,8 @@ source/TopologyOptimization/optimizedesign.d: \
 /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/grid/grid_refinement.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:
 
@@ -351,3 +355,5 @@ source/TopologyOptimization/optimizedesign.d: \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h:

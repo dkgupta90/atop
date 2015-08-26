@@ -39,8 +39,8 @@ int main(){
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {200, 100};
-	mesh.density_subdivisions = {200, 100};
+	mesh.subdivisions = {40, 20};
+	mesh.density_subdivisions = {40, 20};
 	mesh.coupling = true;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
@@ -49,6 +49,7 @@ int main(){
 	mesh.density_elementType = "FE_DGQ";
 	mesh.el_order = 1;
 	mesh.density_el_order = 1;
+	mesh.adaptivityType = "adaptive_grayness";
 
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
@@ -70,7 +71,7 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.012, 0.012);
+			0.06, 0.06);
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);

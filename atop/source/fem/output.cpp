@@ -21,9 +21,7 @@ void OutputData<dim>::write_fe_solution(
 		std::string &filename,
 		DoFHandler<dim> &dof_handler,
 		Vector<double> &solution,
-		std::vector<std::string> &solution_names,
-		Vector<double> &nodal_density,
-		std::vector<std::string> &density_names
+		std::vector<std::string> &solution_names
 		){
 
 	std::ofstream output(filename.c_str());
@@ -31,7 +29,6 @@ void OutputData<dim>::write_fe_solution(
 	data_out.attach_dof_handler(dof_handler);
 
 	data_out.add_data_vector(solution, solution_names);
-	data_out.add_data_vector(nodal_density, density_names);
 	data_out.build_patches();
 	data_out.write_vtk(output);
 }
