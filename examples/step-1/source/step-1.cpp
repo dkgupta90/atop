@@ -74,7 +74,7 @@ int main(){
 			0.06, 0.06);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 4);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction

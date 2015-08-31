@@ -300,8 +300,10 @@ void DensityField<dim>::create_neighbors(
 		std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
 		cell_info_vector[cell_itr1].neighbour_cells.clear();
 		cell_info_vector[cell_itr1].neighbour_distance.clear();
+		cell_info_vector[cell_itr1].neighbour_cell_area.clear();
 		cell_info_vector[cell_itr1].neighbour_cells.resize(qpoints1.size());
 		cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
+		cell_info_vector[cell_itr1].neighbour_cell_area.resize(qpoints1.size());
 
 		unsigned int density_cell_itr2;
 		typename DoFHandler<2>::active_cell_iterator density_cell2;
@@ -323,6 +325,7 @@ void DensityField<dim>::create_neighbors(
 					}
 					cell_info_vector[cell_itr1].neighbour_cells[q_point1].push_back(density_cell_itr2);
 					cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
+					cell_info_vector[cell_itr1].neighbour_cell_area[q_point1].push_back(density_cell2->measure());
 			}
 		}
 
@@ -374,7 +377,7 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 		double sum_weights = 0;
 		for(unsigned int i = 0 ; i < cell_info_vector[cell_itr1].neighbour_distance[qpoint].size(); ++i){
 			double temp1 = rmin - cell_info_vector[cell_itr1].neighbour_distance[qpoint][i];
-			double area_factor = 1;//cellprop[cell_itr1].cell_area/max_cell_area;
+			double area_factor = cell_info_vector[cell_itr1].neighbour_cell_area[qpoint][i]/max_cell_area;
 			temp1 = temp1*area_factor;
 			cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] = temp1;
 			sum_weights += temp1;
@@ -404,7 +407,8 @@ void DensityField<dim>::smoothing(
 			unsigned int density_cell_itr2;
 			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
 				density_cell_itr2 = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];
-				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i] * density_cell_info_vector[density_cell_itr2].density[0];
+				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
+						  * density_cell_info_vector[density_cell_itr2].density[0];
 
 			}
 			cell_info_vector[cell_itr].density[qpoint] = xPhys;
@@ -450,7 +454,6 @@ double DensityField<dim>::get_vol_fraction(
 		){
 	double volume = 0.0;
 	for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
-		unsigned int quad_rule = cell_info_vector[i].quad_rule - 1;
 
 		cell_info_vector[i].cell_density = 0.0;
 		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){

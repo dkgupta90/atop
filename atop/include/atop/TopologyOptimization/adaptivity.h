@@ -11,8 +11,14 @@
 #include <atop/fem/fem.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/TopologyOptimization/cell_prop.h>
+
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/grid/tria.h>
+#include <deal.II/dofs/dof_handler.h>
 #include <string>
 #include <vector>
+
+using namespace dealii;
 
 namespace atop{
 	template <int dim>
@@ -28,6 +34,12 @@ namespace atop{
 		void mesh_refine_indicator(
 				std::string& mesh_update_str);
 		void coupled_refine_adaptive_grayness();
+
+		void update_cell_vectors(
+				std::vector<CellInfo> &density_cell_info_vector,
+				DoFHandler<dim> &density_dof_handler,
+				Triangulation<dim> &density_triangulation,
+				FESystem<dim> &density_fe);
 	};
 
 	template class Adaptivity<2>;

@@ -1,4 +1,4 @@
-20:23:33 **** Incremental Build of configuration Debug for project old_step1 ****
+10:13:38 **** Incremental Build of configuration Debug for project old_step1 ****
 make all 
 Building file: ../source/step1.cpp
 Invoking: Cross G++ Compiler
@@ -109,25 +109,25 @@ In file included from ../source/step1.cpp:28:0:
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
 ../source/step1.cpp: In instantiation of ‘void Step1::TopOptimization<dim>::calculate_sensitivities() [with int dim = 2]’:
-../source/step1.cpp:1108:29:   required from ‘void Step1::TopOptimization<dim>::run() [with int dim = 2]’
-../source/step1.cpp:1187:16:   required from here
-../source/step1.cpp:944:33: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+../source/step1.cpp:1104:29:   required from ‘void Step1::TopOptimization<dim>::run() [with int dim = 2]’
+../source/step1.cpp:1183:16:   required from here
+../source/step1.cpp:943:33: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
     for(int q_point = 0; q_point < n_q_points; ++q_point){
                                  ^
-../source/step1.cpp:958:13: warning: unused variable ‘area_factor’ [-Wunused-variable]
+../source/step1.cpp:957:13: warning: unused variable ‘area_factor’ [-Wunused-variable]
       double area_factor = cellprop[cell_itr2].cell_area/max_cell_area;
              ^
-../source/step1.cpp:916:17: warning: unused variable ‘quad_index’ [-Wunused-variable]
+../source/step1.cpp:915:17: warning: unused variable ‘quad_index’ [-Wunused-variable]
     unsigned int quad_index = elastic_data.get_quad_index(quadrature_rule);
                  ^
 ../source/step1.cpp: In instantiation of ‘void Step1::TopOptimization<dim>::optimize_OC() [with int dim = 2]’:
-../source/step1.cpp:1115:18:   required from ‘void Step1::TopOptimization<dim>::run() [with int dim = 2]’
-../source/step1.cpp:1187:16:   required from here
+../source/step1.cpp:1111:18:   required from ‘void Step1::TopOptimization<dim>::run() [with int dim = 2]’
+../source/step1.cpp:1183:16:   required from here
 ../source/step1.cpp:657:22: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
     for (int i = 0; i < density_mesh.size(); ++i){
                       ^
 ../source/step1.cpp: In instantiation of ‘void Step1::BoundaryValues<dim>::vector_value(const dealii::Point<dim, double>&, dealii::Vector<double>&) const [with int dim = 2]’:
-../source/step1.cpp:1213:1:   required from here
+../source/step1.cpp:1209:1:   required from here
 ../source/step1.cpp:208:16: warning: variable ‘xmax’ set but not used [-Wunused-but-set-variable]
    double xmin, xmax, ymin, ymax;
                 ^
@@ -139,5 +139,5 @@ g++ -L"/home/dkgupta/WORK/projects/atop/atop/Debug" -L/usr/lib -o "old_step1"  .
 Finished building target: old_step1
  
 
-20:23:39 Build Finished (took 5s.368ms)
+10:13:44 Build Finished (took 5s.581ms)
 

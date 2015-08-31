@@ -46,6 +46,7 @@ void OC::optimize(
 				obj_grad,
 				obj_data);
 
+
 		double current_volfrac = 0.0;
 		double l1 = 1e-5, l2 = 100000, move = 0.2;
 		while ((l2 - l1) > 1e-4){

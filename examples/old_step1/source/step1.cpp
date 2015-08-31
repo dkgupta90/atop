@@ -699,7 +699,6 @@ namespace Step1 {
 			else{
 				l2 = lmid;
 			}
-			std::cout<<"Volfrac: "<<(density_sum/(x_count*y_count))<<std::endl;
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<(density_sum/(x_count*y_count))<<std::endl;
@@ -993,9 +992,6 @@ namespace Step1 {
 			}
 			cell_itr++;
 		}
-		for(unsigned int i =0; i < dobj_ddn.size(); ++i){
-			std::cout<<dobj_ddn[i]<<std::endl;
-		}
 		std::cout<<"Size of sensitivity vector : "<<dobj_ddn.size()<<std::endl;
 		double time2 = clock();
 		time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
@@ -1159,8 +1155,8 @@ int main()
 		if(topopt2d.model_problem == 1){
 			//This model refers to a MBB
 			topopt2d.volfrac = 0.45; //volume constraint
-			topopt2d.x_count = 200;
-			topopt2d.y_count = 100;
+			topopt2d.x_count = 2;
+			topopt2d.y_count = 1;
 			topopt2d.design_x_count = 320; // mesh size for the design mesh
 			topopt2d.design_y_count = 160; //mesh size for the design mesh
 		}
@@ -1173,10 +1169,10 @@ int main()
 			topopt2d.design_y_count = 240; //mesh size for the design mesh
 		}
 		topopt2d.no_iterations = 20;
-		topopt2d.max_projection_radius = 0.012;
+		topopt2d.max_projection_radius = 1.2;
 		topopt2d.gamma = 1.0;
 		topopt2d.cycle = 0;
-		topopt2d.no_cycles = 1;
+		topopt2d.no_cycles = 2;
 		std::cout<<"Topology optimization initiated "<<std::endl;
 
 		//Generating a random number for output files

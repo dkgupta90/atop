@@ -85,6 +85,7 @@ void Optimizedesign<dim>::optimize(){
 	//Create the mesh
 	this->mesh->createMesh(
 			triangulation,
+			fe_density_triangulation,
 			density_triangulation);
 
 	//Assign the dof handlers and element types
@@ -93,7 +94,7 @@ void Optimizedesign<dim>::optimize(){
 			fe_density_triangulation,
 			density_triangulation,
 			dof_handler,
-			density_dof_handler,
+			density_handler,
 			density_dof_handler,
 			cell_info_vector,
 			density_cell_info_vector,
@@ -112,6 +113,9 @@ void Optimizedesign<dim>::optimize(){
 	//Passing the penalization object
 	obj_fem->penalization(*penal);
 
+	cell_info_vector.resize(triangulation.n_active_cells());
+	density_cell_info_vector.resize(density_triangulation.n_active_cells());
+
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
 		std::cout<<"Cycle : "<<cycle + 1 <<std::endl;
@@ -125,8 +129,6 @@ void Optimizedesign<dim>::optimize(){
 		 */
 
 		obj_fem->itr_count = -1;
-		cell_info_vector.resize(triangulation.n_active_cells());
-		density_cell_info_vector.resize(density_triangulation.n_active_cells());
 		unsigned int no_design_count = density_cell_info_vector.size();
 		std::cout<<"Number of design variables : "<<no_design_count<<std::endl;
 		design_vector.clear();
@@ -143,6 +145,7 @@ void Optimizedesign<dim>::optimize(){
 			opt.set_upper_bounds(ub);
 			opt.set_min_objective(myvfunc, (void*)this);
 			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-5);
+			opt.set_ftol_rel(1e-3);
 			opt.set_xtol_rel(1e-3);
 			double minf;
 			std::cout<<"Optimization started "<<std::endl;
@@ -159,9 +162,16 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.optimize(design_vector);
 		}
 
+		//No refinement in the last cycle
+		if (cycle == no_cycles - 1)
+			continue;
+
 		/**
 		 * Refinement of the mesh
 		 */
+		//triangulation.refine_global(1);
+		//fe_density_triangulation.refine_global(1);
+		//density_triangulation.refine_global(1);
 
 		//Choosing the cells for refinement and coarsening
 		Adaptivity<dim> adaptivity;
@@ -169,8 +179,21 @@ void Optimizedesign<dim>::optimize(){
 
 		//Execute refinement
 		triangulation.execute_coarsening_and_refinement();
+		fe_density_triangulation.execute_coarsening_and_refinement();
 		density_triangulation.execute_coarsening_and_refinement();
 		std::cout<<"No. of cells after refinement "<<triangulation.n_active_cells()<<std::endl;
+
+		//Update the cell_vectors
+		adaptivity.update_cell_vectors(
+				density_cell_info_vector,
+				density_dof_handler,
+				density_triangulation,
+				*(obj_fem->fe));
+		adaptivity.update_cell_vectors(
+				cell_info_vector,
+				dof_handler,
+				triangulation,
+				*(obj_fem->fe));
 	}
 
 
@@ -214,7 +237,7 @@ void Optimizedesign<dim>::update_design_vector(
 		if(x[i] < min_dens)
 			min_dens = x[i];
 	}
-	std::cout<<"Min density: "<<min_dens<<"   max density: "<<max_dens<<std::endl;
+	//std::cout<<"Min density: "<<min_dens<<"   max density: "<<max_dens<<std::endl;
 }
 
 template <int dim>
@@ -237,7 +260,6 @@ double myvfunc(
 		//Solve the FEM problem
 		opt_design2d->obj_fem->cycle = opt_design2d->cycle;
 		opt_design2d->update_design_vector(opt_design2d->design_vector, x);
-		std::cout<<"Passed here2"<<std::endl;
 		opt_design2d->run_system();
 		grad = (opt_design2d->grad_vector);
 /*		for(unsigned int i = 0; i < grad.size(); ++i)

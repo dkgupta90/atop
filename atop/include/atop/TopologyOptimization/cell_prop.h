@@ -78,6 +78,7 @@ namespace atop{
 		 */std::vector<std::vector< unsigned int > > neighbour_cells;
 		std::vector< std::vector<double> > neighbour_distance;
 		std::vector< std::vector<double> > neighbour_weights;
+		std::vector<std::vector<double> > neighbour_cell_area;
 
 		std::vector<double> density_weights; //saves the weight times area for the integration point
 
