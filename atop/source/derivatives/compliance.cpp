@@ -73,9 +73,10 @@ void Compliance<dim>::compute(
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
 			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[quad_index][q_point];
-			double area_factor = 1;//(cellprop[cell_itr].cell_area)/max_cell_area;
+			double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;//(cellprop[cell_itr].cell_area)/max_cell_area;
 			cell_matrix.add((E_values[q_point])*area_factor,
 					normalized_matrix);
+			//std::cout<<E_values[q_point]<<"   "<<"   "<<(*cell_info_vector)[cell_itr].density[q_point]<<"  "<<cell_itr<<"   "<<q_point<<std::endl;
 
 		}
 		//Extracting the nodal values of solution vector
@@ -98,6 +99,7 @@ void Compliance<dim>::compute(
 				temp_array,
 				cell_array);
 			++cell_itr;
+			//std::cout<<objective<<std::endl;
 	}
 	std::cout<<"Objective: "<<objective<<std::setw(10)<<std::endl;
 
@@ -171,7 +173,7 @@ void Compliance<dim>::compute(
 
 				double dEfactor = dE_dxPhys * dxPhys_dx;
 
-				cell_matrix.add(dEfactor,//*area_factor,
+				cell_matrix.add(dEfactor,
 						normalized_matrix);
 
 				Vector<double> temp_array(dofs_per_cell);

@@ -68,6 +68,8 @@ namespace atop{
 
 		//Triangulation objects
 		Triangulation<dim>* triangulation;
+		Triangulation<dim>* fe_density_triangulation;
+
 		Triangulation<dim>* density_triangulation;
 
 		//DOF Handler object
@@ -76,6 +78,7 @@ namespace atop{
 		//Function for creating the mesh
 		void createMesh(
 				Triangulation<dim> &triangulation,
+				Triangulation<dim> &fe_density_triangulation,
 				Triangulation<dim> &density_triangulation);
 
 		void boundary_info();

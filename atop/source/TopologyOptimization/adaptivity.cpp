@@ -79,13 +79,15 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 
 	typename Triangulation<dim>::active_cell_iterator cell = fem->triangulation->begin_active(),
 			endc = fem->triangulation->end();
+	typename Triangulation<dim>::active_cell_iterator fe_density_cell = fem->fe_density_triangulation->begin_active(),
+			fe_density_endc = fem->triangulation->end();
 
 	typename Triangulation<dim>::active_cell_iterator density_cell = fem->density_triangulation->begin_active(),
 			density_endc = fem->density_triangulation->end();
 
 	unsigned int cell_itr = 0;
 
-	for(; cell != endc; ++cell, ++density_cell){
+	for(; cell != endc; ++cell, ++fe_density_cell, ++density_cell){
 
 		unsigned int n_qpoints = (*cell_info_vector)[cell_itr].density.size();
 		double density = 0.0;
@@ -97,12 +99,94 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 		}
 		if(density > coarsen_ubound || density < coarsen_lbound){
 			cell->set_coarsen_flag();
+			fe_density_cell->set_coarsen_flag();
 			density_cell->set_coarsen_flag();
 		}
 		else if (density > refine_lbound && density < refine_ubound) {
 			cell->set_refine_flag();
+			fe_density_cell->set_refine_flag();
 			density_cell->set_refine_flag();
 		}
 		++cell_itr;
+	}
+}
+
+template <int dim>
+void Adaptivity<dim>::update_cell_vectors(
+		std::vector<CellInfo> &density_cell_info_vector,
+		DoFHandler<dim> &density_dof_handler,
+		Triangulation<dim> &density_triangulation,
+		FESystem<dim> &density_fe){
+	std::cout<<"Updating density info vector record"<<std::endl;
+	std::vector<CellInfo> temp_cellprop;
+	temp_cellprop.clear();
+	temp_cellprop = density_cell_info_vector;
+	density_cell_info_vector.clear();
+	density_cell_info_vector.resize(density_triangulation.n_active_cells());
+	unsigned int density_cell_itr = 0;
+	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler.begin_active(),
+			density_endc = density_dof_handler.end();
+	for(; density_cell != density_endc; ++density_cell){
+		if(density_cell->level() > 0 && density_cell->parent()->user_index() > 0){
+			density_cell_info_vector[density_cell_itr] = temp_cellprop[density_cell->parent()->user_index() - 1];
+			QGauss<dim> qformula_child(density_cell_info_vector[density_cell_itr].quad_rule);
+			FEValues<dim> fevalues_child(density_fe,
+					qformula_child,
+					update_values |
+					update_gradients |
+					update_quadrature_points |
+					update_JxW_values
+					);
+
+			QGauss<dim> qformula_parent(density_cell_info_vector[density_cell_itr].quad_rule);
+			FEValues<dim> fevalues_parent(density_fe,
+					qformula_child,
+					update_values |
+					update_gradients |
+					update_quadrature_points |
+					update_JxW_values
+					);
+			unsigned int no_q_points = density_cell_info_vector[density_cell_itr].density.size();
+			fevalues_child.reinit(density_cell);
+			std::vector<Point<dim> > child_qpoints = fevalues_child.get_quadrature_points();
+			fevalues_parent.reinit(density_cell->parent());
+			std::vector<Point <dim> > parent_qpoints = fevalues_parent.get_quadrature_points();
+			for(unsigned int qchild = 0; qchild < no_q_points; ++qchild){
+				double dmin = 99999;
+				Point<dim> p_child = child_qpoints[qchild];
+				for(unsigned int qparent = 0; qparent < no_q_points; ++qparent){
+					Point<dim> p_parent = parent_qpoints[qparent];
+					if(p_parent.distance(p_child) >= dmin){
+						continue;
+					}
+					density_cell_info_vector[density_cell_itr].density[qchild] = temp_cellprop[density_cell->parent()->user_index() - 1].density[qparent];
+					dmin = p_parent.distance(p_child);
+				}
+			}
+		}
+
+		if(density_cell->user_index() > 0){
+			density_cell_info_vector[density_cell_itr] = temp_cellprop[density_cell->user_index() - 1];
+		}
+
+		//Updating the cell area
+		density_cell_info_vector[density_cell_itr].cell_area = density_cell->measure();
+
+		++density_cell_itr;
+	}
+
+		//clearing temp_cellprop
+		temp_cellprop.clear();
+
+	//Clearing the user_index for all cells
+	density_cell = density_dof_handler.begin_active();
+	density_cell_itr = 0;
+	for(; density_cell != density_endc; ++density_cell){
+		if(density_cell->level() > 0 && density_cell->parent()->user_index() > 0){
+			density_cell->parent()->clear_user_index();
+		}
+		if(density_cell->user_index() > 0){
+			density_cell->clear_user_index();
+		}
 	}
 }

@@ -34,8 +34,10 @@ DefineMesh<dim>::DefineMesh(int obj_dofs_per_node){
 template <int dim>
 void DefineMesh<dim>::createMesh(
 		Triangulation<dim> &triangulation,
+		Triangulation<dim> &fe_density_triangulation,
 		Triangulation<dim> &density_triangulation){
 	this->triangulation = &triangulation;
+	this->fe_density_triangulation = &fe_density_triangulation;
 	this->density_triangulation = &density_triangulation;
 	if (meshType == "subdivided_hyper_rectangle"){
 		Point<dim> point1, point2;
@@ -45,6 +47,13 @@ void DefineMesh<dim>::createMesh(
 		}
 		GridGenerator::subdivided_hyper_rectangle(
 				triangulation,
+				subdivisions,
+				point1,
+				point2,
+				false
+				);
+		GridGenerator::subdivided_hyper_rectangle(
+				fe_density_triangulation,
 				subdivisions,
 				point1,
 				point2,
