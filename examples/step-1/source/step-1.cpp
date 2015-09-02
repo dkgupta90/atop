@@ -71,10 +71,10 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.06, 0.06);
+			0.06, 0.6);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 4);
+	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 8);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction

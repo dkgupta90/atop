@@ -28,8 +28,8 @@ void Adaptivity<dim>::update(
 
 	//Assigning the FEM object
 	this->fem = &obj_fem;
-	this->cell_info_vector = fem->cell_info_vector;
-	this->density_cell_info_vector = fem->density_cell_info_vector;
+	this->cell_info_vector = (fem->cell_info_vector);
+	this->density_cell_info_vector = (fem->density_cell_info_vector);
 
 	//Run the mesh adaptivity approach
 	mesh_refine_indicator(fem->mesh->adaptivityType);
@@ -80,7 +80,7 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 	typename Triangulation<dim>::active_cell_iterator cell = fem->triangulation->begin_active(),
 			endc = fem->triangulation->end();
 	typename Triangulation<dim>::active_cell_iterator fe_density_cell = fem->fe_density_triangulation->begin_active(),
-			fe_density_endc = fem->triangulation->end();
+			fe_density_endc = fem->fe_density_triangulation->end();
 
 	typename Triangulation<dim>::active_cell_iterator density_cell = fem->density_triangulation->begin_active(),
 			density_endc = fem->density_triangulation->end();
@@ -107,6 +107,18 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 			fe_density_cell->set_refine_flag();
 			density_cell->set_refine_flag();
 		}
+
+		//Setting user index of the parent of cell which is selected for coarsening
+		if (cell->coarsen_flag_set() && cell->level() > 0){
+			cell->parent()->set_user_index(cell->user_index());
+		}
+		if (fe_density_cell->coarsen_flag_set() && fe_density_cell->level() > 0){
+			fe_density_cell->parent()->set_user_index(fe_density_cell->user_index());
+		}
+		if (density_cell->coarsen_flag_set() && density_cell->level() > 0){
+			density_cell->parent()->set_user_index(density_cell->user_index());
+		}
+
 		++cell_itr;
 	}
 }
@@ -127,9 +139,10 @@ void Adaptivity<dim>::update_cell_vectors(
 	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler.begin_active(),
 			density_endc = density_dof_handler.end();
 	for(; density_cell != density_endc; ++density_cell){
+
 		if(density_cell->level() > 0 && density_cell->parent()->user_index() > 0){
 			density_cell_info_vector[density_cell_itr] = temp_cellprop[density_cell->parent()->user_index() - 1];
-			QGauss<dim> qformula_child(density_cell_info_vector[density_cell_itr].quad_rule);
+/*			QGauss<dim> qformula_child(density_cell_info_vector[density_cell_itr].quad_rule);
 			FEValues<dim> fevalues_child(density_fe,
 					qformula_child,
 					update_values |
@@ -162,7 +175,7 @@ void Adaptivity<dim>::update_cell_vectors(
 					density_cell_info_vector[density_cell_itr].density[qchild] = temp_cellprop[density_cell->parent()->user_index() - 1].density[qparent];
 					dmin = p_parent.distance(p_child);
 				}
-			}
+			}*/
 		}
 
 		if(density_cell->user_index() > 0){

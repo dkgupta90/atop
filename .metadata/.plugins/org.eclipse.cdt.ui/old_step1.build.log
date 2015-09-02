@@ -1,4 +1,4 @@
-10:13:38 **** Incremental Build of configuration Debug for project old_step1 ****
+17:12:46 **** Incremental Build of configuration Debug for project old_step1 ****
 make all 
 Building file: ../source/step1.cpp
 Invoking: Cross G++ Compiler
@@ -139,5 +139,5 @@ g++ -L"/home/dkgupta/WORK/projects/atop/atop/Debug" -L/usr/lib -o "old_step1"  .
 Finished building target: old_step1
  
 
-10:13:44 Build Finished (took 5s.581ms)
+17:12:51 Build Finished (took 5s.164ms)
 

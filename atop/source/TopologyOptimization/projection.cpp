@@ -12,10 +12,18 @@ using namespace atop;
 Projection::Projection(
 		std::string type,
 		double r,
-		double min_r){
+		double g){
 	projection_type = type;
 	radius = r;
-	min_radius = min_r;
+	gamma = g;
+}
+
+Projection::Projection(
+		std::string type,
+		double r){
+	projection_type = type;
+	radius = r;
+	gamma = 1.0;
 }
 
 Projection::~Projection(){

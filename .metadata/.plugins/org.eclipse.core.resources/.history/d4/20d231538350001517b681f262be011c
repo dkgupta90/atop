@@ -1,0 +1,24 @@
+/*
+ *
+ *  Created on: Aug 5, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/projection.h>
+
+using namespace atop;
+
+Projection::Projection(
+		std::string type,
+		double r,
+		double gamma){
+	projection_type = type;
+	radius = r;
+	min_radius = min_r;
+}
+
+Projection::~Projection(){
+
+}
+

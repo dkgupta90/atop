@@ -16,16 +16,22 @@ namespace atop{
 	public:
 		std::string projection_type;
 		double radius;
-		double min_radius;
+		double gamma;
 
 		/**
 		 * Constructor to choose the type of projection operator
 		 * Allows to choose the radius of projection and minimum feature size
 		 */
 		Projection(std::string,
-				double,
 				double);
 
+		/**
+		 * Last parameter of this constructor denotes 'gamma'.
+		 * This is used to adapt the size of the projection radius based on the size of the cell
+		 */
+		Projection(std::string,
+				double,
+				double);
 		~Projection();
 
 	};
