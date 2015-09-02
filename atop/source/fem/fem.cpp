@@ -147,7 +147,7 @@ void FEM<dim>::assemble_system(){
 	if (itr_count == 0){
 		initialize_cycle();
 	}
-	if (itr_count != 0){
+	if (itr_count != -1){
 		//Update the density_cell_info_vector
 		density_field.update_density_cell_info_vector(
 				*density_cell_info_vector,
@@ -156,17 +156,19 @@ void FEM<dim>::assemble_system(){
 
 	//Apply smoothing operation on the density values
 	density_field.smoothing(*cell_info_vector, *density_cell_info_vector);
-	//std::cout<<"Smoothing done"<<std::endl;
+	std::cout<<"Smoothing done"<<std::endl;
 
 	//Updating the physics of the problem
 	update_physics();
-	//std::cout<<"Physics updated"<<std::endl;
+	std::cout<<"Physics updated"<<std::endl;
 
 	//Compute cellwise material properties
 	penal->update_param(linear_elastic->E, *cell_info_vector);
+	std::cout<<"Cell parameters updated"<<std::endl;
 
 	//Assembling the system and RHS
 	assembly();
+	std::cout<<"Assembly finished"<<std::endl;
 
 }
 
@@ -327,6 +329,8 @@ void FEM<dim>::initialize_cycle(){
 	 * Link the cell_info_vector to the FE triangulation
 	 * user_index is 1, 2, 3.......
 	 */
+
+	std::cout<<"Initializing the cycle "<<std::endl;
 
 	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();

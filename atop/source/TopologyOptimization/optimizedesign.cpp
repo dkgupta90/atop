@@ -145,8 +145,9 @@ void Optimizedesign<dim>::optimize(){
 			opt.set_upper_bounds(ub);
 			opt.set_min_objective(myvfunc, (void*)this);
 			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-5);
-			opt.set_ftol_rel(1e-3);
-			opt.set_xtol_rel(1e-3);
+			opt.set_ftol_abs(1e-4);
+			opt.set_xtol_abs(1e-6);
+			opt.set_maxeval(50);
 			double minf;
 			std::cout<<"Optimization started "<<std::endl;
 			nlopt::result result = opt.optimize(design_vector, minf);
@@ -157,7 +158,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-3;
+			obj_oc.min_obj_change = 1e-2;
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
@@ -169,9 +170,9 @@ void Optimizedesign<dim>::optimize(){
 		/**
 		 * Refinement of the mesh
 		 */
-		//triangulation.refine_global(1);
-		//fe_density_triangulation.refine_global(1);
-		//density_triangulation.refine_global(1);
+/*		triangulation.refine_global(1);
+		fe_density_triangulation.refine_global(1);
+		density_triangulation.refine_global(1);*/
 
 		//Choosing the cells for refinement and coarsening
 		Adaptivity<dim> adaptivity;

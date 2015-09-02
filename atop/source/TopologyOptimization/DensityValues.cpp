@@ -265,6 +265,10 @@ void DensityField<dim>::create_neighbors(
 	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
 				endc1= dof_handler.end();
 	for(; cell1 != endc1; ++cell1){
+		if(cell_info_vector[cell_itr1].quad_rule == 0){
+			std::cout<<cell_itr1<<"  as you can see"<<std::endl;
+			exit(0);
+		}
 		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
 		FEValues<dim> fe_values1(fe,
 				quadrature_formula1,
@@ -277,7 +281,9 @@ void DensityField<dim>::create_neighbors(
 
 		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
-		double proj_radius = projection.radius;
+
+		//Computing the cell specific filter radius
+		double proj_radius = projection.radius * pow(projection.gamma, (double)(cell1->level()));
 		double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
 
 		//Indentifying the density cell which contains the centroid of this FE cell
@@ -446,6 +452,7 @@ double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 			return output;
 		}
 	}
+	return 0;
 }
 
 template <int dim>
@@ -456,6 +463,8 @@ double DensityField<dim>::get_vol_fraction(
 	for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
 
 		cell_info_vector[i].cell_density = 0.0;
+		if(cell_info_vector[i].density_weights.size() == 0)
+			std::cout<<"ERRORRRRRRRR! no quad point here "<<std::endl;
 		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
 			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
 		}
