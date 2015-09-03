@@ -547,10 +547,12 @@ void FEM<dim>::add_source_to_rhs(
 		for(unsigned int i = 0; i < dim; ++i)
 			x[i] = points[p](i);
 		x = mesh->source_fn(x);
+
 		Assert(x.size() == dim,
 				ExcDimensionMismatch(x.size(), dim));
-		for(unsigned int i = 0; i < dim; ++i)
+		for(unsigned int i = 0; i < dim; ++i){
 			value_list[p](i) = x[i];
+		}
 	}
 }
 
