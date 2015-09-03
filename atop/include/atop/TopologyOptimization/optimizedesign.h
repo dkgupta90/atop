@@ -37,7 +37,7 @@ template <int dim>
 	std::vector<CellInfo> density_cell_info_vector;
 	DefineMesh<dim>* mesh;
 	FEM<dim> *obj_fem;
-	unsigned int cycle, no_cycles, itr_count;
+	unsigned int cycle, no_cycles;
 
 	double volfrac;	//volume fraction
 

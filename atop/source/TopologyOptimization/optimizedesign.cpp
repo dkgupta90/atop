@@ -134,6 +134,11 @@ void Optimizedesign<dim>::optimize(){
 		design_vector.clear();
 		design_vector.resize(no_design_count, volfrac);
 
+		//Update the design vector at every cycle
+		if (cycle != 0)
+			obj_fem->density_field.update_design_vector(
+					density_cell_info_vector, design_vector);
+
 		//Defining the upper and lower bounds
 		std::vector<double> lb(no_design_count, 0.0);
 		std::vector<double> ub(no_design_count, 1.0);
@@ -263,8 +268,6 @@ double myvfunc(
 		opt_design2d->update_design_vector(opt_design2d->design_vector, x);
 		opt_design2d->run_system();
 		grad = (opt_design2d->grad_vector);
-/*		for(unsigned int i = 0; i < grad.size(); ++i)
-			std::cout<<(opt_design2d->grad_vector)[i]<<std::endl;*/
 		objective = opt_design2d->objective;
 		return objective;
 	}
