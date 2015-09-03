@@ -36,8 +36,9 @@ void OC::optimize(
 		old_objective = objective;
 		std::cout<<"Iteration : "<<opt_design2d->obj_fem->itr_count + 2<<std::endl;
 		std::cout<<"OC method initiated"<<std::endl;
-		std::vector<double> obj_grad(no_design);
-		std::vector<double> old_design_vector = *design_vector;
+		std::vector<double> obj_grad(no_design), old_design_vector;
+		old_design_vector.clear();
+		old_design_vector = *design_vector;
 		obj_grad.clear();
 
 		//Calculating the objective and derivative
@@ -45,9 +46,20 @@ void OC::optimize(
 				*design_vector,
 				obj_grad,
 				obj_data);
-
-
 		double current_volfrac = 0.0;
+
+		//Calculating volume derivatives
+		std::vector<double> vol_grad(obj_grad.size(), 0.0);
+		current_volfrac = opt_design2d->vol_constraint.volumeConstraint(
+				vol_grad,
+				opt_design2d->cell_info_vector,
+				opt_design2d->density_cell_info_vector,
+				opt_design2d->obj_fem->density_field
+				);
+
+		for(unsigned int i = 0 ; i < obj_grad.size(); ++i){
+
+	}
 		double l1 = 1e-5, l2 = 100000, move = 0.2;
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
@@ -57,7 +69,7 @@ void OC::optimize(
 				if (obj_grad[i] > 0){
 					std::cout<<"Error located "<<obj_grad[i]<<std::endl;
 				}
-				octemp1 = old_density * (sqrt(-obj_grad[i]/lmid));
+				octemp1 = old_density * (sqrt(-obj_grad[i]/(lmid * vol_grad[i])));
 				if ((old_density + move) < octemp1){
 					octemp1 = old_density + move;
 				}
