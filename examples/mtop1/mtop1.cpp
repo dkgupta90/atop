@@ -12,6 +12,12 @@
  *
  */
 
+/*In this step, we test the moving design points based method.
+ * The algorithm starts with 1 design point per element and these points are allowed to move in space.
+ * The radius of projection of each of these points is adapted.
+ *
+ */
+
 #include <atop/fem/define_mesh.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/TopologyOptimization/penalization.h>
@@ -47,16 +53,16 @@ int main(){
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
 	mesh.subdivisions = {40, 20};
-	mesh.density_subdivisions = {40, 20};
+	//mesh.density_subdivisions = {40, 20};
 	mesh.coupling = false;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
 	mesh.meshType = "subdivided_hyper_rectangle";
 	mesh.elementType = "FE_Q";
-	mesh.density_elementType = "FE_DGQ";
+	//mesh.density_elementType = "FE_DGQ";
 	mesh.el_order = 1;
-	mesh.density_el_order = 1;
-	mesh.adaptivityType = "adaptive_grayness";
+	//mesh.density_el_order = 1;
+	mesh.adaptivityType = "movingDesignPoints";
 
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
@@ -81,7 +87,7 @@ int main(){
 			0.06, 0.6);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 6);
+	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 1);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction

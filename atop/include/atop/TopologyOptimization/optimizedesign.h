@@ -31,7 +31,7 @@ template <int dim>
 
 	Triangulation<dim> triangulation;	//Used to store the analysis information (vector dofs at each node)
 	Triangulation<dim> fe_density_triangulation; //Used to represent the filtered density field
-	Triangulation<dim> density_triangulation;	// store to store the design densities
+	Triangulation<dim> density_triangulation;	// Used to store the design densities
 
 	// dof_handler connects to triangulation
 	// density_handler connects to fe_density_triangulation
