@@ -1,11 +1,11 @@
-12:20:10 **** Incremental Build of configuration Debug for project mtop1 ****
+16:34:54 **** Build of configuration Debug for project mtop1 ****
 make all 
 Building file: ../mtop1.cpp
 Invoking: Cross G++ Compiler
 g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"mtop1.d" -MT"mtop1.d" -o "mtop1.o" "../mtop1.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:30:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../mtop1.cpp:19:
+                 from ../mtop1.cpp:25:
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:1281:0: warning: ignoring #pragma omp simd [-Wunknown-pragmas]
                DEAL_II_OPENMP_SIMD_PRAGMA
  ^
@@ -21,7 +21,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../mtop1.cpp:17:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2789:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -44,7 +44,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../mtop1.cpp:17:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2889:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -71,7 +71,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                                                                                      ^
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../mtop1.cpp:17:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:2997:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
      typedef FEValuesBase<dim,spacedim> FVB;
@@ -140,5 +140,5 @@ g++ -L/usr/local/lib -L/home/dkgupta/bin/deal.II/lib -L/home/dkgupta/WORK/projec
 Finished building target: mtop1
  
 
-12:20:14 Build Finished (took 3s.863ms)
+16:34:58 Build Finished (took 3s.914ms)
 

@@ -29,7 +29,6 @@ source/output \
 source/optimizer \
 source/math_tools/algebra \
 source/fem \
-source/examples \
 source/derivatives \
 source/data_format \
 source/TopologyOptimization \

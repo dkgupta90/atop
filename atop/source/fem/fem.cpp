@@ -52,30 +52,32 @@ FEM<dim>::FEM(
 		DefineMesh<dim> &obj_mesh,
 		std::vector<double> &obj_design_vector){
 
-	this->dof_handler = &dof_handler;
-	this->density_handler = &density_handler;
-	this->density_dof_handler = &density_dof_handler;
-	this->triangulation = &obj_triangulation;
-	this->fe_density_triangulation = &obj_fe_density_triang;
-	this->density_triangulation = &obj_density_triangulation;
 	this->cell_info_vector = &cell_info_vector;
 	this->density_cell_info_vector = &density_cell_info_vector;
-
 	this->mesh = &obj_mesh;
-
-	//Design vector for optimization purpose
-	this->design_vector = &obj_design_vector;
+	this->dof_handler = &dof_handler;	// for the state field on the analysis
+	this->density_handler = &density_handler;	// for the filtered density field
+	this->triangulation = &obj_triangulation;	//for the state field on the analysis
+	this->fe_density_triangulation = &obj_fe_density_triang;	//for the filtered density
 	//Choosing the types of elements for FE mesh
 	if(obj_mesh.elementType == "FE_Q"){
 		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
 		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 
-	//Choosing the type of element for density mesh
-	//Information below is used to create the density field which will be output as the design.
-	if(obj_mesh.density_elementType == "FE_DGQ"){
-		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+	if (obj_mesh.coupling == true){
+		this->density_dof_handler = &density_dof_handler;	// for the design field
+		this->density_triangulation = &obj_density_triangulation;	// for the design domain
+
+		//Choosing the type of element for density mesh
+		//Information below is used to create the density field which will be output as the design.
+		if(obj_mesh.density_elementType == "FE_DGQ"){
+			density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		}
+
 	}
+
+	this->design_vector = &obj_design_vector;
 
 }
 

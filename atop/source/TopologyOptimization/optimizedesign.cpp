@@ -114,7 +114,7 @@ void Optimizedesign<dim>::optimize(){
 	obj_fem->penalization(*penal);
 
 	cell_info_vector.resize(triangulation.n_active_cells());
-	density_cell_info_vector.resize(density_triangulation.n_active_cells());
+	density_cell_info_vector.resize(mesh->set_no_of_design_parameters());
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
