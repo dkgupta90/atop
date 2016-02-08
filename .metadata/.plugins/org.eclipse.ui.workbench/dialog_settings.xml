@@ -4,6 +4,13 @@
 		<item value="178" key="DIALOG_Y_ORIGIN"/>
 		<item value="606" key="DIALOG_X_ORIGIN"/>
 	</section>
+	<section name="ShowViewDialog">
+		<item value="394" key="DIALOG_WIDTH"/>
+		<item value="244" key="DIALOG_Y_ORIGIN"/>
+		<item value="463" key="DIALOG_HEIGHT"/>
+		<item value="740" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+	</section>
 	<section name="ImportExportAction">
 	</section>
 </section>

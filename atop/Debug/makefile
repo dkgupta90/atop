@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include source/physics/mechanics/subdir.mk
 -include source/physics/subdir.mk
+-include source/output/subdir.mk
 -include source/optimizer/subdir.mk
 -include source/math_tools/algebra/subdir.mk
 -include source/fem/subdir.mk

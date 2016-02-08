@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -latop -ldeal_II -lnlopt
+LIBS := -latop -ldeal_II -lnlopt -ltbb
 
