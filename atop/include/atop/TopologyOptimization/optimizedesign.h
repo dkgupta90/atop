@@ -29,12 +29,17 @@ template <int dim>
 	class Optimizedesign{
 	public:
 
-	Triangulation<dim> triangulation;
-	Triangulation<dim> fe_density_triangulation;
-	Triangulation<dim> density_triangulation;
+	Triangulation<dim> triangulation;	//Used to store the analysis information (vector dofs at each node)
+	Triangulation<dim> fe_density_triangulation; //Used to represent the filtered density field
+	Triangulation<dim> density_triangulation;	// store to store the design densities
+
+	// dof_handler connects to triangulation
+	// density_handler connects to fe_density_triangulation
+	// density_dof_handler connects to density_triangulation
 	DoFHandler<dim> dof_handler, density_handler, density_dof_handler;
-	std::vector<CellInfo> cell_info_vector;
-	std::vector<CellInfo> density_cell_info_vector;
+
+	std::vector<CellInfo> cell_info_vector;	//stores the informatiobn related to each analysis cell
+	std::vector<CellInfo> density_cell_info_vector;	//stores information related to each cell on design mesh
 	DefineMesh<dim>* mesh;
 	FEM<dim> *obj_fem;
 	unsigned int cycle, no_cycles;

@@ -54,10 +54,10 @@ FEM<dim>::FEM(
 
 	this->dof_handler = &dof_handler;
 	this->density_handler = &density_handler;
+	this->density_dof_handler = &density_dof_handler;
 	this->triangulation = &obj_triangulation;
 	this->fe_density_triangulation = &obj_fe_density_triang;
 	this->density_triangulation = &obj_density_triangulation;
-	this->density_dof_handler = &density_dof_handler;
 	this->cell_info_vector = &cell_info_vector;
 	this->density_cell_info_vector = &density_cell_info_vector;
 
@@ -72,6 +72,7 @@ FEM<dim>::FEM(
 	}
 
 	//Choosing the type of element for density mesh
+	//Information below is used to create the density field which will be output as the design.
 	if(obj_mesh.density_elementType == "FE_DGQ"){
 		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
@@ -108,6 +109,10 @@ void FEM<dim>::setup_system(){
 	//FE mesh
 	dof_handler->distribute_dofs(*fe);
 	density_handler->distribute_dofs(*fe_density);
+
+	//Density mesh or design mesh
+	density_dof_handler->distribute_dofs(*density_fe);
+
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(*dof_handler,
 			hanging_node_constraints);
@@ -122,11 +127,10 @@ void FEM<dim>::setup_system(){
 	system_matrix.reinit(sparsity_pattern);
 	solution.reinit(dof_handler->n_dofs());
 	system_rhs.reinit(dof_handler->n_dofs());
-	nodal_density.reinit(density_handler->n_dofs());
-	cells_adjacent_per_node.reinit(density_handler->n_dofs());
+	nodal_density.reinit(density_handler->n_dofs());	//filtered densities for the output design
+	cells_adjacent_per_node.reinit(density_handler->n_dofs());	//for normalizing the nodal density value
 
-	//Density mesh
-	density_dof_handler->distribute_dofs(*density_fe);
+
 
 }
 
