@@ -8,10 +8,12 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/exceptions.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/table_indices.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/subscriptor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/smartpointer.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/geometry_info.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/function.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/iterator_range.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/function.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator_selector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_faces.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_object.h \
@@ -21,17 +23,16 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/cell_id.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_accessor.templates.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/tuple.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/index_set.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/utilities.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/shared_ptr.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/shared_ptr.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/memory_consumption.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/block_indices.h \
@@ -39,23 +40,33 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/thread_local_storage.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_iterator_selector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/number_cache.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_generator.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/table.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/type_traits.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/parallel.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/synchronous_iterator.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/bind.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/function.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_refinement.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/bind.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/thread.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/mutex.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/condition_variable.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/grid/manifold.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_update_flags.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
@@ -71,14 +82,11 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values_extractors.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/component_mask.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/block_mask.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h \
- /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h:
 
@@ -98,13 +106,17 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/table_indices.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/base/subscriptor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/smartpointer.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/geometry_info.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/function.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/iterator_range.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/function.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator_selector.h:
 
@@ -124,8 +136,6 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_accessor.templates.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:
-
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:
@@ -134,7 +144,7 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/tuple.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h:
 
@@ -144,7 +154,7 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/shared_ptr.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/shared_ptr.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h:
 
@@ -160,11 +170,33 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/number_cache.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_generator.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/table.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/type_traits.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/parallel.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/synchronous_iterator.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/bind.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/function.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_refinement.h:
 
@@ -178,21 +210,19 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/bind.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/thread.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/mutex.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/condition_variable.h:
+/home/dkgupta/bin/deal.II/include/deal.II/grid/manifold.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h:
 
@@ -224,18 +254,12 @@ source/fem/define_mesh.d: ../source/fem/define_mesh.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/block_mask.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:

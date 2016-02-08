@@ -25,6 +25,7 @@ C_UPPER_DEPS :=
 SUBDIRS := \
 source/physics/mechanics \
 source/physics \
+source/output \
 source/optimizer \
 source/math_tools/algebra \
 source/fem \
