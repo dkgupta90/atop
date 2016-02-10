@@ -129,13 +129,13 @@ void DefineMesh<dim>::boundary_info(){
 }
 
 template <int dim>
-unsigned int DefineMesh<dim>::set_no_of_design_parameters(){
+unsigned int DefineMesh<dim>::design_var_per_point(){
 	std::transform(adaptivityType.begin(), adaptivityType.end(),adaptivityType.begin(), ::tolower);
 	if (this->coupling == false && this->adaptivityType == "movingdesignpoints"){
-		return ((dim + 2) * triangulation->n_active_cells());
+		return (dim + 2);
 	}
 	else{
-		return (density_triangulation->n_active_cells());
+		return 1;
 	}
 	return 0;
 }

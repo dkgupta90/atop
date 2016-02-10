@@ -18,6 +18,7 @@
 #include <deal.II/dofs/dof_handler.h>
 
 using namespace dealii;
+
 namespace topopt{
 class CellProperties{
 
@@ -53,6 +54,8 @@ namespace atop{
 
 		unsigned int n_q_points;	//No. of quadrature points
 
+		double projection_radius; 	//projection radius of the current cell
+
 		/**
 		 * density values for the mesh
 		 * refers to unfiltered density values for the design/density mesh
@@ -63,6 +66,15 @@ namespace atop{
 		  * Stores dc_dxPhys
 		  */
 		 std::vector<double> dc_dx;
+
+		 /*
+		  * pointX saves the coordinates of the design point
+		  * For coupled meshes or for  a case where design mesh is actually used, it is not needed
+		  * For cases where there is not design mesh, but just points in a domain, this is needed.
+		  * For the case above,  cell->center() does not change, however the design point moves.
+		  * So the coordinates of the design point location are going to change and are saved.
+		  */
+		 std::vector<double> pointX;
 
 		/**
 		 * saves the stiffness and corresponding design derivative for each FE cell.

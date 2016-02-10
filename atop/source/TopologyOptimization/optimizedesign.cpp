@@ -114,7 +114,7 @@ void Optimizedesign<dim>::optimize(){
 	obj_fem->penalization(*penal);
 
 	cell_info_vector.resize(triangulation.n_active_cells());
-	density_cell_info_vector.resize(mesh->set_no_of_design_parameters());
+	density_cell_info_vector.resize(triangulation.n_active_cells());
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
@@ -129,15 +129,24 @@ void Optimizedesign<dim>::optimize(){
 		 */
 
 		obj_fem->itr_count = -1;
-		unsigned int no_design_count = density_cell_info_vector.size();
+
+		//Getting no. of design points
+		unsigned int no_design_count = density_cell_info_vector.size() * mesh->design_var_per_point();
 		std::cout<<"Number of design variables : "<<no_design_count<<std::endl;
+
+		//
 		design_vector.clear();
-		design_vector.resize(no_design_count, volfrac);
+		design_vector.resize(no_design_count); //Holds true for coupled as well as decoupled meshes
 
 		//Update the design vector at every cycle
 		if (cycle != 0)
 			obj_fem->density_field.update_design_vector(
-					density_cell_info_vector, design_vector);
+					density_cell_info_vector,
+					design_vector,
+					cycle,
+					volfrac,
+					*mesh,
+					*projection);
 
 		//Defining the upper and lower bounds
 		std::vector<double> lb(no_design_count, 0.0);

@@ -84,7 +84,7 @@ namespace atop{
 
 		void boundary_info();
 
-		unsigned int set_no_of_design_parameters();
+		unsigned int design_var_per_point();
 
 	};
 	template class DefineMesh<2>;

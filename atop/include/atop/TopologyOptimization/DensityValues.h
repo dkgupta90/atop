@@ -19,6 +19,7 @@
 #include <deal.II/dofs/dof_handler.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/physics/mechanics/elastic.h>
+#include <atop/fem/define_mesh.h>
 
 using namespace dealii;
 
@@ -49,7 +50,22 @@ namespace atop{
 
 		void update_design_vector(
 				std::vector<CellInfo> &density_cell_info_vector,
-				std::vector<double> &design_vector);
+				std::vector<double> &design_vector,
+				unsigned int cycle,
+				double volfrac,
+				DefineMesh<dim> &mesh,
+				Projection &projection);
+
+		/* This function is written to update the lower and upper bounds for the
+		 * design points used.
+		 * For case where only density is used as design variable, this can be straightforward.
+		 * For other cases, the vectors cannot be directly assigned and need to be properly iterated.
+		 */
+
+		void update_design_bounds(
+				std::vector<double> &lb,
+				std::vector<double> &ub);
+
 		void update_density_cell_info_vector(
 				std::vector<CellInfo> &density_cell_info_vector,
 				const std::vector<double> &design_vector);
