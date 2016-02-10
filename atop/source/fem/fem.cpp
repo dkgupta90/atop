@@ -361,7 +361,11 @@ void FEM<dim>::initialize_cycle(){
 	}
 
 	density_field.update_design_vector(*density_cell_info_vector,
-		*design_vector);
+		*design_vector,
+		cycle,
+		volfrac,
+		*mesh,
+		*projection);
 
 	double time1 = clock();
 

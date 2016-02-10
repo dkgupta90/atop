@@ -17,6 +17,10 @@
 #include <deal.II/fe/fe_values.h>
 #include <atop/TopologyOptimization/neighbors.h>
 #include <atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+
 #include <math.h>
 using namespace topopt;
 using namespace dealii;
@@ -203,14 +207,80 @@ void DensityField<dim>::smoothing(
 template <int dim>
 void DensityField<dim>::update_design_vector(
 		std::vector<CellInfo> &density_cell_info_vector,
-		std::vector<double> &design_vector){
+		std::vector<double> &design_vector,
+		unsigned int cycle,
+		double volfrac,
+		DefineMesh<dim> &mesh,
+		Projection &projection){
+
 	design_vector.clear();
 	unsigned int cell_count = density_cell_info_vector.size();
-	for(unsigned int i = 0; i < cell_count; ++i){
-		for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
-			design_vector.push_back(density_cell_info_vector[i].density[j]);
+
+	//Update the design vector
+
+	/*
+	 * This is a case where the design points are decoupled and they actually do not form a mesh.
+	 * For convenience it is implemented as a separate mesh, however, there is only one point per mesh.
+	 * No quadrature sort of implementation exists for the design mesh for such a case.
+	 * In the worst implementation, q = 1 point might be assumed for quadrature, however, that should be avoided.
+	 */
+	if (mesh.coupling == false && mesh.adaptivityType == "movingdesignpoints"){
+
+		if (cycle == 0){
+			design_vector.resize(cell_count * mesh.design_var_per_point());
+			int k = 0;	//iterates over the total number of cells
+			unsigned int design_per_point = mesh.design_var_per_point();
+
+			typename Triangulation<dim>::active_cell_iterator cell = mesh.triangulation->begin_active(),
+						endc = mesh.triangulation->end();
+
+			for (unsigned int i = 0; i < design_vector.size(); ++i){
+				design_vector[i] = volfrac; //adding the density for the current design point
+				i++;
+				design_vector[i] = projection.radius; //Adding the projection radius
+				i++;
+				// initializing the dim no. of coordinates for the location of the design point
+				for (unsigned int j = 0; j < dim; j++){
+					design_vector[i] = cell->center()[j];
+					i++;
+				}
+				cell++;
+
+			}
+		}
+		else{
+			design_vector.clear();
+			unsigned int k = 0; //iterate over the whole design vector
+			for (unsigned int i = 0; i < cell_count; ++i){
+				design_vector.push_back(density_cell_info_vector[i].density[0]);	//adding the density value
+				design_vector.push_back(density_cell_info_vector[i].projection_radius);		//adding rmin value for the cell
+				for(unsigned int j = 0; j < density_cell_info_vector[i].pointX.size(); ++j){
+					//adding all the components of dim coordinates for the location
+					design_vector.push_back(density_cell_info_vector[i].pointX[j]);
+				}
+			}
+
 		}
 	}
+	/*
+	 * Below is the case of a coupled mesh where the same element is used for analysis as well design.
+	 * For clarity purpose two different meshes are used. However, a one-one correlation exists between
+	 * elements of the 2 meshes.
+	 */
+	else{
+		if (cycle == 0){
+			design_vector.resize(cell_count, volfrac);
+		}
+		else{
+			for(unsigned int i = 0; i < cell_count; ++i){
+				for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
+					design_vector.push_back(density_cell_info_vector[i].density[j]);
+				}
+			}
+		}
+	}
+
+
 
 }
 

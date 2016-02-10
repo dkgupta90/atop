@@ -38,6 +38,7 @@ namespace atop{
 		//defines the type of element e.g. scalar lagrange element
 		std::string elementType;
 		std::string density_elementType;
+
 		std::string adaptivityType;
 
 		//defines the element order
@@ -82,6 +83,8 @@ namespace atop{
 				Triangulation<dim> &density_triangulation);
 
 		void boundary_info();
+
+		unsigned int set_no_of_design_parameters();
 
 	};
 	template class DefineMesh<2>;
