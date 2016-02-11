@@ -279,8 +279,53 @@ void DensityField<dim>::update_design_vector(
 			}
 		}
 	}
+}
 
+/*
+ * This function is used to update the values of the design bounds for different types of adaptive methods.
+ * For the case of only density design bounds, it will be straightforward.
+ */
+template <int dim>
+void DensityField<dim>::update_design_bounds(
+		std::vector<double> &lb,
+		std::vector<double> &ub,
+		DefineMesh<dim> &mesh){
 
+	if (mesh.coupling == false && mesh.adaptivityType == "movingdesignpoints"){
+		unsigned int no_cells = mesh.triangulation->n_active_cells();	// No of design points in the domain
+		//This case assumes only one design points exists with respect to every finite element in the start of MTO
+		unsigned int design_count = no_cells * mesh.design_var_per_point();	//Total number of design variables for optimization
+
+		lb.resize(design_count);
+		ub.resize(design_count);	//setting the sizes of the bound vectors
+
+		unsigned int k = 0;	//iterating over all design variables
+
+		for (unsigned int i = 0; i < no_cells; ++i){
+			lb[k] = 0;	//density value
+			ub[k] = 0;	//density value
+			k++;
+			lb[k] = 1.1;	//minimum projection (elem size)
+			ub[k] = 10.0;	//maximum projection (elem size)
+			k++;
+
+			// updating the location bounds for the dim dimensions
+			for (unsigned int j = 0; j < dim; ++j){
+				lb[k] = mesh.coordinates[j][0];
+				ub[k] = mesh.coordinates[j][1];
+				k++;
+			}
+		}
+
+	}
+	else{
+
+		//in this case the number of design variables is equal to the number of cells in the
+		//density_trinagulation mesh
+		unsigned int design_count = mesh.density_triangulation->n_active_cells();
+		lb.resize(design_count, 0.0);
+		ub.resize(design_count, 1.0);
+	}
 
 }
 
