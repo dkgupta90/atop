@@ -139,18 +139,18 @@ void Optimizedesign<dim>::optimize(){
 		design_vector.resize(no_design_count); //Holds true for coupled as well as decoupled meshes
 
 		//Update the design vector at every cycle
-		if (cycle != 0)
-			obj_fem->density_field.update_design_vector(
-					density_cell_info_vector,
-					design_vector,
-					cycle,
-					volfrac,
-					*mesh,
-					*projection);
+		obj_fem->density_field.update_design_vector(
+				density_cell_info_vector,
+				design_vector,
+				cycle,
+				volfrac,
+				*mesh,
+				*projection);
 
 		//Defining the upper and lower bounds
-		std::vector<double> lb(no_design_count, 0.0);
-		std::vector<double> ub(no_design_count, 1.0);
+		std::vector<double> lb, ub;
+		obj_fem->density_field.update_design_bounds(
+				lb, ub, *mesh);
 
 		//Choosing the optimizer
 		if(opt_algorithm == "MMA"){
