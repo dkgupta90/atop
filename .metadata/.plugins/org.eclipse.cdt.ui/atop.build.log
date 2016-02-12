@@ -1,142 +1,10 @@
-16:22:46 **** Incremental Build of configuration Debug for project atop ****
+15:55:08 **** Incremental Build of configuration Debug for project atop ****
 make all 
-Building file: ../source/TopologyOptimization/DensityValues.cpp
+Building file: ../source/fem/fem.cpp
 Invoking: Cross G++ Compiler
-g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"source/TopologyOptimization/DensityValues.d" -MT"source/TopologyOptimization/DensityValues.d" -o "source/TopologyOptimization/DensityValues.o" "../source/TopologyOptimization/DensityValues.cpp"
-In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:25,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:22,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
-                 from ../source/TopologyOptimization/DensityValues.cpp:8:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2789:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(dealii::DoFCellAccessor<dealii::hp::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2801:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, ForwardIterator, ForwardIterator, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2822:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::hp::DoFHandler<dim, spacedim>, level_dof_access>&, ForwardIterator, ForwardIterator, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2856:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:25,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:22,
-                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
-                 from ../source/TopologyOptimization/DensityValues.cpp:8:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2889:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::hp::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2923:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::FullMatrix<number>&, OutputMatrix&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2955:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::hp::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::FullMatrix<number>&, OutputMatrix&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2992:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::FullMatrix<number>&, const dealii::Vector<number>&, OutputMatrix&, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:3030:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::hp::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::FullMatrix<number>&, const dealii::Vector<number>&, OutputMatrix&, OutputVector&)’:
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:3075:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
-         typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
-                                                                                     ^
-In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:17,
-                 from ../source/TopologyOptimization/DensityValues.cpp:8:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:2997:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::gradient_type dealii::FEValuesViews::Scalar<dim, spacedim>::gradient(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3023:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::hessian_type dealii::FEValuesViews::Scalar<dim, spacedim>::hessian(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3050:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::value_type dealii::FEValuesViews::Vector<dim, spacedim>::value(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3076:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::gradient_type dealii::FEValuesViews::Vector<dim, spacedim>::gradient(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3114:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::divergence_type dealii::FEValuesViews::Vector<dim, spacedim>::divergence(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3154:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::curl_type dealii::FEValuesViews::Vector<dim, spacedim>::curl(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3188:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::hessian_type dealii::FEValuesViews::Vector<dim, spacedim>::hessian(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3327:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Vector<dim, spacedim>::symmetric_gradient_type dealii::FEValuesViews::Vector<dim, spacedim>::symmetric_gradient(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3441:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::SymmetricTensor<2, dim, spacedim>::value_type dealii::FEValuesViews::SymmetricTensor<2, dim, spacedim>::value(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3475:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::SymmetricTensor<2, dim, spacedim>::divergence_type dealii::FEValuesViews::SymmetricTensor<2, dim, spacedim>::divergence(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3522:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Tensor<2, dim, spacedim>::value_type dealii::FEValuesViews::Tensor<2, dim, spacedim>::value(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3612:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Tensor<2, dim, spacedim>::divergence_type dealii::FEValuesViews::Tensor<2, dim, spacedim>::divergence(unsigned int, unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3662:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-     typedef FEValuesBase<dim,spacedim> FVB;
-                                        ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘const dealii::Point<spacedim>& dealii::FEValuesBase<dim, spacedim>::normal_vector(unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4150:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-   typedef FEValuesBase<dim,spacedim> FVB;
-                                      ^
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘const dealii::Tensor<1, spacedim>& dealii::FEFaceValuesBase<dim, spacedim>::boundary_form(unsigned int) const’:
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4232:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
-   typedef FEValuesBase<dim,spacedim> FVB;
-                                      ^
-../source/TopologyOptimization/DensityValues.cpp: In instantiation of ‘void atop::DensityField<dim>::update_design_vector(std::vector<atop::CellInfo>&, std::vector<double>&, unsigned int, double, atop::DefineMesh<dim>&, atop::Projection&) [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:103:17:   required from here
-../source/TopologyOptimization/DensityValues.cpp:231:8: warning: unused variable ‘k’ [-Wunused-variable]
-    int k = 0; //iterates over the total number of cells
-        ^
-../source/TopologyOptimization/DensityValues.cpp:232:17: warning: unused variable ‘design_per_point’ [-Wunused-variable]
-    unsigned int design_per_point = mesh.design_var_per_point();
-                 ^
-../source/TopologyOptimization/DensityValues.cpp:253:17: warning: unused variable ‘k’ [-Wunused-variable]
-    unsigned int k = 0; //iterate over the whole design vector
-                 ^
-Finished building: ../source/TopologyOptimization/DensityValues.cpp
- 
-Building file: ../source/TopologyOptimization/optimizedesign.cpp
-Invoking: Cross G++ Compiler
-g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"source/TopologyOptimization/optimizedesign.d" -MT"source/TopologyOptimization/optimizedesign.d" -o "source/TopologyOptimization/optimizedesign.o" "../source/TopologyOptimization/optimizedesign.cpp"
+g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"source/fem/fem.d" -MT"source/fem/fem.d" -o "source/fem/fem.o" "../source/fem/fem.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:30:0,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../source/TopologyOptimization/optimizedesign.cpp:11:
+                 from ../source/fem/fem.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:1281:0: warning: ignoring #pragma omp simd [-Wunknown-pragmas]
                DEAL_II_OPENMP_SIMD_PRAGMA
  ^
@@ -148,8 +16,7 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem
  ^
 In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:17,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../source/TopologyOptimization/optimizedesign.cpp:11:
+                 from ../source/fem/fem.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2789:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -168,8 +35,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                                                                                      ^
 In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:17,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../source/TopologyOptimization/optimizedesign.cpp:11:
+                 from ../source/fem/fem.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2889:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -196,8 +62,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                                                                                      ^
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:32,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../source/TopologyOptimization/optimizedesign.cpp:11:
+                 from ../source/fem/fem.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:2997:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
      typedef FEValuesBase<dim,spacedim> FVB;
@@ -258,12 +123,31 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4232:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-../source/TopologyOptimization/optimizedesign.cpp: In instantiation of ‘void atop::Optimizedesign<dim>::optimize() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:92:16:   required from here
-../source/TopologyOptimization/optimizedesign.cpp:167:18: warning: unused variable ‘result’ [-Wunused-variable]
-    nlopt::result result = opt.optimize(design_vector, minf);
-                  ^
-Finished building: ../source/TopologyOptimization/optimizedesign.cpp
+../source/fem/fem.cpp: In instantiation of ‘atop::FEM<dim>::~FEM() [with int dim = 2]’:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
+../source/fem/fem.cpp:87:37: warning: right operand of comma operator has no effect [-Wunused-value]
+  delete dof_handler, density_handler, density_dof_handler;
+                                     ^
+../source/fem/fem.cpp:87:2: warning: right operand of comma operator has no effect [-Wunused-value]
+  delete dof_handler, density_handler, density_dof_handler;
+  ^
+../source/fem/fem.cpp:88:23: warning: right operand of comma operator has no effect [-Wunused-value]
+  delete fe, fe_density, density_fe;
+                       ^
+../source/fem/fem.cpp:88:2: warning: right operand of comma operator has no effect [-Wunused-value]
+  delete fe, fe_density, density_fe;
+  ^
+../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::boundary_info() [with int dim = 2]’:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
+../source/fem/fem.cpp:606:4: warning: ‘void dealii::TriaAccessor<<anonymous>, <anonymous>, <anonymous> >::set_boundary_indicator(dealii::types::boundary_id) const [with int structdim = 1; int dim = 2; int spacedim = 2; dealii::types::boundary_id = unsigned char]’ is deprecated (declared at /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_accessor.templates.h:1864) [-Wdeprecated-declarations]
+    cell->face(f)->set_boundary_indicator(indic);
+    ^
+../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::assemble_system() [with int dim = 2]’:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
+../source/fem/fem.cpp:159:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+  if (itr_count != -1){
+                ^
+Finished building: ../source/fem/fem.cpp
  
 Building target: libatop.a
 Invoking: Cross GCC Archiver
@@ -272,5 +156,5 @@ ar: creating libatop.a
 Finished building target: libatop.a
  
 
-16:22:52 Build Finished (took 6s.818ms)
+15:55:14 Build Finished (took 6s.368ms)
 

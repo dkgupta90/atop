@@ -65,17 +65,18 @@ FEM<dim>::FEM(
 		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 
-	if (obj_mesh.coupling == true){
-		this->density_dof_handler = &density_dof_handler;	// for the design field
-		this->density_triangulation = &obj_density_triangulation;	// for the design domain
+	this->density_dof_handler = &density_dof_handler;	// for the design field
+	this->density_triangulation = &obj_density_triangulation;	// for the design domain
 
-		//Choosing the type of element for density mesh
-		//Information below is used to create the density field which will be output as the design.
-		if(obj_mesh.density_elementType == "FE_DGQ"){
-			density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
-		}
-
+	//Choosing the type of element for density mesh
+	//Information below is used to create the density field which will be output as the design.
+	if(obj_mesh.density_elementType == "FE_DGQ"){
+		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
+	else{
+		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+	}
+
 
 	this->design_vector = &obj_design_vector;
 
@@ -90,6 +91,7 @@ FEM<dim>::~FEM(){
 //Function that step-by-step solves the FE problem
 template <int dim>
 void FEM<dim>::analyze(){
+	//std::cout<<"Entered FEM::analyze()"<<std::endl;
 	//Setting up and assembling the Fe system
 
 	itr_count++;	//Iterating the counter for the no. of iterations
@@ -108,9 +110,10 @@ void FEM<dim>::analyze(){
 template <int dim>
 void FEM<dim>::setup_system(){
 
+	std::cout<<"Entered FEM::setup_system()"<<std::endl;
 	//FE mesh
 	dof_handler->distribute_dofs(*fe);
-	density_handler->distribute_dofs(*fe_density);
+	density_handler->distribute_dofs(*fe_density);	//Used to add density on every node
 
 	//Density mesh or design mesh
 	density_dof_handler->distribute_dofs(*density_fe);

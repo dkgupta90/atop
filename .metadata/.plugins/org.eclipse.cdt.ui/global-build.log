@@ -1,15 +1,15 @@
-16:22:57 **** Clean-only build of configuration Debug for project step-1 ****
+15:55:17 **** Clean-only build of configuration Debug for project mtop1 ****
 make clean 
-rm -rf  ./source/step-1.o  ./source/step-1.d  step-1
+rm -rf  ./mtop1.o  ./mtop1.d  mtop1
  
-16:22:59 **** Build of configuration Debug for project step-1 ****
+15:55:18 **** Build of configuration Debug for project mtop1 ****
 make all 
-Building file: ../source/step-1.cpp
+Building file: ../mtop1.cpp
 Invoking: Cross G++ Compiler
-g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"source/step-1.d" -MT"source/step-1.d" -o "source/step-1.o" "../source/step-1.cpp"
+g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"mtop1.d" -MT"mtop1.d" -o "mtop1.o" "../mtop1.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:30:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../source/step-1.cpp:12:
+                 from ../mtop1.cpp:25:
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:1281:0: warning: ignoring #pragma omp simd [-Wunknown-pragmas]
                DEAL_II_OPENMP_SIMD_PRAGMA
  ^
@@ -25,7 +25,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../source/step-1.cpp:10:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2789:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -48,7 +48,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../source/step-1.cpp:10:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2889:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -75,7 +75,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                                                                                      ^
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
-                 from ../source/step-1.cpp:10:
+                 from ../mtop1.cpp:23:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:2997:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
      typedef FEValuesBase<dim,spacedim> FVB;
@@ -136,10 +136,10 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4232:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-Finished building: ../source/step-1.cpp
+Finished building: ../mtop1.cpp
  
-Building target: step-1
+Building target: mtop1
 Invoking: Cross G++ Linker
-g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -o "step-1"  ./source/step-1.o   -latop -ldeal_II -lnlopt -ltbb
-Finished building target: step-1
+g++ -L/usr/local/lib -L/home/dkgupta/bin/deal.II/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -o "mtop1"  ./mtop1.o   -latop -ldeal_II -lnlopt -ltbb
+Finished building target: mtop1
  

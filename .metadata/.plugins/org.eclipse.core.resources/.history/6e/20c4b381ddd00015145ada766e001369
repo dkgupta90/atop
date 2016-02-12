@@ -1,0 +1,43 @@
+/*
+ *
+ *  Created on: Aug 5, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/fem/define_mesh.h>
+#include <math.h>
+
+using namespace atop;
+
+Projection::Projection(
+		std::string type,
+		double r,
+		double g){
+	projection_type = type;
+	radius = r;
+	gamma = g;
+}
+
+Projection::Projection(
+		std::string type,
+		double r){
+	projection_type = type;
+	radius = r;
+	gamma = 1.0;
+}
+
+Projection::~Projection(){
+
+}
+
+Projection::Projection(
+		std::string type,
+		DefineMesh<2> &mesh,
+		double r){
+	projection_type = type;
+
+	//calculating element size assuming it is a square element for now
+	mesh.coordinates[1]
+}

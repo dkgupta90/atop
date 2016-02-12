@@ -228,16 +228,14 @@ void DensityField<dim>::update_design_vector(
 
 		if (cycle == 0){
 			design_vector.resize(cell_count * mesh.design_var_per_point());
-			int k = 0;	//iterates over the total number of cells
-			unsigned int design_per_point = mesh.design_var_per_point();
 
 			typename Triangulation<dim>::active_cell_iterator cell = mesh.triangulation->begin_active(),
 						endc = mesh.triangulation->end();
 
-			for (unsigned int i = 0; i < design_vector.size(); ++i){
+			for (unsigned int i = 0; i < design_vector.size();){
 				design_vector[i] = volfrac; //adding the density for the current design point
 				i++;
-				design_vector[i] = projection.radius; //Adding the projection radius
+				design_vector[i] = projection.fact; //Adding the projection radius factor
 				i++;
 				// initializing the dim no. of coordinates for the location of the design point
 				for (unsigned int j = 0; j < dim; j++){
@@ -289,7 +287,8 @@ template <int dim>
 void DensityField<dim>::update_design_bounds(
 		std::vector<double> &lb,
 		std::vector<double> &ub,
-		DefineMesh<dim> &mesh){
+		DefineMesh<dim> &mesh,
+		Projection &projection){
 
 	if (mesh.coupling == false && mesh.adaptivityType == "movingdesignpoints"){
 		unsigned int no_cells = mesh.triangulation->n_active_cells();	// No of design points in the domain
@@ -302,11 +301,12 @@ void DensityField<dim>::update_design_bounds(
 		unsigned int k = 0;	//iterating over all design variables
 
 		for (unsigned int i = 0; i < no_cells; ++i){
+
 			lb[k] = 0;	//density value
-			ub[k] = 0;	//density value
+			ub[k] = 1;	//density value
 			k++;
-			lb[k] = 1.1;	//minimum projection (elem size)
-			ub[k] = 10.0;	//maximum projection (elem size)
+			lb[k] = projection.minFact;	//minimum projection factor (elem size)
+			ub[k] = projection.maxFact;	//maximum projection factor (elem size)
 			k++;
 
 			// updating the location bounds for the dim dimensions

@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <atop/fem/define_mesh.h>
 
 namespace atop{
 	class Projection{
@@ -17,6 +18,8 @@ namespace atop{
 		std::string projection_type;
 		double radius;
 		double gamma;
+		double fact, minFact, maxFact;	//factors for calculating projection radius w.r.t element size
+		//Above it is assumed that elements are square or regular hexahedrons for now.
 
 		/**
 		 * Constructor to choose the type of projection operator
@@ -32,6 +35,17 @@ namespace atop{
 		Projection(std::string,
 				double,
 				double);
+
+		/*
+		 * The constructor below is being written for decoupled mesh with type movingDesginPoints
+		 * The inputs here are the factors which multiply with element length (square) to determine radius
+		 */
+		Projection(
+				std::string,
+				double,
+				double,
+				double);
+
 		~Projection();
 
 	};

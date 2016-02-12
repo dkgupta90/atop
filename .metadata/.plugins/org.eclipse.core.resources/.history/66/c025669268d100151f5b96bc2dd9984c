@@ -1,0 +1,45 @@
+/*
+ *
+ *  Created on: Aug 5, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/fem/define_mesh.h>
+#include <math.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
+
+using namespace atop;
+
+Projection::Projection(
+		std::string type,
+		double r,
+		double g){
+	projection_type = type;
+	radius = r;
+	gamma = g;
+}
+
+Projection::Projection(
+		std::string type,
+		double r){
+	projection_type = type;
+	radius = r;
+	gamma = 1.0;
+}
+
+Projection::~Projection(){
+
+}
+
+Projection::Projection(
+		double proj,
+		double min_proj,
+		double max_proj){
+	this->radius = proj;	// Radius for projection
+	this->min_radius = min_proj;	//Bounds for projection
+	this->max_radius = max_proj;
+}

@@ -102,7 +102,16 @@ void DefineMesh<dim>::createMesh(
 					point2,
 					false
 					);
+			GridGenerator::subdivided_hyper_rectangle(
+					density_triangulation,
+					subdivisions,
+					point1,
+					point2,
+					false
+					);
 			std::cout<<"Active cells in FE mesh: "<<this->triangulation->n_active_cells()<<std::endl;
+			std::cout<<"Active cells in density mesh: "<<this->density_triangulation->n_active_cells()<<std::endl;
+
 			boundary_info();
 		}
 	}
