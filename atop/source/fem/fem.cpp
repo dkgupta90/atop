@@ -286,17 +286,46 @@ void FEM<dim>::reset(){
 	}
 
 	//Initialize the density cell parameters for all the density cells
-	for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
-			density_info_itr != density_cell_info_vector->end();
-			++density_info_itr){
+	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
+		unsigned int design_len = (*design_vector).size();	//size of design vector
+		unsigned int k = 0;	//for iterating over all the design variables
 
-		//Setting the density quad rule to 1
-		(*density_info_itr).quad_rule = 1;
-		(*density_info_itr).n_q_points = 1; //	located at the centroid
-		(*density_info_itr).cell_area = 0.00001;	//area of the density cell
-		(*density_info_itr).density.resize((*density_info_itr).n_q_points, volfrac);
-		(*density_info_itr).dxPhys = 0.0;
+		//Iterating over the number of design points
+		for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
+				density_info_itr != density_cell_info_vector->end();
+				++density_info_itr){
+
+			//Setting the density quad rule to 1
+			(*density_info_itr).density.resize(1);
+			(*density_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
+			(*density_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
+
+			//Adding the position of the design point
+			(*density_info_itr).pointX.resize(dim);
+			for (unsigned int j = 0; j < dim; j++){
+				(*density_info_itr).pointX[j] = (*design_vector)[k];	k++;
+			}
+
+			(*density_info_itr).dxPhys = 0.0;
+
+/*			std::cout<<(*density_info_itr).density[0]<<" "<<(*density_info_itr).projection_fact<<" "<<
+					(*density_info_itr).pointX[0]<<" "<<(*density_info_itr).pointX[1]<<std::endl;*/
+		}
 	}
+	else{
+		for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
+				density_info_itr != density_cell_info_vector->end();
+				++density_info_itr){
+
+			//Setting the density quad rule to 1
+			(*density_info_itr).quad_rule = 1;
+			(*density_info_itr).n_q_points = 1; //	located at the centroid
+			(*density_info_itr).cell_area = 0.00001;	//area of the density cell
+			(*density_info_itr).density.resize((*density_info_itr).n_q_points, volfrac);
+			(*density_info_itr).dxPhys = 0.0;
+		}
+	}
+
 
 	/**
 	 * Link the cell_info_vector to the FE triangulation
@@ -373,14 +402,25 @@ void FEM<dim>::initialize_cycle(){
 	double time1 = clock();
 
 	std::cout<<"Looking for neighbours;   ";
-	density_field.create_neighbors(
-			*cell_info_vector,
-			*fe,
-			*density_fe,
-			*dof_handler,
-			*density_dof_handler,
-			*projection,
-			mesh->coupling);
+
+	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
+		density_field.create_neighbors(
+				*cell_info_vector,
+				*density_cell_info_vector,
+				*fe,
+				*dof_handler);
+	}
+	else{
+		density_field.create_neighbors(
+				*cell_info_vector,
+				*fe,
+				*density_fe,
+				*dof_handler,
+				*density_dof_handler,
+				*projection,
+				mesh->coupling);
+	}
+
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
 	std::cout<<"Neighbours' indices stored : time taken = "<<time2<<" seconds"<<std::endl;

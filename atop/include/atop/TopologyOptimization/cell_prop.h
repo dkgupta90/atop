@@ -55,7 +55,7 @@ namespace atop{
 		unsigned int n_q_points;	//No. of quadrature points
 
 		double projection_radius; 	//projection radius of the current cell
-
+		double projection_fact;		//projection factor (to mulitply with certain element size)
 		/**
 		 * density values for the mesh
 		 * refers to unfiltered density values for the design/density mesh

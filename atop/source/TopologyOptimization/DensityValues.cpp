@@ -39,10 +39,16 @@ void DensityField<dim>::create_neighbors(
 		bool mesh_coupling
 		){
 
+	/*
+	 * Iterate over all the cells to check for neighbors
+	 * iterated over the cells in triangulation
+	 */
 	unsigned int cell_itr1 = 0;
 	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
 				endc1= dof_handler.end();
 	for(; cell1 != endc1; ++cell1){
+
+		//Just a random check, can be deleted
 		if(cell_info_vector[cell_itr1].quad_rule == 0){
 			std::cout<<cell_itr1<<"  as you can see"<<std::endl;
 			exit(0);
@@ -57,6 +63,7 @@ void DensityField<dim>::create_neighbors(
 				);
 		fe_values1.reinit(cell1);
 
+		//Stores cell iterators for all neighbors of the current cell
 		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
@@ -67,6 +74,127 @@ void DensityField<dim>::create_neighbors(
 		//Indentifying the density cell which contains the centroid of this FE cell
 		typename DoFHandler<dim>::active_cell_iterator density_cell1;
 		if (mesh_coupling == true){
+			density_cell1 = cell1;
+		}
+		else{
+			density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
+		}
+
+		//The following function gets the neighbors of the current cell lying within a distance of drmin
+		neighbor_iterators.push_back(density_cell1);
+		neighbor_search(density_cell1, density_cell1, neighbor_iterators, drmin);
+
+		//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+		if(neighbor_iterators.size() == 0){
+			std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
+		}
+		std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
+		cell_info_vector[cell_itr1].neighbour_cells.clear();
+		cell_info_vector[cell_itr1].neighbour_distance.clear();
+		cell_info_vector[cell_itr1].neighbour_cell_area.clear();
+		cell_info_vector[cell_itr1].neighbour_cells.resize(qpoints1.size());
+		cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
+		cell_info_vector[cell_itr1].neighbour_cell_area.resize(qpoints1.size());
+
+		unsigned int density_cell_itr2;
+		typename DoFHandler<2>::active_cell_iterator density_cell2;
+		//Iterate over all neighboring cells to check distance with Gauss points
+		for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
+			density_cell2 = neighbor_iterators[ng_itr];
+			density_cell_itr2 = density_cell2->user_index() - 1;
+
+			double distance;
+
+			double exfactor1= 1;
+			double rmin1;
+			rmin1 = proj_radius * exfactor1;
+			for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+					distance  = 0.0;
+					distance = qpoints1[q_point1].distance(density_cell2->center());
+					if(distance > rmin1){
+						continue;
+					}
+					cell_info_vector[cell_itr1].neighbour_cells[q_point1].push_back(density_cell_itr2);
+					cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
+					cell_info_vector[cell_itr1].neighbour_cell_area[q_point1].push_back(density_cell2->measure());
+			}
+		}
+
+		//std::cout<<cell_itr1<<"    "<<qpoints1.size()<<"   "<<cellprop[cell_itr1].neighbour_cells[0].size()<<std::endl;
+		calculate_weights(cell_info_vector,
+				cell_itr1,
+				proj_radius);
+		++cell_itr1;
+	}
+}
+
+/*
+ * This overloaded function is implemented for decoupled mesh with moving design points
+ * density_triangulation should not be used in this instance
+ *
+ */
+template <int dim>
+void DensityField<dim>::create_neighbors(
+		std::vector<CellInfo> &cell_info_vector,
+		std::vector<CellInfo> &density_cell_info_vector,
+		FESystem<dim> &fe,
+		DoFHandler<dim> &dof_handler
+		){
+
+	projection_matrix.clear();	//This is the regularization operator
+
+	/*
+	 * Calculating the projection radius for the current design point
+	 * Here, we fix the radius w.r.t to the cell size of the initial triangulation
+	 * However, this needs to changed in future to be adapted w.r.t refinement in the triangulation
+	 */
+	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active();
+	double cell_len = sqrt(cell1->measure());
+
+	/*
+	 * Iterate over all the density points and checks the neighbor cells in triangulation
+	 * iterated over the CellInfo vector for the design points
+	 */
+	unsigned int no_design_points = density_cell_info_vector.size();
+	for (std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector.begin();
+			density_cell_info_itr != density_cell_info_vector.end();
+			++density_cell_info_itr){
+
+
+
+
+	}
+	unsigned int cell_itr1 = 0;
+	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
+				endc1= dof_handler.end();
+	for(; cell1 != endc1; ++cell1){
+
+		//Just a random check, can be deleted
+		if(cell_info_vector[cell_itr1].quad_rule == 0){
+			std::cout<<cell_itr1<<"  as you can see"<<std::endl;
+			exit(0);
+		}
+		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
+		FEValues<dim> fe_values1(fe,
+				quadrature_formula1,
+				update_values |
+				update_gradients |
+				update_quadrature_points |
+				update_JxW_values
+				);
+		fe_values1.reinit(cell1);
+
+		//Stores cell iterators for all neighbors of the current cell
+		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		neighbor_iterators.clear();
+
+		//Computing the cell specific filter radius
+		double proj_radius = projection.radius * pow(projection.gamma, (double)(cell1->level()));
+		double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
+
+		//Indentifying the density cell which contains the centroid of this FE cell
+		typename DoFHandler<dim>::active_cell_iterator density_cell1;
+		if (1){
 			density_cell1 = cell1;
 		}
 		else{
