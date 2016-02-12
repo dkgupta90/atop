@@ -65,7 +65,8 @@ namespace atop{
 		void update_design_bounds(
 				std::vector<double> &lb,
 				std::vector<double> &ub,
-				DefineMesh<dim> &mesh);
+				DefineMesh<dim> &mesh,
+				Projection &projection);
 
 		void update_density_cell_info_vector(
 				std::vector<CellInfo> &density_cell_info_vector,

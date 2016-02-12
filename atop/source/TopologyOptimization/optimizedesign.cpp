@@ -134,7 +134,6 @@ void Optimizedesign<dim>::optimize(){
 		unsigned int no_design_count = density_cell_info_vector.size() * mesh->design_var_per_point();
 		std::cout<<"Number of design variables : "<<no_design_count<<std::endl;
 
-		//
 		design_vector.clear();
 		design_vector.resize(no_design_count); //Holds true for coupled as well as decoupled meshes
 
@@ -150,7 +149,8 @@ void Optimizedesign<dim>::optimize(){
 		//Defining the upper and lower bounds
 		std::vector<double> lb, ub;
 		obj_fem->density_field.update_design_bounds(
-				lb, ub, *mesh);
+				lb, ub, *mesh, *projection);
+
 
 		//Choosing the optimizer
 		if(opt_algorithm == "MMA"){
@@ -247,10 +247,10 @@ void Optimizedesign<dim>::update_design_vector(
 	for(unsigned int i = 0; i < x.size(); ++i){
 
 		design_vec[i] = x[i];
-		if(x[i] > max_dens)
+/*		if(x[i] > max_dens)
 			max_dens = x[i];
 		if(x[i] < min_dens)
-			min_dens = x[i];
+			min_dens = x[i];*/
 	}
 	//std::cout<<"Min density: "<<min_dens<<"   max density: "<<max_dens<<std::endl;
 }
@@ -268,9 +268,6 @@ double myvfunc(
 	double objective = 0;
 	//Passing the cycle and iteration count information
 
-/*	for(unsigned int i = 0; i < x.size(); ++i){
-		std::cout<<"density: "<<x[i]<<std::endl;
-	}*/
 	if(opt_design2d != NULL){
 		//Solve the FEM problem
 		opt_design2d->obj_fem->cycle = opt_design2d->cycle;
