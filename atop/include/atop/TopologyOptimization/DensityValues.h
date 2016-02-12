@@ -20,6 +20,7 @@
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/fem/define_mesh.h>
+#include <deal.II/lac/sparse_matrix.h>
 
 using namespace dealii;
 
@@ -30,6 +31,8 @@ namespace atop{
 		double max_cell_area;
 		unsigned int initial_no_cells;
 		double volfrac;
+
+		SparseMatrix<double> projection_matrix;	//For projecting the densities
 		void create_neighbors(
 				std::vector<CellInfo> &cell_info_vector,
 				FESystem<dim> &fe,
@@ -38,6 +41,13 @@ namespace atop{
 				DoFHandler<dim> &density_dof_handler,
 				Projection &projection,
 				bool mesh_coupling
+				);
+
+		void create_neighbors(
+				std::vector<CellInfo> &cell_info_vector,
+				std::vector<CellInfo> &density_cell_info_vector,
+				FESystem<dim> &fe,
+				DoFHandler<dim> &dof_handler
 				);
 
 		/**
