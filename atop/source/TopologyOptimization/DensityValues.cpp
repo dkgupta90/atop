@@ -156,59 +156,29 @@ void DensityField<dim>::create_neighbors(
 	 * iterated over the CellInfo vector for the design points
 	 */
 	unsigned int no_design_points = density_cell_info_vector.size();
-	for (std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector.begin();
-			density_cell_info_itr != density_cell_info_vector.end();
-			++density_cell_info_itr){
+	for (unsigned int i = 0; i < density_cell_info_vector.size(); i++){
 
-
-
-
-	}
-	unsigned int cell_itr1 = 0;
-	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
-				endc1= dof_handler.end();
-	for(; cell1 != endc1; ++cell1){
-
-		//Just a random check, can be deleted
-		if(cell_info_vector[cell_itr1].quad_rule == 0){
-			std::cout<<cell_itr1<<"  as you can see"<<std::endl;
-			exit(0);
-		}
-		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
-		FEValues<dim> fe_values1(fe,
-				quadrature_formula1,
-				update_values |
-				update_gradients |
-				update_quadrature_points |
-				update_JxW_values
-				);
-		fe_values1.reinit(cell1);
-
-		//Stores cell iterators for all neighbors of the current cell
+		//For storing the cell iterators for all neighbor cells in triangulation
 		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
-		//Computing the cell specific filter radius
-		double proj_radius = projection.radius * pow(projection.gamma, (double)(cell1->level()));
-		double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
+		//Computing the projection radius of density point
+		double rmin = density_cell_info_vector[i].projection_fact * cell_len;
 
-		//Indentifying the density cell which contains the centroid of this FE cell
-		typename DoFHandler<dim>::active_cell_iterator density_cell1;
-		if (1){
-			density_cell1 = cell1;
-		}
-		else{
-			density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
-		}
+		//Identifying the cell in the triangulation around the current density point
+		Point<dim> des_pt;
+		for (unsigned int k = 0; k < dim; k++)	des_pt[k] = density_cell_info_vector[i].pointX[k];
 
-		//The following function gets the neighbors of the current cell lying within a distance of drmin
-		neighbor_iterators.push_back(density_cell1);
-		neighbor_search(density_cell1, density_cell1, neighbor_iterators, drmin);
+		cell1 = GridTools::find_active_cell_around_point(dof_handler, des_pt);
 
-		//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
-		if(neighbor_iterators.size() == 0){
-			std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
-		}
+		//Getting the neighbors of current cell within a distance of rmin
+		neighbor_iterators.push_back(cell1);
+		neighbor_search(cell1, cell1, neighbor_iterators, rmin);
+		std::cout<<"Density point: "<<i<<"  No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+
+
+	}
+
 		std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
 		cell_info_vector[cell_itr1].neighbour_cells.clear();
 		cell_info_vector[cell_itr1].neighbour_distance.clear();
@@ -246,7 +216,6 @@ void DensityField<dim>::create_neighbors(
 				cell_itr1,
 				proj_radius);
 		++cell_itr1;
-	}
 }
 
 template <int dim>
