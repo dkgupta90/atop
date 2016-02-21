@@ -107,6 +107,10 @@ namespace atop{
 				std::vector<CellInfo>  &cell_info_vector,
 				unsigned int cell_itr1,
 				double rmin);
+		void calculate_weights(
+						std::vector<CellInfo>  &cell_info_vector,
+						std::vector<CellInfo> &density_cell_info_vector,
+						double);
 
 
 	};
