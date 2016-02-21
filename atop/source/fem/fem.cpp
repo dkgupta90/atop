@@ -152,15 +152,26 @@ void FEM<dim>::assemble_system(){
 		reset();	//Initializes the variables and vectors
 	}
 
-	//Initialize the components of every cycle
-	if (itr_count == 0){
-		initialize_cycle();
-	}
+	//updating the density_cell_info vector with the new design
 	if (itr_count != -1){
 		//Update the density_cell_info_vector
 		density_field.update_density_cell_info_vector(
 				*density_cell_info_vector,
 				*design_vector);
+	}
+
+	//Initialize the components of every cycle
+	if (itr_count == 0){
+		initialize_cycle();
+	}
+	else{
+		if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
+			density_field.create_neighbors(
+					*cell_info_vector,
+					*density_cell_info_vector,
+					*fe,
+					*dof_handler);
+		}
 	}
 
 	//Apply smoothing operation on the density values

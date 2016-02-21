@@ -1,4 +1,4 @@
-07:57:37 **** Build of configuration Debug for project mtop1 ****
+00:16:47 **** Build of configuration Debug for project mtop1 ****
 make all 
 Building file: ../mtop1.cpp
 Invoking: Cross G++ Compiler
@@ -140,5 +140,5 @@ g++ -L/usr/local/lib -L/home/dkgupta/bin/deal.II/lib -L/home/dkgupta/WORK/projec
 Finished building target: mtop1
  
 
-07:57:42 Build Finished (took 4s.865ms)
+00:16:51 Build Finished (took 4s.215ms)
 
