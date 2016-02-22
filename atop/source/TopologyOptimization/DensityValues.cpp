@@ -39,6 +39,7 @@ void DensityField<dim>::create_neighbors(
 		bool mesh_coupling
 		){
 
+	std::cout<<"searching the neighbors.."<<std::endl;
 	/*
 	 * Iterate over all the cells to check for neighbors
 	 * iterated over the cells in triangulation
@@ -155,6 +156,7 @@ void DensityField<dim>::create_neighbors(
 		cell_info_vector[i].neighbour_cells.resize(n_qpoints);
 		cell_info_vector[i].neighbour_distance.resize(n_qpoints);
 		cell_info_vector[i].neighbour_cell_area.resize(n_qpoints);
+		cell_info_vector[i].sum_weights.resize(n_qpoints);
 	}
 
 	/*
@@ -164,7 +166,7 @@ void DensityField<dim>::create_neighbors(
 	 */
 	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active();
 	double cell_len = sqrt(cell1->measure());
-
+	this->cell_length = cell_len;	//for use in dxPhys_dx();
 	/*
 	 * Iterate over all the density points and checks the neighbor cells in triangulation
 	 * iterated over the CellInfo vector for the design points
@@ -235,7 +237,6 @@ void DensityField<dim>::create_neighbors(
 	}
 
 	//Update the weights
-	calculate_weights(cell_info_vector, density_cell_info_vector, cell_len);
 }
 
 template <int dim>
@@ -296,6 +297,7 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 				//Corresponds to dx
 				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
 			}
+			cell_info_vector[cell_itr1].sum_weights[qpoint] = sum_weights;
 		}
 	}
 }
@@ -363,8 +365,18 @@ void DensityField<dim>::smoothing(
 			cell_info_vector[cell_itr].density[qpoint] = xPhys;
 		}
 	}
+
+	//For testing purpose
+/*	for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
+		std::cout<<cell_info_vector[i].density[0]<<" "<<
+				cell_info_vector[i].density[1]<<" "<<
+				cell_info_vector[i].density[2]<<" "<<
+				cell_info_vector[i].density[3]<<" "<<
+				std::endl;
+	}*/
 }
 
+//--------------------------------------------------------------------------------------------------------------------
 /**
  * This function updates the design_vector
  * Design_vector is used for for the optimization purpose
@@ -444,6 +456,7 @@ void DensityField<dim>::update_design_vector(
 	}
 }
 
+//--------------------------------------------------------------------------------------------------------------------------
 /*
  * This function is used to update the values of the design bounds for different types of adaptive methods.
  * For the case of only density design bounds, it will be straightforward.
@@ -494,6 +507,7 @@ void DensityField<dim>::update_design_bounds(
 
 }
 
+//------------------------------------------------------------------------------------------------------
 template <int dim>
 double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 		unsigned int q_point,
@@ -509,6 +523,41 @@ double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 	return 0;
 }
 
+//---------------------------------------------------------------------------------------------------------
+/*
+ * This implementation of get_dxPhys_dx is for movingDesignPoints.
+ * For every design point, it returns dim+2 values, each w.r.t 1 design variable
+ * design variables: rho, rmin, x_cor, y_cor
+ */
+template <int dim>
+void DensityField<dim>::get_dxPhys_dx(
+		std::vector<double> &dxPhys_dx,
+		CellInfo &cell_info,
+		unsigned int qpoint,
+		Point<dim> qX,
+		CellInfo &density_cell_info,
+		unsigned int density_cell_itr2){
+
+	//searching the design point in the neighbor list
+	unsigned int design_index;
+	for (unsigned int i = 0; i < cell_info.neighbour_cells[qpoint].size(); ++i){
+		design_index = cell_info.neighbour_cells[qpoint][i];
+		if (design_index != density_cell_itr2)	continue;
+
+		//When the design index matches, the derivatives are calculated below
+		double dxPhys_dH = (density_cell_info.density[0] - cell_info.density[qpoint])/cell_info.sum_weights[qpoint];
+		double dH_dprojFact = cell_length;
+		double dH_dD = -1.0;	// D is the distance between the gauss point and the design point
+		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
+		dxPhys_dx[1] = dxPhys_dH * dH_dprojFact;	//w.r.t. projection factor
+		for (unsigned int k = 0; k < dim; k++){
+			double dD_ddimk = -(qX[k] - density_cell_info.pointX[k])/cell_info.neighbour_distance[qpoint][i];
+			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k
+		}
+	}
+}
+
+//---------------------------------------------------------------------------------------------------------
 template <int dim>
 double DensityField<dim>::get_vol_fraction(
 		std::vector<CellInfo> &cell_info_vector
@@ -535,13 +584,43 @@ void DensityField<dim>::update_density_cell_info_vector(
 		std::vector<CellInfo> &density_cell_info_vector,
 		const std::vector<double> &design_vector){
 	//std::cout<<density_cell_info_vector.size()<<"..........."<<design_vector.size()<<std::endl;
-	unsigned int cell_count = density_cell_info_vector.size();
-	unsigned int design_count = 0;
-	for(unsigned int i = 0; i < cell_count; ++i){
-		for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
-			density_cell_info_vector[i].density[j] = design_vector[design_count];
-			++design_count;
+
+	/*
+	 * For the case of coupled mesh, for now, the size of density_cell_info_vector and design_vector will be same.
+	 * This check will be used to check the type of adaptivity and accordingly update the vector
+	 */
+
+	if (density_cell_info_vector.size() == design_vector.size()){
+		//This is the case of the coupled mesh approach and the design points do not move.
+		unsigned int cell_count = density_cell_info_vector.size();
+		unsigned int design_count = 0;
+		for(unsigned int i = 0; i < cell_count; ++i){
+			for(unsigned int j = 0; j < density_cell_info_vector[i].density.size(); ++j){
+				density_cell_info_vector[i].density[j] = design_vector[design_count];
+				++design_count;
+			}
 		}
 	}
+	else if (((dim + 2) * density_cell_info_vector.size()) == design_vector.size()){
+		//This is the case for moving design points, here, every design point is associated with dim+2 design variables
+		unsigned int k = 0;	//iterate over the design variables
+		for (unsigned int i = 0 ; i < density_cell_info_vector.size(); ++i){
+			density_cell_info_vector[i].density[0] = design_vector[k];	k++;	//updated design point density
+			density_cell_info_vector[i].projection_fact = design_vector[k];	k++;	//updated projection radius factor
+
+			//updating the density point location
+			for (unsigned int j = 0; j < dim; j++){
+				density_cell_info_vector[i].pointX[j] = design_vector[k];	k++;
+			}
+		}
+
+		for (unsigned int i = 0; i < density_cell_info_vector.size(); ++i){
+			std::cout<<density_cell_info_vector[i].density[0]<<" "<<
+					density_cell_info_vector[i].projection_fact<<" "<<
+					density_cell_info_vector[i].pointX[0]<<" "<<
+					density_cell_info_vector[i].pointX[1]<<" "<<std::endl;
+		}
+	}
+
 
 }

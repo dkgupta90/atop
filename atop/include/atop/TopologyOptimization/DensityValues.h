@@ -30,6 +30,7 @@ namespace atop{
 	public:
 		double max_cell_area;
 		unsigned int initial_no_cells;
+		double cell_length;
 		double volfrac;
 
 		SparseMatrix<double> projection_matrix;	//For projecting the densities
@@ -84,6 +85,18 @@ namespace atop{
 
 		double get_dxPhys_dx(CellInfo &cell_info,
 				unsigned int q_point,
+				unsigned int density_cell_itr2);
+		/*
+		 * This implementation of get_dxPhys_dx is for movingDesignPoints.
+		 * For every design point, it returns dim+2 values, each w.r.t 1 design variable
+		 * design variables: rho, rmin, x_cor, y_cor
+		 */
+		void get_dxPhys_dx(
+				std::vector<double> &dxPhys_dx,
+				CellInfo &cell_info,
+				unsigned int qpoint,
+				Point<dim> qX,
+				CellInfo &density_cell_info,
 				unsigned int density_cell_itr2);
 
 		double get_vol_fraction(
