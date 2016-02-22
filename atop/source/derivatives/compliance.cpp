@@ -163,7 +163,7 @@ void Compliance<dim>::compute(
 
 			double dobj;
 			for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
-				cell_matrix = 0;
+
 				unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 
 				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
@@ -181,6 +181,7 @@ void Compliance<dim>::compute(
 						(*density_cell_info_vector)[density_cell_itr2].dxPhys[k] += dxPhys_dx[k];
 						unsigned int design_index = (density_cell_itr2 * fem->mesh->design_var_per_point()) + k;
 						double dEfactor = dE_dxPhys * dxPhys_dx[k];
+						cell_matrix = 0;
 						cell_matrix.add(dEfactor,
 								normalized_matrix);
 
@@ -197,6 +198,7 @@ void Compliance<dim>::compute(
 								temp_array,
 								cell_array);
 						//Adding to the grad vector
+						//std::cout<<dxPhys_dx[k]<<" ";
 						obj_grad[design_index] -= dobj;
 					}
 
@@ -239,8 +241,8 @@ void Compliance<dim>::compute(
 		cell_itr++;
 	}
 
-	for (unsigned int i = 0; i < obj_grad.size(); ++i)
-		std::cout<<obj_grad[i]<<std::endl;
+/*	for (unsigned int i = 0; i < obj_grad.size(); ++i)
+		std::cout<<obj_grad[i]<<std::endl;*/
 	//std::cout<<obj_grad[0]<<"   "<<obj_grad[24]<<std::endl;
 	std::cout<<"Size of sensitivity vector : "<<obj_grad.size()<<std::endl;
 	double time2 = clock();

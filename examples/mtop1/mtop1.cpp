@@ -52,7 +52,7 @@ int main(){
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {4, 2};
+	mesh.subdivisions = {40, 20};
 	//mesh.density_subdivisions = {40, 20};
 	mesh.coupling = false;
 	mesh.source_fn = source_function;

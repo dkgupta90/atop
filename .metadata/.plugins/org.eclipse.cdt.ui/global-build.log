@@ -1,8 +1,8 @@
-17:54:03 **** Clean-only build of configuration Debug for project mtop1 ****
+18:14:47 **** Clean-only build of configuration Debug for project mtop1 ****
 make clean 
 rm -rf  ./mtop1.o  ./mtop1.d  mtop1
  
-17:54:04 **** Build of configuration Debug for project mtop1 ****
+18:14:48 **** Build of configuration Debug for project mtop1 ****
 make all 
 Building file: ../mtop1.cpp
 Invoking: Cross G++ Compiler
