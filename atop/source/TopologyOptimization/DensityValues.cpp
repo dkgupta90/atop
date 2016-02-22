@@ -39,7 +39,6 @@ void DensityField<dim>::create_neighbors(
 		bool mesh_coupling
 		){
 
-	std::cout<<"searching the neighbors.."<<std::endl;
 	/*
 	 * Iterate over all the cells to check for neighbors
 	 * iterated over the cells in triangulation
@@ -121,6 +120,7 @@ void DensityField<dim>::create_neighbors(
 			}
 		}
 
+
 		//std::cout<<cell_itr1<<"    "<<qpoints1.size()<<"   "<<cellprop[cell_itr1].neighbour_cells[0].size()<<std::endl;
 		calculate_weights(cell_info_vector,
 				cell_itr1,
@@ -191,7 +191,7 @@ void DensityField<dim>::create_neighbors(
 		//Getting the neighbors of current cell within a distance of rmin
 		neighbor_iterators.push_back(cell1);
 		neighbor_search(cell1, cell1, neighbor_iterators, drmin);
-		std::cout<<"Density point: "<<i<<"  No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+		//std::cout<<"Density point: "<<i<<"  No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
 
 		//clearing the memory for saving information of the neighbors
 		density_cell_info_vector[i].neighbour_cells.clear();
@@ -237,6 +237,9 @@ void DensityField<dim>::create_neighbors(
 	}
 
 	//Update the weights
+	calculate_weights(cell_info_vector,
+			density_cell_info_vector,
+			cell_len);
 }
 
 template <int dim>
@@ -297,7 +300,6 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 				//Corresponds to dx
 				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
 			}
-			cell_info_vector[cell_itr1].sum_weights[qpoint] = sum_weights;
 		}
 	}
 }
@@ -341,6 +343,7 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 					cell_info_vector[cell_itr].neighbour_weights[qpoint][i] /= sum_weights;
 				}
 			}
+			cell_info_vector[cell_itr].sum_weights[qpoint] = sum_weights;
 		}
 	}
 }
@@ -555,6 +558,7 @@ void DensityField<dim>::get_dxPhys_dx(
 			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k
 		}
 	}
+
 }
 
 //---------------------------------------------------------------------------------------------------------

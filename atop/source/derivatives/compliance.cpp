@@ -114,7 +114,7 @@ void Compliance<dim>::compute(
 
 	//Initializing the obj_grad vector
 	obj_grad.clear();
-	obj_grad.resize((*density_cell_info_vector).size(), 0.0);
+	obj_grad.resize((*density_cell_info_vector).size() * fem->mesh->design_var_per_point(), 0.0);
 
 	cell = dof_handler->begin_active(),
 					endc = dof_handler->end();
@@ -167,8 +167,7 @@ void Compliance<dim>::compute(
 				unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 
 				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
-					std::vector<double> dxPhys_dx(dim + 2);	//vector for derivatives of xPhys w.r.t all design variables for that point
-					std::cout<<"I am here"<<std::endl;
+					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point());	//vector for derivatives of xPhys w.r.t all design variables for that point
 					density_field->get_dxPhys_dx(
 							dxPhys_dx,
 							(*cell_info_vector)[cell_itr],
@@ -176,7 +175,31 @@ void Compliance<dim>::compute(
 							qpoints[q_point],
 							(*density_cell_info_vector)[density_cell_itr2],
 							density_cell_itr2);
-					std::cout<<"Crossed it"<<std::endl;
+
+					//Calculating all the sensitivities for the particular design point
+					for (unsigned int k = 0; k < fem->mesh->design_var_per_point(); k++){
+						(*density_cell_info_vector)[density_cell_itr2].dxPhys[k] += dxPhys_dx[k];
+						unsigned int design_index = (density_cell_itr2 * fem->mesh->design_var_per_point()) + k;
+						double dEfactor = dE_dxPhys * dxPhys_dx[k];
+						cell_matrix.add(dEfactor,
+								normalized_matrix);
+
+						Vector<double> temp_array(dofs_per_cell);
+						temp_array = 0;
+						Matrix_Vector matvec;
+						matvec.vector_matrix_multiply(
+								cell_array,
+								cell_matrix,
+								temp_array,
+								dofs_per_cell,
+								dofs_per_cell);
+						dobj = matvec.vector_vector_inner_product(
+								temp_array,
+								cell_array);
+						//Adding to the grad vector
+						obj_grad[design_index] -= dobj;
+					}
+
 				}
 				else{
 					double dxPhys_dx = density_field->get_dxPhys_dx(
@@ -186,7 +209,7 @@ void Compliance<dim>::compute(
 
 					//Adding the dxPhys_dx information into the density_cell_info_vector
 					double area_factor = (*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;
-					(*density_cell_info_vector)[density_cell_itr2].dxPhys += (dxPhys_dx * area_factor);
+					(*density_cell_info_vector)[density_cell_itr2].dxPhys[0] += (dxPhys_dx * area_factor);
 
 					double dEfactor = dE_dxPhys * dxPhys_dx;
 
@@ -215,6 +238,9 @@ void Compliance<dim>::compute(
 		}
 		cell_itr++;
 	}
+
+	for (unsigned int i = 0; i < obj_grad.size(); ++i)
+		std::cout<<obj_grad[i]<<std::endl;
 	//std::cout<<obj_grad[0]<<"   "<<obj_grad[24]<<std::endl;
 	std::cout<<"Size of sensitivity vector : "<<obj_grad.size()<<std::endl;
 	double time2 = clock();

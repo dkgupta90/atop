@@ -54,7 +54,8 @@ void OC::optimize(
 				vol_grad,
 				opt_design2d->cell_info_vector,
 				opt_design2d->density_cell_info_vector,
-				opt_design2d->obj_fem->density_field
+				opt_design2d->obj_fem->density_field,
+				opt_design2d->mesh->design_var_per_point()
 				);
 
 		for(unsigned int i = 0 ; i < obj_grad.size(); ++i){
