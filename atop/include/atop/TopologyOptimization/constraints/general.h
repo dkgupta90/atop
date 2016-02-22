@@ -20,7 +20,8 @@ template <int dim>
 				std::vector<double> &volume_grad_vector,
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
-				DensityField<dim> &density_field);
+				DensityField<dim> &density_field,
+				unsigned int design_var_per_point);
 	};
 
 template class GeneralConstraints<2>;

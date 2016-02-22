@@ -166,6 +166,7 @@ void FEM<dim>::assemble_system(){
 	}
 	else{
 		if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
+			std::cout<<"Updating neighbors"<<std::endl;
 			density_field.create_neighbors(
 					*cell_info_vector,
 					*density_cell_info_vector,
@@ -317,7 +318,7 @@ void FEM<dim>::reset(){
 				(*density_info_itr).pointX[j] = (*design_vector)[k];	k++;
 			}
 
-			(*density_info_itr).dxPhys = 0.0;
+			(*density_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
 
 /*			std::cout<<(*density_info_itr).density[0]<<" "<<(*density_info_itr).projection_fact<<" "<<
 					(*density_info_itr).pointX[0]<<" "<<(*density_info_itr).pointX[1]<<std::endl;*/
@@ -333,7 +334,7 @@ void FEM<dim>::reset(){
 			(*density_info_itr).n_q_points = 1; //	located at the centroid
 			(*density_info_itr).cell_area = 0.00001;	//area of the density cell
 			(*density_info_itr).density.resize((*density_info_itr).n_q_points, volfrac);
-			(*density_info_itr).dxPhys = 0.0;
+			(*density_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
 		}
 	}
 
@@ -667,9 +668,11 @@ void FEM<dim>::clean_trash(){
 	nodal_density = 0;
 	cells_adjacent_per_node = 0;
 
+	unsigned int no_des_per_point = mesh->design_var_per_point();
 	//cleaning contents of the storage vectors
 	for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
-		(*density_cell_info_vector)[i].dxPhys = 0.0;
+		(*density_cell_info_vector)[i].dxPhys.clear();
+		(*density_cell_info_vector)[i].dxPhys.resize(no_des_per_point, 0.0);
 	}
 
 }

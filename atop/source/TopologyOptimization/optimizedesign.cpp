@@ -298,7 +298,8 @@ double myvconstraint(
 				grad,
 				opt_design2d->cell_info_vector,
 				opt_design2d->density_cell_info_vector,
-				opt_design2d->obj_fem->density_field
+				opt_design2d->obj_fem->density_field,
+				opt_design2d->mesh->design_var_per_point()
 				);
 		std::cout<<"Constraint value : "<<volume<<std::endl;
 		return volume;

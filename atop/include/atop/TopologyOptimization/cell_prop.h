@@ -95,7 +95,7 @@ namespace atop{
 
 		std::vector<double> density_weights; //saves the weight times area for the integration point
 
-		double dxPhys;	//To be used only in density_cell_info_vector
+		std::vector<double> dxPhys;	//To be used only in density_cell_info_vector
 		double cell_area;
 
 		double cell_density;	//To be used for computing material volume fraction
