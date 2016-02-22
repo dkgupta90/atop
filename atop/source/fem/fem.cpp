@@ -409,7 +409,6 @@ void FEM<dim>::initialize_cycle(){
 		volfrac,
 		*mesh,
 		*projection);
-
 	double time1 = clock();
 
 	std::cout<<"Looking for neighbours;   ";

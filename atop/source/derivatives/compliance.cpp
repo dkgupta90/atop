@@ -42,6 +42,9 @@ template <int dim>
 void Compliance<dim>::compute(
 		double &objective,
 		std::vector<double> &obj_grad){
+
+	std::cout<<"Calculating objective and sensitivities...."<<std::endl;
+
 	objective = 0.0;
 
 	/**
@@ -126,6 +129,7 @@ void Compliance<dim>::compute(
 				update_quadrature_points |
 				update_JxW_values
 				);
+		std::vector<Point<dim> > qpoints = fe_values.get_quadrature_points();
 		const unsigned int dofs_per_cell = fe->dofs_per_cell;
 		const unsigned int n_q_points = quadrature_formula.size();
 		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
@@ -162,34 +166,49 @@ void Compliance<dim>::compute(
 				cell_matrix = 0;
 				unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 
-				double dxPhys_dx = density_field->get_dxPhys_dx(
-						(*cell_info_vector)[cell_itr],
-						q_point,
-						density_cell_itr2);
+				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
+					std::vector<double> dxPhys_dx(dim + 2);	//vector for derivatives of xPhys w.r.t all design variables for that point
+					std::cout<<"I am here"<<std::endl;
+					density_field->get_dxPhys_dx(
+							dxPhys_dx,
+							(*cell_info_vector)[cell_itr],
+							q_point,
+							qpoints[q_point],
+							(*density_cell_info_vector)[density_cell_itr2],
+							density_cell_itr2);
+					std::cout<<"Crossed it"<<std::endl;
+				}
+				else{
+					double dxPhys_dx = density_field->get_dxPhys_dx(
+							(*cell_info_vector)[cell_itr],
+							q_point,
+							density_cell_itr2);
 
-				//Adding the dxPhys_dx information into the density_cell_info_vector
-				double area_factor = (*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;
-				(*density_cell_info_vector)[density_cell_itr2].dxPhys += (dxPhys_dx * area_factor);
+					//Adding the dxPhys_dx information into the density_cell_info_vector
+					double area_factor = (*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;
+					(*density_cell_info_vector)[density_cell_itr2].dxPhys += (dxPhys_dx * area_factor);
 
-				double dEfactor = dE_dxPhys * dxPhys_dx;
+					double dEfactor = dE_dxPhys * dxPhys_dx;
 
-				cell_matrix.add(dEfactor,
-						normalized_matrix);
+					cell_matrix.add(dEfactor,
+							normalized_matrix);
 
-				Vector<double> temp_array(dofs_per_cell);
-				temp_array = 0;
-				Matrix_Vector matvec;
-				matvec.vector_matrix_multiply(
-						cell_array,
-						cell_matrix,
-						temp_array,
-						dofs_per_cell,
-						dofs_per_cell);
-				dobj = matvec.vector_vector_inner_product(
-						temp_array,
-						cell_array);
-				//Adding to the grad vector
-				obj_grad[density_cell_itr2] -= dobj;
+					Vector<double> temp_array(dofs_per_cell);
+					temp_array = 0;
+					Matrix_Vector matvec;
+					matvec.vector_matrix_multiply(
+							cell_array,
+							cell_matrix,
+							temp_array,
+							dofs_per_cell,
+							dofs_per_cell);
+					dobj = matvec.vector_vector_inner_product(
+							temp_array,
+							cell_array);
+					//Adding to the grad vector
+					obj_grad[density_cell_itr2] -= dobj;
+				}
+
 
 			}
 
