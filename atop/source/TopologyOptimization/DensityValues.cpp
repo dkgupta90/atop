@@ -50,7 +50,6 @@ void DensityField<dim>::create_neighbors(
 
 		//Just a random check, can be deleted
 		if(cell_info_vector[cell_itr1].quad_rule == 0){
-			std::cout<<cell_itr1<<"  as you can see"<<std::endl;
 			exit(0);
 		}
 		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
@@ -179,7 +178,8 @@ void DensityField<dim>::create_neighbors(
 		neighbor_iterators.clear();
 
 		//Computing the projection radius of density point
-		double rmin = density_cell_info_vector[i].projection_fact * cell_len;
+		//double rmin = density_cell_info_vector[i].projection_fact * cell_len;
+		double rmin = density_cell_info_vector[i].projection_fact * cell_len;	//scaled cut-off radius
 
 		//Identifying the cell in the triangulation around the current density point
 		Point<dim> des_pt;
@@ -329,10 +329,28 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 			//Iterating over all the neighbor DESIGN points for the current Gauss point
 			for (unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_cells[qpoint].size(); ++i){
 				unsigned int density_itr = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];	//index of the neighbor
-				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
+/*				double gamma = (density_cell_info_vector[i].projection_fact - 2.0) / 5.0;			//equivalent to the variance in gaussian function
+				//double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
+				double temp1 = cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
+				double a = 1 / sqrt(2*3.14159*gamma);
+				double b = exp(-(temp1 * temp1)/(2 * gamma * cell_len * cell_len));
+				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = a * b;
+				sum_weights += (a * b);*/
+
+/*				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
 				double temp1 = rmin - cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
 				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = temp1;
-				sum_weights += temp1;
+				sum_weights += temp1;*/
+
+				//Below is the cubic spline
+				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
+				double temp1 = cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
+				double r = temp1/rmin;
+				double weight = 0.0;
+				if (r <= 0.5)	weight = (2.0/3.0) - 4*r*r + 4*r*r*r;
+				else if(r >0.5 && r <= 1.0)		weight = (4.0/3.0) - 4*r + 4*r*r - (4.0/3.0)*r*r*r;
+				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = weight;
+				sum_weights += weight;
 			}
 			//Normalizing the weights by the sum total of the weights for any Gauss point
 			for (unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
@@ -483,7 +501,7 @@ void DensityField<dim>::update_design_bounds(
 
 		for (unsigned int i = 0; i < no_cells; ++i){
 
-			lb[k] = 0;	//density value
+			lb[k] = 0.0;	//density value
 			ub[k] = 1;	//density value
 			k++;
 			lb[k] = projection.minFact;	//minimum projection factor (elem size)
@@ -549,10 +567,38 @@ void DensityField<dim>::get_dxPhys_dx(
 
 		//When the design index matches, the derivatives are calculated below
 		double dxPhys_dH = (density_cell_info.density[0] - cell_info.density[qpoint])/cell_info.sum_weights[qpoint];
-		double dH_dprojFact = cell_length;
+
+/*
+		double gamma = (density_cell_info.projection_fact - 2.0) / 5.0;	//gamma for the current density point
+		double distance = cell_info.neighbour_distance[qpoint][i];
+		double dH_dgamma = (cell_info.neighbour_weights[qpoint][i] * cell_info.sum_weights[qpoint])/(2 * gamma) * ((distance * distance) / (gamma * cell_length * cell_length) - 1.0);
+		double dgamma_dprojFact = 1.0 / 5.0;
+		double dH_dD = (cell_info.neighbour_weights[qpoint][i] * cell_info.sum_weights[qpoint]) * (-distance / (gamma * cell_length * cell_length));	// D is the distance between the gauss point and the design point
+		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
+		dxPhys_dx[1] = dxPhys_dH * dH_dgamma * dgamma_dprojFact;	//w.r.t. projection factor
+*/
+
+/*
+		double distance = cell_info.neighbour_distance[qpoint][i];
+		double dH_dproj = cell_length;
 		double dH_dD = -1.0;	// D is the distance between the gauss point and the design point
 		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
-		dxPhys_dx[1] = dxPhys_dH * dH_dprojFact;	//w.r.t. projection factor
+		dxPhys_dx[1] = dxPhys_dH * dH_dproj;	//w.r.t. projection factor
+*/
+
+		//For cubic spline
+		double rmin = density_cell_info.projection_fact * cell_length;		//rmin for the current design point
+		double temp1 = cell_info.neighbour_distance[qpoint][i];
+		double r = temp1/rmin;
+		double dH_dr = 0.0;
+		if (r <= 0.5)	dH_dr = -8.0*r + 12.0*r*r;
+		else if(r >0.5 && r <= 1.0)		dH_dr = -4.0 + 8.0*r - 4.0*r*r;
+		double dr_drmin = -temp1 / (rmin * rmin);
+		double dr_dD = 1.0/rmin;
+		double dH_dD = dH_dr * dr_dD;
+		double drmin_dproj = cell_length;
+		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
+		dxPhys_dx[1] = dxPhys_dH * dH_dr * dr_drmin * drmin_dproj;	//w.r.t. projection factor
 		for (unsigned int k = 0; k < dim; k++){
 			double dD_ddimk = -(qX[k] - density_cell_info.pointX[k])/cell_info.neighbour_distance[qpoint][i];
 			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k

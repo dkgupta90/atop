@@ -165,6 +165,10 @@ void Compliance<dim>::compute(
 			for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
 
 				unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
+/*				std::cout<<(*density_cell_info_vector)[0].dxPhys[0]<<" "<<
+						(*density_cell_info_vector)[0].dxPhys[1]<<" "<<
+						(*density_cell_info_vector)[0].dxPhys[2]<<" "<<
+						(*density_cell_info_vector)[0].dxPhys[3]<<" done"<<std::endl;*/
 
 				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
 					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point());	//vector for derivatives of xPhys w.r.t all design variables for that point
@@ -176,8 +180,13 @@ void Compliance<dim>::compute(
 							(*density_cell_info_vector)[density_cell_itr2],
 							density_cell_itr2);
 
+
+
 					//Calculating all the sensitivities for the particular design point
 					for (unsigned int k = 0; k < fem->mesh->design_var_per_point(); k++){
+						if (k == 1){
+							dxPhys_dx[k] = 0.0;
+						}
 						(*density_cell_info_vector)[density_cell_itr2].dxPhys[k] += dxPhys_dx[k];
 						unsigned int design_index = (density_cell_itr2 * fem->mesh->design_var_per_point()) + k;
 						double dEfactor = dE_dxPhys * dxPhys_dx[k];
@@ -214,7 +223,7 @@ void Compliance<dim>::compute(
 					(*density_cell_info_vector)[density_cell_itr2].dxPhys[0] += (dxPhys_dx * area_factor);
 
 					double dEfactor = dE_dxPhys * dxPhys_dx;
-
+					cell_matrix = 0.0;
 					cell_matrix.add(dEfactor,
 							normalized_matrix);
 
@@ -241,8 +250,11 @@ void Compliance<dim>::compute(
 		cell_itr++;
 	}
 
-/*	for (unsigned int i = 0; i < obj_grad.size(); ++i)
-		std::cout<<obj_grad[i]<<std::endl;*/
+	for (unsigned int i = 0; i < obj_grad.size(); ++i){
+		if (i < 500)
+			std::cout<<i<<"  "<<i<<"    "<<obj_grad[i]<<std::endl;
+	}
+
 	//std::cout<<obj_grad[0]<<"   "<<obj_grad[24]<<std::endl;
 	std::cout<<"Size of sensitivity vector : "<<obj_grad.size()<<std::endl;
 	double time2 = clock();
