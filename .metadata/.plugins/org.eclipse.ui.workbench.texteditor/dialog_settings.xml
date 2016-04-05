@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item value="310" key="DIALOG_WIDTH"/>
+		<item value="330" key="DIALOG_WIDTH"/>
 		<item value="541" key="DIALOG_Y_ORIGIN"/>
-		<item value="436" key="DIALOG_HEIGHT"/>
+		<item value="484" key="DIALOG_HEIGHT"/>
 		<item value="1285" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
@@ -13,16 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="create_ne" key="selection"/>
+		<item value="update" key="selection"/>
 		<list key="findhistory">
-			<item value="create_ne"/>
-			<item value="assemble"/>
-			<item value="point"/>
-			<item value="point&apos;"/>
-			<item value="k++"/>
-			<item value="density_cell_info"/>
-			<item value="assemple"/>
-			<item value="density_cell_info_vector"/>
+			<item value="update"/>
+			<item value="bounds"/>
+			<item value="cell_matrix = 0"/>
+			<item value="cell_matrix"/>
+			<item value="set_input"/>
+			<item value="neighbors"/>
+			<item value="obj_grad"/>
+			<item value="Size"/>
 		</list>
 		<list key="replacehistory">
 			<item value="Simple_Bar"/>

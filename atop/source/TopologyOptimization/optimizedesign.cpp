@@ -159,9 +159,9 @@ void Optimizedesign<dim>::optimize(){
 			opt.set_upper_bounds(ub);
 			opt.set_min_objective(myvfunc, (void*)this);
 			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-5);
-			opt.set_ftol_abs(1e-4);
-			opt.set_xtol_abs(1e-6);
-			opt.set_maxeval(50);
+			opt.set_ftol_abs(1e-8);
+			opt.set_xtol_abs(1e-9);
+			opt.set_maxeval(250);
 			double minf;
 			std::cout<<"Optimization started "<<std::endl;
 			nlopt::result result = opt.optimize(design_vector, minf);

@@ -1,4 +1,4 @@
-18:14:08 **** Incremental Build of configuration Debug for project atop ****
+11:06:18 **** Incremental Build of configuration Debug for project atop ****
 make all 
 Building file: ../source/derivatives/compliance.cpp
 Invoking: Cross G++ Compiler
@@ -141,5 +141,5 @@ ar: creating libatop.a
 Finished building target: libatop.a
  
 
-18:14:11 Build Finished (took 3s.663ms)
+11:06:22 Build Finished (took 3s.664ms)
 

@@ -78,13 +78,13 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the penalization scheme
-	Penalize penal("SIMP");
+	Penalize penal("RAMP");
 	penal.factmin = 1e-9;
-	penal.penal_power = 3.0;
+	penal.penal_power = 4.0;
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			1.3, 1.1, 10);
+			4, 2, 20);	//Implementation the Gaussian filter, so the lowest is quite high
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 1);

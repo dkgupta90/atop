@@ -71,7 +71,7 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.75, 0.75);
+			0.8, 0.6);
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 6);

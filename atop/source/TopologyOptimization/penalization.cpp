@@ -59,6 +59,11 @@ void Penalize::update_param(
 				Evalue = (Emin + (E0 - Emin)*(pow(density, penal_power)));
 				dEvalue = penal_power * ((E0 - Emin)*(pow(density, penal_power-1)));
 			}
+			else if (scheme == "RAMP"){
+					double denom = 1 + (penal_power * (1 - density));
+					Evalue = Emin + (density / denom) * (E0 - Emin);
+					dEvalue = ((1 + penal_power)/(denom * denom)) * (E0 - Emin);
+			}
 
 			cell_info_vector[i].E_values[q_point] = Evalue;
 			cell_info_vector[i].dE_values[q_point] = dEvalue;
