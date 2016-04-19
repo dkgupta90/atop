@@ -124,6 +124,7 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_hierarchical.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h
@@ -377,6 +378,8 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_hierarchical.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary_lib.h:
 

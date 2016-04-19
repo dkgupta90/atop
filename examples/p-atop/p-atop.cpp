@@ -39,9 +39,9 @@ int main(){
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {4, 2};
-	mesh.density_subdivisions = {4, 2};
-	mesh.coupling = true;
+	mesh.subdivisions = {40, 20};
+	mesh.density_subdivisions = {80, 40};
+	mesh.coupling = false;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
 	mesh.meshType = "subdivided_hyper_rectangle";
@@ -50,6 +50,8 @@ int main(){
 	mesh.el_order = 1;
 	mesh.density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
+	mesh.amrType = "p-refinement";
+
 
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
