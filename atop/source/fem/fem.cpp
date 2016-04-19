@@ -14,6 +14,7 @@
 #include <atop/fem/output.h>
 #include <deal.II/fe/fe_q.h>
 #include <deal.II/fe/fe_dgq.h>
+#include <deal.II/fe/fe_q_hierarchical.h>
 #include <atop/fem/define_mesh.h>
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
@@ -59,9 +60,13 @@ FEM<dim>::FEM(
 	this->density_handler = &density_handler;	// for the filtered density field
 	this->triangulation = &obj_triangulation;	//for the state field on the analysis
 	this->fe_density_triangulation = &obj_fe_density_triang;	//for the filtered density
-	//Choosing the types of elements for FE mesh
+	//Choosing the types of elements for initial FE mesh
 	if(obj_mesh.elementType == "FE_Q"){
 		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
+		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+	}
+	if(obj_mesh.elementType == "FE_Q_hierarchical"){
+		fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
 		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 

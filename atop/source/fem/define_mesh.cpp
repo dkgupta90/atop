@@ -102,9 +102,11 @@ void DefineMesh<dim>::createMesh(
 					point2,
 					false
 					);
+
+			//For decoupled mesh, this one can have a different resolution
 			GridGenerator::subdivided_hyper_rectangle(
 					density_triangulation,
-					subdivisions,
+					density_subdivisions,
 					point1,
 					point2,
 					false

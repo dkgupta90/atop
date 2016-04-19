@@ -40,6 +40,7 @@ namespace atop{
 		std::string density_elementType;
 
 		std::string adaptivityType;
+		std::string amrType;
 
 		//defines the element order
 		unsigned int el_order;
