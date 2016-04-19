@@ -10,6 +10,7 @@
 #include <deal.II/numerics/vector_tools.h>
 #include <deal.II/numerics/data_out.h>
 #include <string>
+#include <iostream>
 #include <fstream>
 
 using namespace atop;
@@ -24,7 +25,7 @@ void OutputData<dim>::write_fe_solution(
 		std::vector<std::string> &solution_names
 		){
 
-	std::ofstream output(filename.c_str());
+	std::ofstream output(("output/" + filename).c_str());
 	DataOut<dim> data_out;
 	data_out.attach_dof_handler(dof_handler);
 
@@ -33,5 +34,23 @@ void OutputData<dim>::write_fe_solution(
 	data_out.write_vtk(output);
 }
 
+template <int dim>
+void OutputData<dim>::write_design(
+		std::string &filename,
+		std::vector<double> &design_vector,
+		unsigned int design_var_per_point){
+
+		std::ofstream wfile;
+		wfile.open("output_design/" + filename, std::ios::out);
+		//Writing the design data
+		for (unsigned int i = 0; i < design_vector.size(); ){
+			for (unsigned int j = 0; j < design_var_per_point; j++){
+				wfile<<design_vector[i]<<"\t";
+				i++;
+			}
+			wfile<<"\n";
+		}
+		wfile.close();
+}
 
 
