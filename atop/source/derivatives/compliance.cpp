@@ -104,7 +104,7 @@ void Compliance<dim>::compute(
 			++cell_itr;
 			//std::cout<<objective<<std::endl;
 	}
-	std::cout<<"Objective: "<<objective<<std::setw(10)<<std::endl;
+	std::cout<<"Iteration: "<<fem->itr_count<<"   Objective: "<<objective<<std::setw(10)<<std::endl;
 
 
 	//Calculating the sensitivities with respect to the density space design variables
@@ -171,7 +171,7 @@ void Compliance<dim>::compute(
 						(*density_cell_info_vector)[0].dxPhys[3]<<" done"<<std::endl;*/
 
 				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
-					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point());	//vector for derivatives of xPhys w.r.t all design variables for that point
+					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point(), 0.0);	//vector for derivatives of xPhys w.r.t all design variables for that point
 					density_field->get_dxPhys_dx(
 							dxPhys_dx,
 							(*cell_info_vector)[cell_itr],
@@ -184,8 +184,10 @@ void Compliance<dim>::compute(
 
 					//Calculating all the sensitivities for the particular design point
 					for (unsigned int k = 0; k < fem->mesh->design_var_per_point(); k++){
-						if (k == 1){
-							dxPhys_dx[k] = 0.0;
+						if (fem->itr_count < 0){
+							if (k > 0){
+								dxPhys_dx[k] = 0.0;
+							}
 						}
 						(*density_cell_info_vector)[density_cell_itr2].dxPhys[k] += dxPhys_dx[k];
 						unsigned int design_index = (density_cell_itr2 * fem->mesh->design_var_per_point()) + k;

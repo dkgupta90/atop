@@ -137,7 +137,7 @@ void ElasticTools::get_normalized_matrix(FullMatrix<double> &D_matrix,
 void ElasticData::update_elastic_matrices(FESystem<2> &fe,
 		DoFHandler<2> &dofhandler){
 	ElasticTools elastic_tool;
-	if (current_quad_rule == 2){
+	if (current_quad_rule > 1){
 		D_matrix = FullMatrix<double>(3, 3);
 		elastic_tool.get_D_plane_stress2D(D_matrix,
 				nu);

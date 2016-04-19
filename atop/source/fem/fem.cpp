@@ -268,11 +268,19 @@ void FEM<dim>::output_results(){
 
 	//std::cout<<"Output written"<<std::endl;
 
+	//Writing the design output
+	filename = "design-";
+	filename += ss.str();
+	filename += ".dat";
+	out_soln.write_design(filename,
+			*design_vector,
+			mesh->design_var_per_point());
+
 }
 template <int dim>
 void FEM<dim>::reset(){
 	//initializing the current and running quad rules
-	current_quad_rule = 2;
+	current_quad_rule = 8;
 	running_quad_rule = 2;
 
 	elastic_data.current_quad_rule = current_quad_rule;

@@ -25,6 +25,10 @@ namespace atop{
 				DoFHandler<dim> &dof_handler,
 				Vector<double> &solution,
 				std::vector<std::string> &solution_names);
+		void write_design(
+				std::string &,
+				std::vector<double> &,
+				unsigned int);
 	};
 
 	template class OutputData<2>;

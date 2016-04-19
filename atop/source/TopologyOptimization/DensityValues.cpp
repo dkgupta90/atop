@@ -21,6 +21,8 @@
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 
+#include <stdlib.h>
+
 #include <math.h>
 using namespace topopt;
 using namespace dealii;
@@ -337,7 +339,8 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = a * b;
 				sum_weights += (a * b);*/
 
-/*				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
+/*				//Below is the linear cone projection
+				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
 				double temp1 = rmin - cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
 				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = temp1;
 				sum_weights += temp1;*/
@@ -431,13 +434,24 @@ void DensityField<dim>::update_design_vector(
 						endc = mesh.triangulation->end();
 
 			for (unsigned int i = 0; i < design_vector.size();){
-				design_vector[i] = volfrac; //adding the density for the current design point
+				double randno = (double)(rand() % 100 + 1);
+				randno /= 1000.0;
+				design_vector[i] = volfrac - randno; //adding the density for the current design point
 				i++;
 				design_vector[i] = projection.fact; //Adding the projection radius factor
 				i++;
 				// initializing the dim no. of coordinates for the location of the design point
 				for (unsigned int j = 0; j < dim; j++){
 					design_vector[i] = cell->center()[j];
+/*					if (design_vector[i] > 1.5){
+						design_vector[i] -= 1.5;
+					}
+					if (design_vector[i] > 1.0){
+						design_vector[i] -= 1.0;
+					}
+					if (design_vector[i] > 0.5){
+						design_vector[i] -= 0.5;
+					}*/
 					i++;
 				}
 				cell++;
@@ -501,7 +515,7 @@ void DensityField<dim>::update_design_bounds(
 
 		for (unsigned int i = 0; i < no_cells; ++i){
 
-			lb[k] = 0.0;	//density value
+			lb[k] = 0.25;	//density value
 			ub[k] = 1;	//density value
 			k++;
 			lb[k] = projection.minFact;	//minimum projection factor (elem size)
@@ -578,7 +592,9 @@ void DensityField<dim>::get_dxPhys_dx(
 		dxPhys_dx[1] = dxPhys_dH * dH_dgamma * dgamma_dprojFact;	//w.r.t. projection factor
 */
 
+
 /*
+		//For linear projection
 		double distance = cell_info.neighbour_distance[qpoint][i];
 		double dH_dproj = cell_length;
 		double dH_dD = -1.0;	// D is the distance between the gauss point and the design point
@@ -586,23 +602,33 @@ void DensityField<dim>::get_dxPhys_dx(
 		dxPhys_dx[1] = dxPhys_dH * dH_dproj;	//w.r.t. projection factor
 */
 
+
 		//For cubic spline
+
 		double rmin = density_cell_info.projection_fact * cell_length;		//rmin for the current design point
 		double temp1 = cell_info.neighbour_distance[qpoint][i];
 		double r = temp1/rmin;
 		double dH_dr = 0.0;
 		if (r <= 0.5)	dH_dr = -8.0*r + 12.0*r*r;
-		else if(r >0.5 && r <= 1.0)		dH_dr = -4.0 + 8.0*r - 4.0*r*r;
+		else if(r > 0.5 && r <= 1.0)		dH_dr = -4.0 + 8.0*r - 4.0*r*r;
 		double dr_drmin = -temp1 / (rmin * rmin);
 		double dr_dD = 1.0/rmin;
 		double dH_dD = dH_dr * dr_dD;
 		double drmin_dproj = cell_length;
 		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
 		dxPhys_dx[1] = dxPhys_dH * dH_dr * dr_drmin * drmin_dproj;	//w.r.t. projection factor
+
 		for (unsigned int k = 0; k < dim; k++){
 			double dD_ddimk = -(qX[k] - density_cell_info.pointX[k])/cell_info.neighbour_distance[qpoint][i];
 			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k
 		}
+/*		if (density_cell_info.pointX[0] == 0.1 && density_cell_info.pointX[1] == 0.1){
+			std::cout<<"Left bottom : "<<dxPhys_dx[0]<<" "<<dxPhys_dx[1]<<" "<<dxPhys_dx[2]<<" "<<dxPhys_dx[3]<<std::endl;
+		}
+
+		if (density_cell_info.pointX[0] == 0.1 && density_cell_info.pointX[1] == 0.9){
+			std::cout<<"Left top : "<<dxPhys_dx[0]<<" "<<dxPhys_dx[1]<<" "<<dxPhys_dx[2]<<" "<<dxPhys_dx[3]<<std::endl;
+		}*/
 	}
 
 }
