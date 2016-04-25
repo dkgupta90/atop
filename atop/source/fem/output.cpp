@@ -53,4 +53,35 @@ void OutputData<dim>::write_design(
 		wfile.close();
 }
 
+template <int dim>
+void OutputData<dim>::write_design(
+				std::string &filename,
+				DoFHandler<dim> &dof_handler,
+				std::vector<CellInfo> &cell_info_vector){
+	std::ofstream wfile;
+	wfile.open("output_design/" + filename, std::ios::out);
+
+	//Writing the design data
+	unsigned int cell_itr = 0;
+	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc= dof_handler.end();
+	for(; cell != endc; ++cell){
+
+		//Iterating over the density points
+		for (unsigned int i = 0; i < cell_info_vector[cell_itr].design_points.no_points; ++i){
+			double density = cell_info_vector[cell_itr].design_points.rho[i];
+			wfile<<density<<"\t";
+			//converting vector to point coordinates
+			Point<dim> centroid = cell->center();	//getting the centre for scaling the points
+			double side_length = pow(cell->measure(), 1.0/dim);
+			for(unsigned int dimi = 0; dimi < dim; ++dimi){
+				double pointi = centroid(dimi) +
+				(cell_info_vector[cell_itr].design_points.pointX[i][dimi]) * (side_length/2.0);
+				wfile<<pointi<<"\t";
+			}
+			wfile<<"\n";
+		}
+		++cell_itr;
+	}
+}
 

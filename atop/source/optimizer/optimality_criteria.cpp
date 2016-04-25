@@ -55,7 +55,7 @@ void OC::optimize(
 				opt_design2d->cell_info_vector,
 				opt_design2d->density_cell_info_vector,
 				opt_design2d->obj_fem->density_field,
-				opt_design2d->mesh->design_var_per_point()
+				*(opt_design2d->mesh)
 				);
 
 		for(unsigned int i = 0 ; i < obj_grad.size(); ++i){
@@ -94,7 +94,8 @@ void OC::optimize(
 			//Applying smoothing
 			opt_design2d->obj_fem->density_field.smoothing(
 					opt_design2d->cell_info_vector,
-					opt_design2d->density_cell_info_vector);
+					opt_design2d->density_cell_info_vector,
+					*(opt_design2d->mesh));
 
 			//Computing current volume fraction
 			//Note that the elastic_data object makes it hardcoded, it needs to be removed

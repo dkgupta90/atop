@@ -1,0 +1,115 @@
+/*
+ * cell_prop.h
+ *
+ *  Created on: Dec 24, 2014
+ *      Author: dkgupta
+ */
+
+#ifndef CELL_PROP_H_
+#define CELL_PROP_H_
+
+#include<iostream>
+#include<vector>
+#include <deal.II/numerics/vector_tools.h>
+#include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/fe/fe_system.h>
+#include <deal.II/fe/fe_q.h>
+#include<deal.II/fe/fe_values.h>
+#include <deal.II/dofs/dof_handler.h>
+#include <atop/TopologyOptimization/designField.h>
+
+using namespace dealii;
+
+namespace topopt{
+class CellProperties{
+
+	//The first 'vector' of all the variables denotes the series of quadrature points
+
+public:
+	unsigned int quadrature_formula;
+
+	std::vector<double> material_density;
+	std::vector<double> xPhys;
+	std::vector<double> E_values;
+	std::vector<double> dE_values;
+	std::vector<double> dcdx;
+	double avg_const_sens;
+	double sens_contrast;
+	double cell_area;
+	unsigned int n_q_points;
+	std::vector<std::vector< std::pair<unsigned int , unsigned int> > > neighbour_cells;
+	std::vector< std::vector<double> > neighbour_distance;
+	std::vector< std::vector<double> > neighbour_weights;
+	std::vector<double> dxPhys;
+
+	void initialize_density(double value);
+};
+}
+
+namespace atop{
+	class CellInfo{
+	public:
+		//The first dimension of the vectors corresponds to the number of quadrature points
+
+		unsigned int quad_rule; //Should match with the current quad rule
+
+		unsigned int n_q_points;	//No. of quadrature points
+
+		double projection_radius; 	//projection radius of the current cell
+		double projection_fact;		//projection factor (to mulitply with certain element size)
+		/**
+		 * density values for the mesh
+		 * refers to unfiltered density values for the design/density mesh
+		 * refers to filtered density for the FE mesh
+		 */std::vector<double> density;
+
+		 /**
+		  * Stores dc_dxPhys
+		  */
+		 std::vector<double> dc_dx;
+
+		 /*
+		  * pointX saves the coordinates of the design point
+		  * For coupled meshes or for  a case where design mesh is actually used, it is not needed
+		  * For cases where there is not design mesh, but just points in a domain, this is needed.
+		  * For the case above,  cell->center() does not change, however the design point moves.
+		  * So the coordinates of the design point location are going to change and are saved.
+		  *
+		  * In can also be used for uncoupled meshes where every densitycell
+		  */
+		 std::vector<double> pointX;
+
+		/**
+		 * saves the stiffness and corresponding design derivative for each FE cell.
+		 * vector refers to the no. of quadrature points here
+		 * stiffness can be replaced by conduction etc. for other physics problems.
+		 */std::vector<double> E_values;
+		std::vector<double> dE_values;
+
+		/**
+		 * Stores details of neighbour cells for projection purpose
+		 * tells which all cells from density_mesh are neighbours of every q_point of a cell in FE mesh
+		 * distance and weights are depend on the chosen projection scheme
+		 */std::vector<std::vector< unsigned int > > neighbour_cells;
+		std::vector< std::vector<double> > neighbour_distance;
+		std::vector< std::vector<double> > neighbour_weights;
+		std::vector<std::vector<double> > neighbour_cell_area;
+		std::vector<double> sum_weights;
+
+		std::vector<double> density_weights; //saves the weight times area for the integration point
+
+		std::vector<double> dxPhys;	//To be used only in density_cell_info_vector
+		double cell_area;
+
+		double cell_density;	//To be used for computing material volume fraction
+
+		DesignField design_points;
+		//CellInfo();
+
+	};
+}
+
+
+
+
+#endif /* CELL_PROP_H_ */

@@ -16,6 +16,7 @@
 #include <deal.II/fe/fe_q.h>
 #include<deal.II/fe/fe_values.h>
 #include <deal.II/dofs/dof_handler.h>
+#include <atop/TopologyOptimization/designField.h>
 
 using namespace dealii;
 
@@ -50,8 +51,9 @@ namespace atop{
 	public:
 		//The first dimension of the vectors corresponds to the number of quadrature points
 
+		unsigned int dim;	//dimension of the problem
 		unsigned int quad_rule; //Should match with the current quad rule
-
+		unsigned int shape_function_order;
 		unsigned int n_q_points;	//No. of quadrature points
 
 		double projection_radius; 	//projection radius of the current cell
@@ -73,6 +75,8 @@ namespace atop{
 		  * For cases where there is not design mesh, but just points in a domain, this is needed.
 		  * For the case above,  cell->center() does not change, however the design point moves.
 		  * So the coordinates of the design point location are going to change and are saved.
+		  *
+		  * In can also be used for uncoupled meshes where every densitycell
 		  */
 		 std::vector<double> pointX;
 
@@ -88,6 +92,7 @@ namespace atop{
 		 * tells which all cells from density_mesh are neighbours of every q_point of a cell in FE mesh
 		 * distance and weights are depend on the chosen projection scheme
 		 */std::vector<std::vector< unsigned int > > neighbour_cells;
+		std::vector<std::vector<std::pair<unsigned int, unsigned int> > > neighbour_points;
 		std::vector< std::vector<double> > neighbour_distance;
 		std::vector< std::vector<double> > neighbour_weights;
 		std::vector<std::vector<double> > neighbour_cell_area;
@@ -100,7 +105,7 @@ namespace atop{
 
 		double cell_density;	//To be used for computing material volume fraction
 
-
+		DesignField design_points;
 		//CellInfo();
 
 	};

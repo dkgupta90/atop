@@ -1,0 +1,22 @@
+/*
+ *
+ *  Created on: Apr 20, 2016
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+
+#include <atop/TopologyOptimization/designField.h>
+
+using namespace atop;
+
+DesignField::DesignField(){
+
+}
+
+
+DesignField::DesignField(
+		unsigned int,
+		unsigned int){
+
+}

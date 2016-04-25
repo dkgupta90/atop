@@ -2,7 +2,7 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="330" key="DIALOG_WIDTH"/>
-		<item value="541" key="DIALOG_Y_ORIGIN"/>
+		<item value="513" key="DIALOG_Y_ORIGIN"/>
 		<item value="1285" key="DIALOG_X_ORIGIN"/>
 		<item value="484" key="DIALOG_HEIGHT"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
@@ -13,16 +13,16 @@
 		<item value="false" key="isRegEx"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="1.42336e-15" key="selection"/>
+		<item value="update_design" key="selection"/>
 		<list key="findhistory">
-			<item value="1.42336e-15"/>
-			<item value="k =="/>
-			<item value="update"/>
-			<item value="bounds"/>
-			<item value="cell_matrix = 0"/>
-			<item value="cell_matrix"/>
-			<item value="set_input"/>
-			<item value="neighbors"/>
+			<item value="update_design"/>
+			<item value="design_vector"/>
+			<item value="analyze"/>
+			<item value="output_results"/>
+			<item value="false"/>
+			<item value="rule"/>
+			<item value="4"/>
+			<item value="Assembly finished"/>
 		</list>
 		<list key="replacehistory">
 			<item value="Simple_Bar"/>

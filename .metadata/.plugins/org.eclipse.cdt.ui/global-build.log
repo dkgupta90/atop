@@ -1,10 +1,15 @@
-16:00:16 **** Incremental Build of configuration Debug for project atop ****
+10:45:01 **** Clean-only build of configuration Debug for project p-atop ****
+make clean 
+rm -rf  ./p-atop.o  ./p-atop.d  p-atop
+ 
+10:45:02 **** Build of configuration Debug for project p-atop ****
 make all 
-Building file: ../source/fem/fem.cpp
+Building file: ../p-atop.cpp
 Invoking: Cross G++ Compiler
-g++ -DDEAL_II_USE_CXX11 -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/bin/deal.II/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++11 -fPIC -MMD -MP -MF"source/fem/fem.d" -MT"source/fem/fem.d" -o "source/fem/fem.o" "../source/fem/fem.cpp"
+g++ -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"p-atop.d" -MT"p-atop.d" -o "p-atop.o" "../p-atop.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:30:0,
-                 from ../source/fem/fem.cpp:10:
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
+                 from ../p-atop.cpp:12:
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:1281:0: warning: ignoring #pragma omp simd [-Wunknown-pragmas]
                DEAL_II_OPENMP_SIMD_PRAGMA
  ^
@@ -15,8 +20,12 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem
            DEAL_II_OPENMP_SIMD_PRAGMA
  ^
 In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:17,
-                 from ../source/fem/fem.cpp:10:
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:22,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
+                 from ../p-atop.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2789:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -34,8 +43,12 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
                                                                                      ^
 In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:1693:0,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:17,
-                 from ../source/fem/fem.cpp:10:
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:22,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
+                 from ../p-atop.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2889:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -61,8 +74,8 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
                                                                                      ^
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
-                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:32,
-                 from ../source/fem/fem.cpp:10:
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:13,
+                 from ../p-atop.cpp:10:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:2997:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
      typedef FEValuesBase<dim,spacedim> FVB;
@@ -123,40 +136,10 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4232:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-../source/fem/fem.cpp: In instantiation of ‘atop::FEM<dim>::~FEM() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
-../source/fem/fem.cpp:92:37: warning: right operand of comma operator has no effect [-Wunused-value]
-  delete dof_handler, density_handler, density_dof_handler;
-                                     ^
-../source/fem/fem.cpp:92:2: warning: right operand of comma operator has no effect [-Wunused-value]
-  delete dof_handler, density_handler, density_dof_handler;
-  ^
-../source/fem/fem.cpp:93:23: warning: right operand of comma operator has no effect [-Wunused-value]
-  delete fe, fe_density, density_fe;
-                       ^
-../source/fem/fem.cpp:93:2: warning: right operand of comma operator has no effect [-Wunused-value]
-  delete fe, fe_density, density_fe;
-  ^
-../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::boundary_info() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
-../source/fem/fem.cpp:670:4: warning: ‘void dealii::TriaAccessor<<anonymous>, <anonymous>, <anonymous> >::set_boundary_indicator(dealii::types::boundary_id) const [with int structdim = 1; int dim = 2; int spacedim = 2; dealii::types::boundary_id = unsigned char]’ is deprecated (declared at /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_accessor.templates.h:1864) [-Wdeprecated-declarations]
-    cell->face(f)->set_boundary_indicator(indic);
-    ^
-../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::assemble_system() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
-../source/fem/fem.cpp:161:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-  if (itr_count != -1){
-                ^
-../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::reset() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:143:17:   required from here
-../source/fem/fem.cpp:315:16: warning: unused variable ‘design_len’ [-Wunused-variable]
-   unsigned int design_len = (*design_vector).size(); //size of design vector
-                ^
-Finished building: ../source/fem/fem.cpp
+Finished building: ../p-atop.cpp
  
-Building target: libatop.a
-Invoking: Cross GCC Archiver
-ar -r  "libatop.a"  ./source/physics/mechanics/elastic.o  ./source/physics/elasticity.o  ./source/output/filehandler.o  ./source/optimizer/optimality_criteria.o  ./source/math_tools/algebra/MatrixVector.o  ./source/fem/boundary_values.o ./source/fem/define_mesh.o ./source/fem/fem.o ./source/fem/output.o  ./source/derivatives/compliance.o ./source/derivatives/sensitivity.o  ./source/data_format/bitmap.o  ./source/TopologyOptimization/constraints/general.o  ./source/TopologyOptimization/DensityValues.o ./source/TopologyOptimization/RefinementIndicator.o ./source/TopologyOptimization/adaptivity.o ./source/TopologyOptimization/cell_prop.o ./source/TopologyOptimization/design_analysis.o ./source/TopologyOptimization/neighbors.o ./source/TopologyOptimization/optimizedesign.o ./source/TopologyOptimization/penalization.o ./source/TopologyOptimization/projection.o   
-ar: creating libatop.a
-Finished building target: libatop.a
+Building target: p-atop
+Invoking: Cross G++ Linker
+g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -o "p-atop"  ./p-atop.o   -latop -ldeal_II -lnlopt -ltbb
+Finished building target: p-atop
  

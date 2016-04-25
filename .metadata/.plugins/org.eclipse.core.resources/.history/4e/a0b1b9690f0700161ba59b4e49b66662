@@ -1,0 +1,31 @@
+/*
+ *
+ *  Created on: Apr 20, 2016
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+
+#include <atop/TopologyOptimization/designField.h>
+
+using namespace atop;
+
+DesignField::DesignField(){
+
+}
+
+
+DesignField::DesignField(
+		unsigned int no_points,
+		unsigned int design_rule){
+
+	//no_points defines the number of points to be put inside the element
+	//design_rule defines the rule for distributing/adding points in the domain
+	//At every p-refinement, the new design points should not disturb the position of previous points.
+	this->dim = dim;
+	this->design_rule = design_rule;
+	if (design_rule == 1){
+
+	}
+
+}

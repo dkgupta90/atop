@@ -79,11 +79,11 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 
 	typename Triangulation<dim>::active_cell_iterator cell = fem->triangulation->begin_active(),
 			endc = fem->triangulation->end();
-	typename Triangulation<dim>::active_cell_iterator fe_density_cell = fem->fe_density_triangulation->begin_active(),
-			fe_density_endc = fem->fe_density_triangulation->end();
+	typename Triangulation<dim>::active_cell_iterator fe_density_cell = fem->analysis_density_triangulation->begin_active(),
+			fe_density_endc = fem->analysis_density_triangulation->end();
 
-	typename Triangulation<dim>::active_cell_iterator density_cell = fem->density_triangulation->begin_active(),
-			density_endc = fem->density_triangulation->end();
+	typename Triangulation<dim>::active_cell_iterator density_cell = fem->design_triangulation->begin_active(),
+			density_endc = fem->design_triangulation->end();
 
 	unsigned int cell_itr = 0;
 

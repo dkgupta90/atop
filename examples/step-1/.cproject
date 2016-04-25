@@ -112,6 +112,7 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="deal_II"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="nlopt"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="atop"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tbb"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1954490392" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/lib"/>

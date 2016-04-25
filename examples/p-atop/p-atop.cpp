@@ -50,8 +50,7 @@ int main(){
 	mesh.el_order = 1;
 	mesh.density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
-	mesh.amrType = "p-refinement";
-
+	//mesh.amrType = "p-refinement";
 
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
@@ -73,10 +72,10 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.8, 0.6);
+			0.06, 0.6);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 6);
+	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 1);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction

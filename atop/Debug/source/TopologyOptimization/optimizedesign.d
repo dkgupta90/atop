@@ -111,6 +111,7 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h \
@@ -345,6 +346,8 @@ source/TopologyOptimization/optimizedesign.d: \
 /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h:
 

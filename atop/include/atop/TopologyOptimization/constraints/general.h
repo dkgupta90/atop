@@ -10,6 +10,7 @@
 
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/TopologyOptimization/DensityValues.h>
+#include <atop/fem/define_mesh.h>
 
 namespace atop{
 template <int dim>
@@ -21,7 +22,7 @@ template <int dim>
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
 				DensityField<dim> &density_field,
-				unsigned int design_var_per_point);
+				DefineMesh<dim> &mesh);
 	};
 
 template class GeneralConstraints<2>;
