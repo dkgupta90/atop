@@ -34,8 +34,8 @@ DefineMesh<dim>::DefineMesh(int obj_dofs_per_node){
 template <int dim>
 void DefineMesh<dim>::createMesh(
 		Triangulation<dim> &triangulation,
-		Triangulation<dim> &fe_density_triangulation,
-		Triangulation<dim> &density_triangulation){
+		Triangulation<dim> &analysis_density_triangulation,
+		Triangulation<dim> &design_triangulation){
 
 	/* Note that below we assume the moving design points method to be the non-coupled way,
 	 * however, there can be non moving design points based methods as sell which are non-coupled.
@@ -44,8 +44,8 @@ void DefineMesh<dim>::createMesh(
 	//For the coupled meshes
 	if (this->coupling == true){
 		this->triangulation = &triangulation;
-		this->fe_density_triangulation = &fe_density_triangulation;
-		this->density_triangulation = &density_triangulation;
+		this->analysis_density_triangulation = &analysis_density_triangulation;
+		this->design_triangulation = &design_triangulation;
 		if (meshType == "subdivided_hyper_rectangle"){
 			Point<dim> point1, point2;
 			if (dim == 2){
@@ -60,28 +60,28 @@ void DefineMesh<dim>::createMesh(
 					false
 					);
 			GridGenerator::subdivided_hyper_rectangle(
-					fe_density_triangulation,
+					analysis_density_triangulation,
 					subdivisions,
 					point1,
 					point2,
 					false
 					);
 			GridGenerator::subdivided_hyper_rectangle(
-					density_triangulation,
+					design_triangulation,
 					density_subdivisions,
 					point1,
 					point2,
 					false
 					);
 			std::cout<<"Active cells in FE mesh: "<<this->triangulation->n_active_cells()<<std::endl;
-			std::cout<<"Active cells in density mesh: "<<this->density_triangulation->n_active_cells()<<std::endl;
+			std::cout<<"Active cells in density mesh: "<<this->design_triangulation->n_active_cells()<<std::endl;
 			boundary_info();
 		}
 	}
 	else{
 		this->triangulation = &triangulation;
-		this->fe_density_triangulation = &fe_density_triangulation;
-		this->density_triangulation = &density_triangulation;
+		this->analysis_density_triangulation = &analysis_density_triangulation;
+		this->design_triangulation = &design_triangulation;
 		if (meshType == "subdivided_hyper_rectangle"){
 			Point<dim> point1, point2;
 			if (dim == 2){
@@ -96,7 +96,7 @@ void DefineMesh<dim>::createMesh(
 					false
 					);
 			GridGenerator::subdivided_hyper_rectangle(
-					fe_density_triangulation,
+					analysis_density_triangulation,
 					subdivisions,
 					point1,
 					point2,
@@ -105,14 +105,14 @@ void DefineMesh<dim>::createMesh(
 
 			//For decoupled mesh, this one can have a different resolution
 			GridGenerator::subdivided_hyper_rectangle(
-					density_triangulation,
+					design_triangulation,
 					density_subdivisions,
 					point1,
 					point2,
 					false
 					);
 			std::cout<<"Active cells in FE mesh: "<<this->triangulation->n_active_cells()<<std::endl;
-			std::cout<<"Active cells in density mesh: "<<this->density_triangulation->n_active_cells()<<std::endl;
+			std::cout<<"Active cells in density mesh: "<<this->design_triangulation->n_active_cells()<<std::endl;
 
 			boundary_info();
 		}

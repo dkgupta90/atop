@@ -41,7 +41,7 @@ namespace atop{
 				DoFHandler<dim> &dof_handler,
 				DoFHandler<dim> &density_dof_handler,
 				Projection &projection,
-				bool mesh_coupling
+				DefineMesh<dim> &mesh
 				);
 
 		void create_neighbors(
@@ -56,10 +56,12 @@ namespace atop{
 		 */
 		void smoothing(
 				std::vector<CellInfo> &cell_info_vector,
-				std::vector<CellInfo> &density_cell_info_vector
+				std::vector<CellInfo> &density_cell_info_vector,
+				DefineMesh<dim> &mesh
 				);
 
 		void update_design_vector(
+				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
 				std::vector<double> &design_vector,
 				unsigned int cycle,
@@ -77,15 +79,27 @@ namespace atop{
 				std::vector<double> &lb,
 				std::vector<double> &ub,
 				DefineMesh<dim> &mesh,
-				Projection &projection);
+				Projection &projection,
+				std::vector<double> &design_vector);
 
 		void update_density_cell_info_vector(
+				std::vector<CellInfo> &density_cell_info_vector,
+				const std::vector<double> &design_vector);
+
+		//overloaded function for uncoupled meshes, design variables are stored in cell_info for this case
+		void update_density_cell_info_vector(
+				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
 				const std::vector<double> &design_vector);
 
 		double get_dxPhys_dx(CellInfo &cell_info,
 				unsigned int q_point,
 				unsigned int density_cell_itr2);
+
+		double get_dxPhys_dx(CellInfo &cell_info,
+				unsigned int q_point,
+				unsigned int cell_itr2,
+				unsigned int ngpt_itr);
 		/*
 		 * This implementation of get_dxPhys_dx is for movingDesignPoints.
 		 * For every design point, it returns dim+2 values, each w.r.t 1 design variable
@@ -102,6 +116,12 @@ namespace atop{
 		double get_vol_fraction(
 				std::vector<CellInfo> &cell_info_vector
 				);
+
+		unsigned int get_design_count(
+				unsigned int cycle,
+				DefineMesh<dim> &mesh,
+				std::vector<CellInfo> &cell_info_vector,
+				std::vector<CellInfo> &density_cell_info_vector);
 	private:
 
 		/**
@@ -119,7 +139,8 @@ namespace atop{
 		void calculate_weights(
 				std::vector<CellInfo>  &cell_info_vector,
 				unsigned int cell_itr1,
-				double rmin);
+				double rmin,
+				DefineMesh<dim> &mesh);
 		void calculate_weights(
 						std::vector<CellInfo>  &cell_info_vector,
 						std::vector<CellInfo> &density_cell_info_vector,

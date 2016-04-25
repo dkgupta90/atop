@@ -7,6 +7,7 @@
 
 #include <atop/derivatives/compliance.h>
 #include <deal.II/dofs/dof_handler.h>
+#include <deal.II/base/quadrature.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/fe/fe_values.h>
@@ -114,7 +115,17 @@ void Compliance<dim>::compute(
 
 	//Initializing the obj_grad vector
 	obj_grad.clear();
-	obj_grad.resize((*density_cell_info_vector).size() * fem->mesh->design_var_per_point(), 0.0);
+	obj_grad.resize(fem->density_field.get_design_count(
+			fem->cycle,
+			*(fem->mesh),
+			*cell_info_vector,
+			*density_cell_info_vector), 0.0);
+
+	std::vector<std::vector<double> > temp_obj_grad((*cell_info_vector).size()); //used for uncoupled mesh, adaptivity_grayness
+	//Below vector will be used for only adaptive_grayness and uncoupled mesh type
+	for(unsigned int i = 0; i < cell_info_vector->size(); ++i){
+		temp_obj_grad[i].resize((*cell_info_vector)[i].design_points.no_points, 0.0);
+	}
 
 	cell = dof_handler->begin_active(),
 					endc = dof_handler->end();
@@ -122,6 +133,7 @@ void Compliance<dim>::compute(
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
 		QGauss<dim> quadrature_formula(quadrature_rule);
+		std::vector<double> qweights = quadrature_formula.get_weights();	//Getting the quadrature weights
 		FEValues<dim> fe_values(*fe,
 				quadrature_formula,
 				update_values |
@@ -162,15 +174,11 @@ void Compliance<dim>::compute(
 			double dE_dxPhys = dE_values[q_point];
 
 			double dobj;
-			for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
 
-				unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
-/*				std::cout<<(*density_cell_info_vector)[0].dxPhys[0]<<" "<<
-						(*density_cell_info_vector)[0].dxPhys[1]<<" "<<
-						(*density_cell_info_vector)[0].dxPhys[2]<<" "<<
-						(*density_cell_info_vector)[0].dxPhys[3]<<" done"<<std::endl;*/
+			if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
+				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
 
-				if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
+					unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point(), 0.0);	//vector for derivatives of xPhys w.r.t all design variables for that point
 					density_field->get_dxPhys_dx(
 							dxPhys_dx,
@@ -214,7 +222,10 @@ void Compliance<dim>::compute(
 					}
 
 				}
-				else{
+			}
+			else if (fem->mesh->coupling == true){
+				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
+					unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 					double dxPhys_dx = density_field->get_dxPhys_dx(
 							(*cell_info_vector)[cell_itr],
 							q_point,
@@ -244,7 +255,43 @@ void Compliance<dim>::compute(
 					//Adding to the grad vector
 					obj_grad[density_cell_itr2] -= dobj;
 				}
+			}
+			else{
+				for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].neighbour_points[q_point].size(); ++i){
+					unsigned int cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_points[q_point][i].first;	//index of neighbor cell
+					unsigned int ngpt_itr = (*cell_info_vector)[cell_itr].neighbour_points[q_point][i].second;	//neighbor point index
+					double dxPhys_dx = density_field->get_dxPhys_dx(
+							(*cell_info_vector)[cell_itr],
+							q_point,
+							cell_itr2,
+							ngpt_itr);
 
+					//Adding the dxPhys_dx information into the cell containing this design point
+					(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
+
+					//double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;
+					//(*density_cell_info_vector)[density_cell_itr2].dxPhys[0] += (dxPhys_dx * area_factor);
+
+					double dEfactor = dE_dxPhys * dxPhys_dx;
+					cell_matrix = 0.0;
+					cell_matrix.add(dEfactor,
+							normalized_matrix);
+
+					Vector<double> temp_array(dofs_per_cell);
+					temp_array = 0;
+					Matrix_Vector matvec;
+					matvec.vector_matrix_multiply(
+							cell_array,
+							cell_matrix,
+							temp_array,
+							dofs_per_cell,
+							dofs_per_cell);
+					dobj = matvec.vector_vector_inner_product(
+							temp_array,
+							cell_array);
+					//Adding to the grad vector
+					temp_obj_grad[cell_itr2][ngpt_itr] -= dobj;
+				}
 
 			}
 
@@ -252,9 +299,16 @@ void Compliance<dim>::compute(
 		cell_itr++;
 	}
 
-	for (unsigned int i = 0; i < obj_grad.size(); ++i){
-		if (i < 500)
-			std::cout<<i<<"  "<<i<<"    "<<obj_grad[i]<<std::endl;
+	//Adding data to obj_grad for uncoupled meshes
+	if (fem->mesh->coupling == false && fem->mesh->adaptivityType != "movingdesignpoints"){
+		unsigned int k = 0;
+		for(unsigned int i = 0; i < temp_obj_grad.size(); ++i){
+			for (unsigned int j = 0; j < temp_obj_grad[i].size(); ++j){
+				obj_grad[k] = temp_obj_grad[i][j];
+				//std::cout<<k<<"    "<<obj_grad[k]<<std::endl;
+				k++;
+			}
+		}
 	}
 
 	//std::cout<<obj_grad[0]<<"   "<<obj_grad[24]<<std::endl;

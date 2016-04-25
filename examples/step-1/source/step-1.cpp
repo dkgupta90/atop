@@ -39,8 +39,8 @@ int main(){
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {4, 2};
-	mesh.density_subdivisions = {4, 2};
+	mesh.subdivisions = {40, 20};
+	mesh.density_subdivisions = {40, 20};
 	mesh.coupling = true;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
@@ -71,7 +71,7 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.8, 0.6);
+			0.06, 0.6);
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 6);

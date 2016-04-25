@@ -43,11 +43,11 @@ using namespace dealii;
 template<int dim>
 FEM<dim>::FEM(
 		Triangulation<dim> &obj_triangulation,
-		Triangulation<dim> &obj_fe_density_triang,
-		Triangulation<dim> &obj_density_triangulation,
+		Triangulation<dim> &obj_analysis_density_triang,
+		Triangulation<dim> &obj_design_triangulation,
 		DoFHandler<dim> &dof_handler,
-		DoFHandler<dim> &density_handler,
-		DoFHandler<dim> &density_dof_handler,
+		DoFHandler<dim> &analysis_density_handler,
+		DoFHandler<dim> &design_handler,
 		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &density_cell_info_vector,
 		DefineMesh<dim> &obj_mesh,
@@ -57,29 +57,29 @@ FEM<dim>::FEM(
 	this->density_cell_info_vector = &density_cell_info_vector;
 	this->mesh = &obj_mesh;
 	this->dof_handler = &dof_handler;	// for the state field on the analysis
-	this->density_handler = &density_handler;	// for the filtered density field
+	this->analysis_density_handler = &analysis_density_handler;	// for the filtered density field
 	this->triangulation = &obj_triangulation;	//for the state field on the analysis
-	this->fe_density_triangulation = &obj_fe_density_triang;	//for the filtered density
+	this->analysis_density_triangulation = &obj_analysis_density_triang;	//for the filtered density
 	//Choosing the types of elements for initial FE mesh
 	if(obj_mesh.elementType == "FE_Q"){
 		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
-		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 	if(obj_mesh.elementType == "FE_Q_hierarchical"){
 		fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
-		fe_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 
-	this->density_dof_handler = &density_dof_handler;	// for the design field
-	this->density_triangulation = &obj_density_triangulation;	// for the design domain
+	this->design_handler = &design_handler;	// for the design field
+	this->design_triangulation = &obj_design_triangulation;	// for the design domain
 
 	//Choosing the type of element for density mesh
 	//Information below is used to create the density field which will be output as the design.
 	if(obj_mesh.density_elementType == "FE_DGQ"){
-		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		fe_design = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 	else{
-		density_fe = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		fe_design = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
 	}
 
 
@@ -89,8 +89,8 @@ FEM<dim>::FEM(
 
 template <int dim>
 FEM<dim>::~FEM(){
-	delete dof_handler, density_handler, density_dof_handler;
-	delete fe, fe_density, density_fe;
+	delete dof_handler, analysis_density_handler, design_handler;
+	delete fe, fe_analysis_density, fe_design;
 }
 
 //Function that step-by-step solves the FE problem
@@ -118,10 +118,10 @@ void FEM<dim>::setup_system(){
 	std::cout<<"Entered FEM::setup_system()"<<std::endl;
 	//FE mesh
 	dof_handler->distribute_dofs(*fe);
-	density_handler->distribute_dofs(*fe_density);	//Used to add density on every node
+	analysis_density_handler->distribute_dofs(*fe_analysis_density);	//Used to add density on every node
 
 	//Density mesh or design mesh
-	density_dof_handler->distribute_dofs(*density_fe);
+	design_handler->distribute_dofs(*fe_design);
 
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(*dof_handler,
@@ -137,8 +137,8 @@ void FEM<dim>::setup_system(){
 	system_matrix.reinit(sparsity_pattern);
 	solution.reinit(dof_handler->n_dofs());
 	system_rhs.reinit(dof_handler->n_dofs());
-	nodal_density.reinit(density_handler->n_dofs());	//filtered densities for the output design
-	cells_adjacent_per_node.reinit(density_handler->n_dofs());	//for normalizing the nodal density value
+	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output design
+	cells_adjacent_per_node.reinit(analysis_density_handler->n_dofs());	//for normalizing the nodal density value
 
 
 
@@ -160,9 +160,17 @@ void FEM<dim>::assemble_system(){
 	//updating the density_cell_info vector with the new design
 	if (itr_count != -1){
 		//Update the density_cell_info_vector
-		density_field.update_density_cell_info_vector(
-				*density_cell_info_vector,
-				*design_vector);
+		if (mesh->coupling == false && mesh->adaptivityType != "movingdesignpoints"){
+			density_field.update_density_cell_info_vector(
+					*cell_info_vector,
+					*density_cell_info_vector,
+					*design_vector);
+		}
+		else{
+			density_field.update_density_cell_info_vector(
+					*density_cell_info_vector,
+					*design_vector);
+		}
 	}
 
 	//Initialize the components of every cycle
@@ -170,6 +178,7 @@ void FEM<dim>::assemble_system(){
 		initialize_cycle();
 	}
 	else{
+		//For approaches, where neighbors need to be computed at every iteration
 		if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
 			std::cout<<"Updating neighbors"<<std::endl;
 			density_field.create_neighbors(
@@ -181,7 +190,9 @@ void FEM<dim>::assemble_system(){
 	}
 
 	//Apply smoothing operation on the density values
-	density_field.smoothing(*cell_info_vector, *density_cell_info_vector);
+	density_field.smoothing(*cell_info_vector,
+			*density_cell_info_vector,
+			*mesh);
 	std::cout<<"Smoothing done"<<std::endl;
 
 	//Updating the physics of the problem
@@ -268,7 +279,7 @@ void FEM<dim>::output_results(){
 	std::vector<std::string> density_names;
 	density_names.clear();
 	density_names.push_back("density");
-	out_soln.write_fe_solution(filename, *density_handler,
+	out_soln.write_fe_solution(filename, *analysis_density_handler,
 			nodal_density, density_names);
 
 	//std::cout<<"Output written"<<std::endl;
@@ -277,15 +288,23 @@ void FEM<dim>::output_results(){
 	filename = "design-";
 	filename += ss.str();
 	filename += ".dat";
-	out_soln.write_design(filename,
-			*design_vector,
-			mesh->design_var_per_point());
+
+	if(mesh->adaptivityType == "movingdesignpoints"){
+		out_soln.write_design(filename,
+				*design_vector,
+				mesh->design_var_per_point());
+	}
+	else{
+		out_soln.write_design(filename,
+				*dof_handler,
+				*cell_info_vector);
+	}
 
 }
 template <int dim>
 void FEM<dim>::reset(){
 	//initializing the current and running quad rules
-	current_quad_rule = 8;
+	current_quad_rule = 3;
 	running_quad_rule = 2;
 
 	elastic_data.current_quad_rule = current_quad_rule;
@@ -304,10 +323,18 @@ void FEM<dim>::reset(){
 			cell_info_itr != cell_info_vector->end();
 			++cell_info_itr){
 		(*cell_info_itr).quad_rule = current_quad_rule;
+		(*cell_info_itr).dim = dim;
 		QGauss<dim> temp_quad(current_quad_rule);
 		(*cell_info_itr).n_q_points = temp_quad.size();
+		(*cell_info_itr).shape_function_order = 1.0;
 		(*cell_info_itr).cell_area = 0.00001;
 		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, 0.01);
+
+		// Initialize the designField for uncoupled meshes
+		if(mesh->coupling == false && mesh->adaptivityType == "adaptive_grayness"){
+			(*cell_info_itr).design_points.no_points = 1;
+			(*cell_info_itr).design_points.initialize_field(dim, 1, 1, volfrac);
+		}
 	}
 
 	//Initialize the density cell parameters for all the density cells
@@ -316,40 +343,39 @@ void FEM<dim>::reset(){
 		unsigned int k = 0;	//for iterating over all the design variables
 
 		//Iterating over the number of design points
-		for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
-				density_info_itr != density_cell_info_vector->end();
-				++density_info_itr){
+		for(std::vector<CellInfo>::iterator design_point_info_itr = density_cell_info_vector->begin();
+				design_point_info_itr != density_cell_info_vector->end();
+				++design_point_info_itr){
 
 			//Setting the density quad rule to 1
-			(*density_info_itr).density.resize(1);
-			(*density_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
-			(*density_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
+			(*design_point_info_itr).density.resize(1);
+			(*design_point_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
+			(*design_point_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
 
 			//Adding the position of the design point
-			(*density_info_itr).pointX.resize(dim);
+			(*design_point_info_itr).pointX.resize(dim);
 			for (unsigned int j = 0; j < dim; j++){
-				(*density_info_itr).pointX[j] = (*design_vector)[k];	k++;
+				(*design_point_info_itr).pointX[j] = (*design_vector)[k];	k++;
 			}
 
-			(*density_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
-
-/*			std::cout<<(*density_info_itr).density[0]<<" "<<(*density_info_itr).projection_fact<<" "<<
-					(*density_info_itr).pointX[0]<<" "<<(*density_info_itr).pointX[1]<<std::endl;*/
+			(*design_point_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
 		}
 	}
 	else{
-		for(std::vector<CellInfo>::iterator density_info_itr = density_cell_info_vector->begin();
-				density_info_itr != density_cell_info_vector->end();
-				++density_info_itr){
+		for(std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector->begin();
+				density_cell_info_itr != density_cell_info_vector->end();
+				++density_cell_info_itr){
 
 			//Setting the density quad rule to 1
-			(*density_info_itr).quad_rule = 1;
-			(*density_info_itr).n_q_points = 1; //	located at the centroid
-			(*density_info_itr).cell_area = 0.00001;	//area of the density cell
-			(*density_info_itr).density.resize((*density_info_itr).n_q_points, volfrac);
-			(*density_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
+			(*density_cell_info_itr).quad_rule = 1;
+			(*density_cell_info_itr).n_q_points = 1; //	located at the centroid
+			(*density_cell_info_itr).cell_area = 0.00001;	//area of the density cell
+			(*density_cell_info_itr).density.resize((*density_cell_info_itr).n_q_points, volfrac);
+			(*density_cell_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
 		}
 	}
+
+
 
 
 	/**
@@ -370,8 +396,8 @@ void FEM<dim>::reset(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler->begin_active(),
-			density_endc = density_dof_handler->end();
+	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+			density_endc = design_handler->end();
 	unsigned int density_cell_itr = 0;
 	for(; density_cell != density_endc; ++density_cell){
 		density_cell->set_user_index(density_cell_itr + 1);
@@ -379,6 +405,7 @@ void FEM<dim>::reset(){
 		++density_cell_itr;
 	}
 
+	// These parameters are currently defined assuming that the final density is also represented on the analysis mesh
 	density_field.max_cell_area = (*cell_info_vector)[0].cell_area;
 	density_field.initial_no_cells = triangulation->n_active_cells();
 	density_field.volfrac = volfrac;
@@ -408,8 +435,8 @@ void FEM<dim>::initialize_cycle(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler->begin_active(),
-			density_endc = density_dof_handler->end();
+	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+			density_endc = design_handler->end();
 	unsigned int density_cell_itr = 0;
 	for(; density_cell != density_endc; ++density_cell){
 		density_cell->set_user_index(density_cell_itr + 1);
@@ -417,12 +444,13 @@ void FEM<dim>::initialize_cycle(){
 		++density_cell_itr;
 	}
 
-	density_field.update_design_vector(*density_cell_info_vector,
-		*design_vector,
-		cycle,
-		volfrac,
-		*mesh,
-		*projection);
+	density_field.update_design_vector(*cell_info_vector,
+			*density_cell_info_vector,
+			*design_vector,
+			cycle,
+			volfrac,
+			*mesh,
+			*projection);
 	double time1 = clock();
 
 	std::cout<<"Looking for neighbours;   ";
@@ -438,11 +466,11 @@ void FEM<dim>::initialize_cycle(){
 		density_field.create_neighbors(
 				*cell_info_vector,
 				*fe,
-				*density_fe,
+				*fe_design,
 				*dof_handler,
-				*density_dof_handler,
+				*design_handler,
 				*projection,
-				mesh->coupling);
+				*mesh);
 	}
 
 	double time2 = clock();
@@ -464,7 +492,7 @@ template <int dim>
 void FEM<dim>::assembly(){
 
 	const unsigned int dofs_per_cell = fe->dofs_per_cell;
-	const unsigned int density_per_fe_cell = fe_density->dofs_per_cell;
+	const unsigned int density_per_fe_cell = fe_analysis_density->dofs_per_cell;
 
 	FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 	FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
@@ -481,12 +509,12 @@ void FEM<dim>::assembly(){
 	unsigned int cell_itr = 0;
 
 	//Iterator for density points on the FE mesh
-	typename DoFHandler<dim>::active_cell_iterator fe_den_cell = density_handler->begin_active(),
-			fe_den_endc = density_handler->end();
+	typename DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler->begin_active(),
+			fe_den_endc = analysis_density_handler->end();
 
 	//Iterators for the density mesh
-	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler->begin_active(),
-			density_endc = density_dof_handler->end();
+	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+			density_endc = design_handler->end();
 
 	for (; cell != endc; ++cell){
 
@@ -502,7 +530,7 @@ void FEM<dim>::assembly(){
 				update_JxW_values
 				);
 
-		FEValues<dim> fe_density_values(*fe_density,
+		FEValues<dim> fe_density_values(*fe_analysis_density,
 				quadrature_formula,
 				update_values |
 				update_gradients |
@@ -681,11 +709,22 @@ void FEM<dim>::clean_trash(){
 	nodal_density = 0;
 	cells_adjacent_per_node = 0;
 
-	unsigned int no_des_per_point = mesh->design_var_per_point();
-	//cleaning contents of the storage vectors
-	for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
-		(*density_cell_info_vector)[i].dxPhys.clear();
-		(*density_cell_info_vector)[i].dxPhys.resize(no_des_per_point, 0.0);
+	if (mesh->coupling == true || mesh->adaptivityType == "movingdesignpoints"){
+		unsigned int no_des_per_point = mesh->design_var_per_point();
+		//cleaning contents of the storage vectors
+		for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
+			(*density_cell_info_vector)[i].dxPhys.clear();
+			(*density_cell_info_vector)[i].dxPhys.resize(no_des_per_point, 0.0);
+		}
+
 	}
+	else{
+		for (unsigned int i = 0; i < cell_info_vector->size(); ++i){
+			for(unsigned int j = 0; j < (*cell_info_vector)[i].design_points.no_points; ++j){
+				(*cell_info_vector)[i].design_points.dxPhys_drho[j] = 0.0;
+			}
+		}
+	}
+	std::cout<<"Trash cleaned "<<std::endl;
 
 }

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/numerics/vector_tools.h>
+#include <atop/TopologyOptimization/cell_prop.h>
 
 
 using namespace dealii;
@@ -29,6 +30,10 @@ namespace atop{
 				std::string &,
 				std::vector<double> &,
 				unsigned int);
+		void write_design(
+				std::string &,
+				DoFHandler<dim> &,
+				std::vector<CellInfo> &);
 	};
 
 	template class OutputData<2>;

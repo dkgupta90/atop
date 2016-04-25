@@ -8,6 +8,7 @@ CPP_SRCS += \
 ../source/TopologyOptimization/RefinementIndicator.cpp \
 ../source/TopologyOptimization/adaptivity.cpp \
 ../source/TopologyOptimization/cell_prop.cpp \
+../source/TopologyOptimization/designField.cpp \
 ../source/TopologyOptimization/design_analysis.cpp \
 ../source/TopologyOptimization/neighbors.cpp \
 ../source/TopologyOptimization/optimizedesign.cpp \
@@ -19,6 +20,7 @@ OBJS += \
 ./source/TopologyOptimization/RefinementIndicator.o \
 ./source/TopologyOptimization/adaptivity.o \
 ./source/TopologyOptimization/cell_prop.o \
+./source/TopologyOptimization/designField.o \
 ./source/TopologyOptimization/design_analysis.o \
 ./source/TopologyOptimization/neighbors.o \
 ./source/TopologyOptimization/optimizedesign.o \
@@ -30,6 +32,7 @@ CPP_DEPS += \
 ./source/TopologyOptimization/RefinementIndicator.d \
 ./source/TopologyOptimization/adaptivity.d \
 ./source/TopologyOptimization/cell_prop.d \
+./source/TopologyOptimization/designField.d \
 ./source/TopologyOptimization/design_analysis.d \
 ./source/TopologyOptimization/neighbors.d \
 ./source/TopologyOptimization/optimizedesign.d \

@@ -54,10 +54,10 @@ namespace atop{
 		std::vector<double> *design_vector;
 
 		//DOFHandler objects
-		DoFHandler<dim> *dof_handler, *density_handler, *density_dof_handler;
+		DoFHandler<dim> *dof_handler, *analysis_density_handler, *design_handler;
 
 		//Triangulation objects
-		Triangulation<dim> *triangulation, *fe_density_triangulation, *density_triangulation;
+		Triangulation<dim> *triangulation, *analysis_density_triangulation, *design_triangulation;
 
 		//Objects for cell and density cell properties
 		std::vector<CellInfo> *cell_info_vector;
@@ -67,7 +67,7 @@ namespace atop{
 		ElasticData elastic_data;
 		LinearElastic<dim> *linear_elastic;
 		//FESystem objects
-		FESystem<dim> *fe, *fe_density, *density_fe;
+		FESystem<dim> *fe, *fe_analysis_density, *fe_design;
 
 		//Projection object for defining the regularization properties
 		Projection *projection;
