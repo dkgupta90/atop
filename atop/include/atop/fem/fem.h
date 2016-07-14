@@ -85,7 +85,6 @@ namespace atop{
 		Vector<double> system_rhs;
 		Vector<double> nodal_density;
 
-
 		unsigned int cycle, itr_count;
 
 		unsigned int current_quad_rule; //For integrating over an element
@@ -108,6 +107,9 @@ namespace atop{
 
 		//Solving the FE problem
 		void analyze();
+
+		void assemble_design();	//Design densities allocated based on the design point that lies inside the element.
+
 
 		//For the physics of the problem
 		void problemType(LinearElastic<dim>&);
@@ -134,6 +136,7 @@ namespace atop{
 		void initialize_cycle();
 		void update_physics();
 		void assembly();
+
 		void add_source_to_rhs(
 				const std::vector<Point<dim> > &,
 				std::vector<Vector<double> > &);

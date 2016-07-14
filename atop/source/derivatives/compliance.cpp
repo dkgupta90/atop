@@ -54,6 +54,7 @@ void Compliance<dim>::compute(
 	unsigned int cell_itr = 0;
 	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
+
 	for(; cell != endc; ++cell){
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		QGauss<dim> quadrature_formula(quadrature_rule);
@@ -74,15 +75,17 @@ void Compliance<dim>::compute(
 		E_values = (*cell_info_vector)[cell_itr].E_values;
 		dE_values = (*cell_info_vector)[cell_itr].dE_values;
 		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
-		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
+		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[quad_index][q_point];
+
 			double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;//(cellprop[cell_itr].cell_area)/max_cell_area;
 			cell_matrix.add((E_values[q_point])*area_factor,
 					normalized_matrix);
-			//std::cout<<E_values[q_point]<<"   "<<"   "<<(*cell_info_vector)[cell_itr].density[q_point]<<"  "<<cell_itr<<"   "<<q_point<<std::endl;
 
 		}
+
+
 		//Extracting the nodal values of solution vector
 		Vector<double> cell_array(dofs_per_cell);
 		cell_array = 0;
@@ -105,7 +108,7 @@ void Compliance<dim>::compute(
 			++cell_itr;
 			//std::cout<<objective<<std::endl;
 	}
-	std::cout<<"Iteration: "<<fem->itr_count<<"   Objective: "<<objective<<std::setw(10)<<std::endl;
+	std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
 
 
 	//Calculating the sensitivities with respect to the density space design variables

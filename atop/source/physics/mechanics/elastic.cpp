@@ -78,9 +78,12 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 	unsigned int dofs_per_cell = fe.dofs_per_cell;
 	unsigned int n_q_points = quadrature_formula.size();
 	FullMatrix<double> B_matrix(3, dofs_per_cell);
+
+
 	for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 		B_matrix = 0;
 		for (unsigned int k = 0; k < 3; ++k){
+			unsigned int k0_itr = 0, k1_itr = 1;
 			for(unsigned int i = 0; i < dofs_per_cell; ++i){
 				if (k == 2){
 					int t1, t2;
@@ -96,6 +99,19 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 				}
 				else{
 					unsigned int comp_i = fe.system_to_component_index(i).first;
+					if (comp_i == 0 && k == 0){
+						B_matrix(0, k0_itr) = fe_values.shape_grad(i, q_point)[k];
+						k0_itr += 2;
+					}
+					else if (comp_i == 1 && k == 1){
+						B_matrix(1, k1_itr) = fe_values.shape_grad(i, q_point)[k];
+						k1_itr += 2;
+					}
+
+				}
+/*				else{
+					unsigned int comp_i = fe.system_to_component_index(i).first;
+					//std::cout<<"i : "<<i<<".......comp_i : "<<comp_i<<"...k : "<<k<<std::endl;
 					if (comp_i == k){
 						B_matrix(k, i) = fe_values.shape_grad(i, q_point)[k];
 						//std::cout<<B_matrix(k, i)<<std::endl;
@@ -104,7 +120,7 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 						B_matrix(k, i) = 0;
 					}
 					//std::cout<<B_matrix(k, i)<<" "<<i<<" "<<q_point<<std::endl;
-				}
+				}*/
 			}
 		}
 		B_matrix_vector.push_back(B_matrix);
@@ -128,7 +144,7 @@ void ElasticTools::get_normalized_matrix(FullMatrix<double> &D_matrix,
 				false,
 				JxW[i]);
 		elem_stiffness_array.push_back(elem_stiffness);
-		//display_matrix(B_matrix_vector	[i]);
+		//display_matrix(B_matrix_vector[i]);
 
 	}
 }

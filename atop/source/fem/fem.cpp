@@ -28,6 +28,8 @@
 #include <deal.II/base/function.h>
 #include <deal.II/grid/grid_tools.h>
 #include <deal.II/base/geometry_info.h>
+#include <deal.II/lac/sparse_direct.h>
+
 
 
 
@@ -60,10 +62,11 @@ FEM<dim>::FEM(
 	this->analysis_density_handler = &analysis_density_handler;	// for the filtered density field
 	this->triangulation = &obj_triangulation;	//for the state field on the analysis
 	this->analysis_density_triangulation = &obj_analysis_density_triang;	//for the filtered density
+
 	//Choosing the types of elements for initial FE mesh
 	if(obj_mesh.elementType == "FE_Q"){
 		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
-		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->density_el_order), 1);
 	}
 	if(obj_mesh.elementType == "FE_Q_hierarchical"){
 		fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
@@ -135,9 +138,9 @@ void FEM<dim>::setup_system(){
 	hanging_node_constraints.condense(sparsity_pattern);
 	sparsity_pattern.compress();
 	system_matrix.reinit(sparsity_pattern);
-	solution.reinit(dof_handler->n_dofs());
-	system_rhs.reinit(dof_handler->n_dofs());
-	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output design
+		solution.reinit(dof_handler->n_dofs());
+		system_rhs.reinit(dof_handler->n_dofs());
+	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output
 	cells_adjacent_per_node.reinit(analysis_density_handler->n_dofs());	//for normalizing the nodal density value
 
 
@@ -227,14 +230,18 @@ void FEM<dim>::penalization(Penalize &obj_penal){
 template <int dim>
 void FEM<dim>::solve(){
 
-	SolverControl solver_control(5000, 1e-11);
+/*	SolverControl solver_control(50000, 1e-10);
 	SolverCG<> cg(solver_control);
 	PreconditionSSOR<> preconditioner;
-	preconditioner.initialize(system_matrix, 1.2);
+	preconditioner.initialize(system_matrix, 1.5);
 	cg.solve(system_matrix,
 			solution,
 			system_rhs,
-			preconditioner);
+			preconditioner);*/
+
+	SparseDirectUMFPACK  A_direct;
+	A_direct.initialize(system_matrix);
+	A_direct.vmult (solution, system_rhs);
 
 	hanging_node_constraints.distribute(solution);
 
@@ -304,7 +311,7 @@ void FEM<dim>::output_results(){
 template <int dim>
 void FEM<dim>::reset(){
 	//initializing the current and running quad rules
-	current_quad_rule = 3;
+	current_quad_rule = 4;
 	running_quad_rule = 2;
 
 	elastic_data.current_quad_rule = current_quad_rule;
@@ -332,8 +339,8 @@ void FEM<dim>::reset(){
 
 		// Initialize the designField for uncoupled meshes
 		if(mesh->coupling == false && mesh->adaptivityType == "adaptive_grayness"){
-			(*cell_info_itr).design_points.no_points = 1;
-			(*cell_info_itr).design_points.initialize_field(dim, 1, 1, volfrac);
+			(*cell_info_itr).design_points.no_points = mesh->initial_dcount_per_el;
+			(*cell_info_itr).design_points.initialize_field(dim, mesh->initial_dcount_per_el, 1, volfrac);
 		}
 	}
 
@@ -560,6 +567,7 @@ void FEM<dim>::assembly(){
 			total_weight += fe_density_values.JxW(q_point);
 		}
 
+
 		//Calculating cell_rhs
 		for(unsigned int i = 0; i < dofs_per_cell; ++i){
 			const unsigned int component_i = fe->system_to_component_index(i).first;
@@ -603,6 +611,7 @@ void FEM<dim>::assembly(){
 		++density_cell;
 		++cell_itr;
 	}
+
 
 	//Normalizing the nodal density vector
 	for(unsigned int i = 0; i < nodal_density.size(); ++i){
@@ -728,3 +737,19 @@ void FEM<dim>::clean_trash(){
 	std::cout<<"Trash cleaned "<<std::endl;
 
 }
+
+
+//This function is called at the end of each cycle to save the decoupled design
+//This is an expensive function evaluation and will affect the performance
+//Thus, it should only be used when the design is needed.
+
+
+
+
+
+
+
+
+
+
+

@@ -12,6 +12,7 @@
 #include <atop/fem/define_mesh.h>
 #include <atop/TopologyOptimization/penalization.h>
 #include <atop/fem/fem.h>
+#include <atop/fem/create_design.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/optimizer/optimality_criteria.h>
@@ -20,6 +21,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <ctime>
 
 
 using namespace atop;
@@ -162,13 +164,16 @@ void Optimizedesign<dim>::optimize(){
 		//Choosing the optimizer
 		if(opt_algorithm == "MMA"){
 			nlopt::opt opt(nlopt::LD_MMA, no_design_count);
+			nlopt::opt dual_opt(nlopt::LD_LBFGS,no_design_count);
+			dual_opt.set_ftol_rel(1e-14);
+			opt.set_local_optimizer(dual_opt);
 			opt.set_lower_bounds(lb);
 			opt.set_upper_bounds(ub);
 			opt.set_min_objective(myvfunc, (void*)this);
-			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-5);
-			opt.set_ftol_abs(1e-8);
-			opt.set_xtol_abs(1e-9);
-			opt.set_maxeval(150);
+			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-3);
+			//opt.set_ftol_abs(1e-3);
+			//opt.set_xtol_rel(1e-4);
+			opt.set_maxeval(10000);
 			double minf;
 			std::cout<<"Optimization started "<<std::endl;
 			nlopt::result result = opt.optimize(design_vector, minf);
@@ -183,6 +188,10 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
+
+		//Creating the final design mesh for the cycle
+		CreateDesign<dim> create_design;
+		//create_design.assemble_design(*obj_fem);
 
 		//No refinement in the last cycle, since it is not used further
 		if (cycle == no_cycles - 1)
@@ -246,7 +255,9 @@ template <int dim>
 void Optimizedesign<dim>::update_design_vector(
 		std::vector<double> &design_vec,
 		const std::vector<double> &x){
-
+	clock_t endt = clock();
+	end_time = double (endt)/CLOCKS_PER_SEC;
+	std::cout<<"Total time : "<<(end_time - start_time)<<std::endl;
 	std::cout<<"Updating the design vector"<<std::endl;
 	double max_dens, min_dens;
 	max_dens = -1;
