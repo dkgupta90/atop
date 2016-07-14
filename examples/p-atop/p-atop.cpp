@@ -51,7 +51,7 @@ int main(){
 	mesh.el_order = 2;
 	mesh.density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
-	mesh.amrType = "dp-refinement";
+	mesh.amrType = "dp";
 	mesh.initial_dcount_per_el = 9;
 	unsigned int nline = (int)(sqrt(mesh.initial_dcount_per_el));
 	mesh.density_subdivisions = {8*n, 4*n};

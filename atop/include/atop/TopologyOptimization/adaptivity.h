@@ -34,12 +34,18 @@ namespace atop{
 		void mesh_refine_indicator(
 				std::string& mesh_update_str);
 		void coupled_refine_adaptive_grayness();
+		void calc_refinement_res_multires();
 
 		void update_cell_vectors(
 				std::vector<CellInfo> &density_cell_info_vector,
 				DoFHandler<dim> &density_dof_handler,
 				Triangulation<dim> &density_triangulation,
 				FESystem<dim> &density_fe);
+
+		void execute_coarsen_refine();
+
+	private:
+		std::vector<double> refineRes;
 	};
 
 	template class Adaptivity<2>;
