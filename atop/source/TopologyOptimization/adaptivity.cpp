@@ -56,6 +56,11 @@ void Adaptivity<dim>::mesh_refine_indicator(
 		if(fem->mesh->coupling == true){
 			coupled_refine_adaptive_grayness();
 		}
+		else{
+			if (fem->mesh->amrType == "dp-refinement"){
+
+			}
+		}
 
 	}
 }
@@ -122,6 +127,36 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
 		++cell_itr;
 	}
 }
+
+/**
+ * This refinement residual function is implemented for meshes where more than one design points are coupled per element
+ * It extends the adaptive grayness proposed in Gupta et al 2016 and checks the values for all the design variables.
+ * It does not use -1, 0, 1, rather it gives a residual value which is used for preferring the elements for refinement.
+ */
+template <int dim>
+void Adaptivity<dim>::calc_refinement_res_multires(){
+	//Getting the cycle number for refinement
+	unsigned int cycle = fem->cycle;
+
+	//Defining the bounds to characterize the refinement/coarsening zones
+	double rhomin = 0.0;
+	double rhomax = 1.0;
+	double rhomid = (rhomax + rhomin)/2;
+	double alpha = 0.2;
+	double beta = 1.2;
+
+	double refine_lbound = rhomin + ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
+	double refine_ubound = rhomax - ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
+	double coarsen_lbound = rhomin + (alpha * rhomid * exp(-beta * (double)(cycle+1)));
+	double coarsen_ubound = rhomax - (alpha * rhomid * exp(-beta * (double)(cycle+1)));
+
+	//Initializing the refineRes vector
+	refineRes.clear();
+	refineRes.resize(fem->triangulation->n_active_cells(), 0.0);
+
+}
+
+
 
 template <int dim>
 void Adaptivity<dim>::update_cell_vectors(
@@ -203,3 +238,28 @@ void Adaptivity<dim>::update_cell_vectors(
 		}
 	}
 }
+
+//This function is used for calling the h-refinement module of deal.II or perform p-refinement
+template <int dim>
+void Adaptivity<dim>::execute_coarsen_refine(){
+
+	if (fem->mesh->amrType == "h-refinement"){
+		fem->triangulation->execute_coarsening_and_refinement();
+		fem->analysis_density_triangulation->execute_coarsening_and_refinement();
+		fem->design_triangulation->execute_coarsening_and_refinement();
+
+		std::cout<<"No. of cells after refinement : "<<fem->triangulation->n_active_cells()<<std::endl;
+	}
+	else if (fem->mesh->amrType == "dp-refinement"){
+
+	}
+}
+
+
+
+
+
+
+
+
+

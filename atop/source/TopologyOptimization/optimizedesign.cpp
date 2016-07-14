@@ -197,9 +197,7 @@ void Optimizedesign<dim>::optimize(){
 		if (cycle == no_cycles - 1)
 			continue;
 
-		/**
-		 * Refinement of the mesh
-		 */
+
 /*		triangulation.refine_global(1);
 		fe_density_triangulation.refine_global(1);
 		density_triangulation.refine_global(1);*/
@@ -209,10 +207,7 @@ void Optimizedesign<dim>::optimize(){
 		adaptivity.update(*obj_fem);
 
 		//Execute refinement
-		triangulation.execute_coarsening_and_refinement();
-		analysis_density_triangulation.execute_coarsening_and_refinement();
-		design_triangulation.execute_coarsening_and_refinement();
-		std::cout<<"No. of cells after refinement "<<triangulation.n_active_cells()<<std::endl;
+		adaptivity.execute_coarsen_refine();
 
 		//Update the cell_vectors
 		adaptivity.update_cell_vectors(
