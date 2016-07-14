@@ -10,6 +10,7 @@
 
 #include <atop/fem/define_mesh.h>
 #include <atop/fem/fem.h>
+#include <atop/fem/create_design.h>
 #include <atop/TopologyOptimization/penalization.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <deal.II/grid/tria.h>
@@ -57,6 +58,9 @@ template <int dim>
 
 	//Object for penalization of densities
 	Penalize *penal;
+
+	//Timers to time the optimization routine
+	double start_time, end_time;
 
 	//Object of general constraints class
 	GeneralConstraints<dim> vol_constraint;

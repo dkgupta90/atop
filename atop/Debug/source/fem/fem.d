@@ -128,7 +128,54 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_hierarchical.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary.h \
- /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h
+ /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_direct.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix_ez.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/block_sparse_matrix.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/block_matrix_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/matrix_iterator.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/block_vector.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/block_vector_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/block_sparsity_pattern.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/trilinos_sparsity_pattern.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_sparsity_pattern.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_set_sparsity_pattern.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_simple_sparsity_pattern.h \
+ /usr/include/suitesparse/umfpack.h \
+ /usr/include/suitesparse/SuiteSparse_config.h \
+ /usr/include/suitesparse/umfpack_symbolic.h \
+ /usr/include/suitesparse/umfpack_numeric.h \
+ /usr/include/suitesparse/umfpack_solve.h \
+ /usr/include/suitesparse/umfpack_free_symbolic.h \
+ /usr/include/suitesparse/umfpack_free_numeric.h \
+ /usr/include/suitesparse/umfpack_defaults.h \
+ /usr/include/suitesparse/umfpack_qsymbolic.h \
+ /usr/include/suitesparse/umfpack_wsolve.h \
+ /usr/include/suitesparse/umfpack_triplet_to_col.h \
+ /usr/include/suitesparse/umfpack_col_to_triplet.h \
+ /usr/include/suitesparse/umfpack_transpose.h \
+ /usr/include/suitesparse/umfpack_scale.h \
+ /usr/include/suitesparse/umfpack_get_lunz.h \
+ /usr/include/suitesparse/umfpack_get_numeric.h \
+ /usr/include/suitesparse/umfpack_get_symbolic.h \
+ /usr/include/suitesparse/umfpack_save_numeric.h \
+ /usr/include/suitesparse/umfpack_load_numeric.h \
+ /usr/include/suitesparse/umfpack_save_symbolic.h \
+ /usr/include/suitesparse/umfpack_load_symbolic.h \
+ /usr/include/suitesparse/umfpack_get_determinant.h \
+ /usr/include/suitesparse/umfpack_report_status.h \
+ /usr/include/suitesparse/umfpack_report_info.h \
+ /usr/include/suitesparse/umfpack_report_control.h \
+ /usr/include/suitesparse/umfpack_report_matrix.h \
+ /usr/include/suitesparse/umfpack_report_triplet.h \
+ /usr/include/suitesparse/umfpack_report_vector.h \
+ /usr/include/suitesparse/umfpack_report_symbolic.h \
+ /usr/include/suitesparse/umfpack_report_numeric.h \
+ /usr/include/suitesparse/umfpack_report_perm.h \
+ /usr/include/suitesparse/umfpack_timer.h \
+ /usr/include/suitesparse/umfpack_tictoc.h /usr/include/suitesparse/amd.h \
+ /usr/include/suitesparse/umfpack_global.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:
 
@@ -389,3 +436,99 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_boundary.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/grid_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_direct.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix_ez.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/block_sparse_matrix.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/block_matrix_base.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/matrix_iterator.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/block_vector.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/block_vector_base.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/block_sparsity_pattern.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/trilinos_sparsity_pattern.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_sparsity_pattern.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_set_sparsity_pattern.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_simple_sparsity_pattern.h:
+
+/usr/include/suitesparse/umfpack.h:
+
+/usr/include/suitesparse/SuiteSparse_config.h:
+
+/usr/include/suitesparse/umfpack_symbolic.h:
+
+/usr/include/suitesparse/umfpack_numeric.h:
+
+/usr/include/suitesparse/umfpack_solve.h:
+
+/usr/include/suitesparse/umfpack_free_symbolic.h:
+
+/usr/include/suitesparse/umfpack_free_numeric.h:
+
+/usr/include/suitesparse/umfpack_defaults.h:
+
+/usr/include/suitesparse/umfpack_qsymbolic.h:
+
+/usr/include/suitesparse/umfpack_wsolve.h:
+
+/usr/include/suitesparse/umfpack_triplet_to_col.h:
+
+/usr/include/suitesparse/umfpack_col_to_triplet.h:
+
+/usr/include/suitesparse/umfpack_transpose.h:
+
+/usr/include/suitesparse/umfpack_scale.h:
+
+/usr/include/suitesparse/umfpack_get_lunz.h:
+
+/usr/include/suitesparse/umfpack_get_numeric.h:
+
+/usr/include/suitesparse/umfpack_get_symbolic.h:
+
+/usr/include/suitesparse/umfpack_save_numeric.h:
+
+/usr/include/suitesparse/umfpack_load_numeric.h:
+
+/usr/include/suitesparse/umfpack_save_symbolic.h:
+
+/usr/include/suitesparse/umfpack_load_symbolic.h:
+
+/usr/include/suitesparse/umfpack_get_determinant.h:
+
+/usr/include/suitesparse/umfpack_report_status.h:
+
+/usr/include/suitesparse/umfpack_report_info.h:
+
+/usr/include/suitesparse/umfpack_report_control.h:
+
+/usr/include/suitesparse/umfpack_report_matrix.h:
+
+/usr/include/suitesparse/umfpack_report_triplet.h:
+
+/usr/include/suitesparse/umfpack_report_vector.h:
+
+/usr/include/suitesparse/umfpack_report_symbolic.h:
+
+/usr/include/suitesparse/umfpack_report_numeric.h:
+
+/usr/include/suitesparse/umfpack_report_perm.h:
+
+/usr/include/suitesparse/umfpack_timer.h:
+
+/usr/include/suitesparse/umfpack_tictoc.h:
+
+/usr/include/suitesparse/amd.h:
+
+/usr/include/suitesparse/umfpack_global.h:

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <ctime>
 
 using namespace atop;
 
@@ -36,22 +37,24 @@ unsigned int get_boundary_indicator(std::vector<double> X){
 int main(){
 	using namespace atop;
 
+	unsigned int n = 1;
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {40, 20};
-	mesh.density_subdivisions = {80, 40};
+	mesh.subdivisions = {8*n, 4*n};
 	mesh.coupling = false;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
 	mesh.meshType = "subdivided_hyper_rectangle";
 	mesh.elementType = "FE_Q";
 	mesh.density_elementType = "FE_DGQ";
-	mesh.el_order = 1;
+	mesh.el_order = 2;
 	mesh.density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
-	//mesh.amrType = "p-refinement";
-
+	mesh.amrType = "dp-refinement";
+	mesh.initial_dcount_per_el = 9;
+	unsigned int nline = (int)(sqrt(mesh.initial_dcount_per_el));
+	mesh.density_subdivisions = {8*n, 4*n};
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
 	std::vector<double> source = {0, 1.0};
@@ -72,13 +75,18 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.06, 0.6);
+			0.3/n/nline, 0.6);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "MMA", 1);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction
+
+	clock_t begin = clock();
+	opt.start_time = double (begin)/CLOCKS_PER_SEC;
 	opt.optimize();
-	std::cout<<"SUCCESS ATTAINED"<<std::endl;
+	clock_t end = clock();
+	double elapsed_secs = double (end - begin)/CLOCKS_PER_SEC;
+	std::cout<<"SUCCESS......Computing time : "<<elapsed_secs<<std::endl;
 }

@@ -27,11 +27,11 @@
 							<tool command="gcc" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="cdt.managedbuild.tool.gnu.cross.c.compiler.1883417852" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.option.optimization.level.1754895482" name="Optimization Level" superClass="gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.1084640815" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.478550101" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.478550101" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
 								</option>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1665088549" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1665088549" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEAL_II_USE_CXX11"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.544987622" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -42,6 +42,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.167250763" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/suitesparse"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.933430047" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEAL_II_USE_CXX11"/>
@@ -115,6 +116,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/atop/Debug/include}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/suitesparse"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1666599761" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>

@@ -32,6 +32,8 @@ void OC::optimize(
 	double old_objective, objective = 9999999999;
 	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(obj_data);
 
+
+
 	do{
 		old_objective = objective;
 		std::cout<<"Iteration : "<<opt_design2d->obj_fem->itr_count + 2<<std::endl;
@@ -88,9 +90,18 @@ void OC::optimize(
 
 			}
 			//updating the density_cell_info_vector
-			opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
-					opt_design2d->density_cell_info_vector,
-					*design_vector);
+			if (opt_design2d->mesh->coupling == false){
+				opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
+						opt_design2d->cell_info_vector,
+						opt_design2d->density_cell_info_vector,
+						*design_vector);
+			}
+			else{
+				opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
+						opt_design2d->density_cell_info_vector,
+						*design_vector);
+			}
+
 			//Applying smoothing
 			opt_design2d->obj_fem->density_field.smoothing(
 					opt_design2d->cell_info_vector,

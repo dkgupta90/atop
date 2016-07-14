@@ -60,6 +60,10 @@ namespace atop{
 				DefineMesh<dim> &mesh
 				);
 
+		void smoothing(
+				std::vector<CellInfo> &
+				);
+
 		void update_design_vector(
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,

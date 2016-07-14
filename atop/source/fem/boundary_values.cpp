@@ -21,7 +21,7 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 	unsigned int model_problem = 3;
 	double xmin, xmax, ymin, ymax;
 	if (model_problem == 3){
-		//MBB problem
+		//cantilever problem
 		xmin = 0, ymin = 0, xmax = 2, ymax = 1;
 		if (std::fabs(p(0) - (xmin)) < 1e-12){
 			values(0) = 0;
@@ -40,7 +40,8 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 			values(1) = 0;
 		}
 	}
-	else if (model_problem == 3){
+	//below one has to be checked, looks to be wrong
+	else if (model_problem == 1){
 		//MBB problem
 		xmin = 0, ymin = 0, xmax = 1, ymax = 1;
 		if (sqrt(pow(p[0] - 0.5, 2) + pow(p[1] - 0.5, 2)) < 0.027){

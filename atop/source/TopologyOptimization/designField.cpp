@@ -7,6 +7,7 @@
 
 
 #include <atop/TopologyOptimization/designField.h>
+#include <math.h>
 
 using namespace atop;
 
@@ -51,7 +52,71 @@ void DesignField::update_field_manual(unsigned int ctr){
 	unsigned int dim = pointX[0].size();	//getting the no. of dimensions of the problem
 	unsigned int no_points = pointX.size();
 	if (dim == 2){
-		for (unsigned int i = 0; i < no_points; ++i){
+		if (no_points == 1){
+			pointX[0][0] = 0.0;
+			pointX[0][1] = 0.0;
+		}
+		else if (no_points == 2){
+			pointX[0][0] = -0.5;
+			pointX[0][1] = 0.0;
+
+			pointX[1][0] = 0.5;
+			pointX[1][1] = 0.0;
+		}
+		else if (no_points == 3){
+			pointX[0][0] = -0.5;
+			pointX[0][1] = 0.5;
+
+			pointX[1][0] = -0.5;
+			pointX[1][1] = -0.5;
+
+			pointX[2][0] = 0.5;
+			pointX[2][1] = 0.0;
+
+		}
+/*		else if (no_points == 4){
+			pointX[0][0] = -0.5;
+			pointX[0][1] = -0.5;
+
+			pointX[1][0] = 0.5;
+			pointX[1][1] = -0.5;
+
+			pointX[2][0] = 0.5;
+			pointX[2][1] = 0.5;
+
+			pointX[3][0] = -0.5;
+			pointX[3][1] = 0.5;
+		}*/
+
+		else if (no_points == 5){
+			pointX[0][0] = -0.5;
+			pointX[0][1] = -0.5;
+
+			pointX[1][0] = 0.5;
+			pointX[1][1] = -0.5;
+
+			pointX[2][0] = 0.5;
+			pointX[2][1] = 0.5;
+
+			pointX[3][0] = -0.5;
+			pointX[3][1] = 0.5;
+
+			pointX[4][0] = 0.0;
+			pointX[4][1] = 0.0;
+		}
+
+		else{
+			unsigned int dxcount = (unsigned int)(round(sqrt(no_points)));
+			double dx = 2.0/(dxcount+1);
+
+			for (unsigned int i = 0; i < dxcount; i++){
+				for (unsigned int j = 0; j < dxcount; j++){
+					pointX[i*dxcount + j][0] = -1 + (i+1)*dx;
+					pointX[i*dxcount + j][1] = -1 + (j+1)*dx;
+				}
+			}
+		}
+/*		for (unsigned int i = 0; i < no_points; ++i){
 			if (i == 0){
 				pointX[i][0] = 0.0;
 				pointX[i][1] = 0.0;
@@ -72,7 +137,7 @@ void DesignField::update_field_manual(unsigned int ctr){
 				pointX[i][0] = -0.5;
 				pointX[i][1] = 0.5;
 			}
-		}
+		}*/
 	}
 
 

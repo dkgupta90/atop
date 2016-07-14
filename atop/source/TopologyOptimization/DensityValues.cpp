@@ -45,6 +45,7 @@ void DensityField<dim>::create_neighbors(
 	 * Iterate over all the cells to check for neighbors
 	 * iterated over the cells in triangulation
 	 */
+
 	unsigned int cell_itr1 = 0;
 	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
 				endc1= dof_handler.end();
@@ -141,7 +142,8 @@ void DensityField<dim>::create_neighbors(
 		else{
 			//Indentifying the density cell which contains the centroid of this FE cell
 			typename DoFHandler<dim>::active_cell_iterator density_cell1;
-			density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
+			//density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
+			density_cell1 = cell1;
 
 			//The following function gets the neighbors of the current cell lying within a distance of drmin
 			neighbor_iterators.push_back(density_cell1);
@@ -454,6 +456,8 @@ void DensityField<dim>::smoothing(
 				double xPhys = 0.0;
 				unsigned int density_cell_itr2;
 				for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
+					double tempi = density_cell_info_vector[density_cell_itr2].density[0];
+					std::cout<<tempi<<std::endl;
 					density_cell_itr2 = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];
 					xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
 							  * density_cell_info_vector[density_cell_itr2].density[0];
@@ -479,8 +483,28 @@ void DensityField<dim>::smoothing(
 			}
 		}
 	}
+}
 
+//----------------------------------------------------------------
+//Only for the output design mesh...used in create_design.cpp
+template <int dim>
+void DensityField<dim>::smoothing(
+		std::vector<CellInfo> &design_info_vector){
+	unsigned int no_cells = design_info_vector.size();
 
+	for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
+		for(unsigned int qpoint = 0 ; qpoint < design_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
+			double xPhys = 0.0;
+			unsigned int density_cell_itr2;
+			for(unsigned int i = 0; i < design_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
+				density_cell_itr2 = design_info_vector[cell_itr].neighbour_cells[qpoint][i];
+				xPhys += design_info_vector[cell_itr].neighbour_weights[qpoint][i]
+						  * design_info_vector[density_cell_itr2].cell_density;
+
+			}
+			design_info_vector[cell_itr].density[qpoint] = xPhys;
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------------------------------------------
@@ -747,13 +771,6 @@ void DensityField<dim>::get_dxPhys_dx(
 			double dD_ddimk = -(qX[k] - density_cell_info.pointX[k])/cell_info.neighbour_distance[qpoint][i];
 			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k
 		}
-/*		if (density_cell_info.pointX[0] == 0.1 && density_cell_info.pointX[1] == 0.1){
-			std::cout<<"Left bottom : "<<dxPhys_dx[0]<<" "<<dxPhys_dx[1]<<" "<<dxPhys_dx[2]<<" "<<dxPhys_dx[3]<<std::endl;
-		}
-
-		if (density_cell_info.pointX[0] == 0.1 && density_cell_info.pointX[1] == 0.9){
-			std::cout<<"Left top : "<<dxPhys_dx[0]<<" "<<dxPhys_dx[1]<<" "<<dxPhys_dx[2]<<" "<<dxPhys_dx[3]<<std::endl;
-		}*/
 	}
 
 }
@@ -855,7 +872,7 @@ unsigned int DensityField<dim>::get_design_count(
 
 	if (cycle == 0){
 		if (mesh.coupling == false && mesh.adaptivityType != "movingdesignpoints"){
-			return (cell_info_vector.size());
+			return (cell_info_vector.size() * mesh.initial_dcount_per_el);
 		}
 		else{
 			return (density_cell_info_vector.size() * mesh.design_var_per_point());
