@@ -29,7 +29,9 @@
 #include <deal.II/grid/grid_tools.h>
 #include <deal.II/base/geometry_info.h>
 #include <deal.II/lac/sparse_direct.h>
-
+#include <deal.II/hp/fe_collection.h>
+#include <deal.II/hp/fe_values.h>
+#include <deal.II/hp/dof_handler.h>
 
 
 
@@ -47,9 +49,9 @@ FEM<dim>::FEM(
 		Triangulation<dim> &obj_triangulation,
 		Triangulation<dim> &obj_analysis_density_triang,
 		Triangulation<dim> &obj_design_triangulation,
-		DoFHandler<dim> &dof_handler,
-		DoFHandler<dim> &analysis_density_handler,
-		DoFHandler<dim> &design_handler,
+		hp::DoFHandler<dim> &dof_handler,
+		hp::DoFHandler<dim> &analysis_density_handler,
+		hp::DoFHandler<dim> &design_handler,
 		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &density_cell_info_vector,
 		DefineMesh<dim> &obj_mesh,
@@ -63,15 +65,26 @@ FEM<dim>::FEM(
 	this->triangulation = &obj_triangulation;	//for the state field on the analysis
 	this->analysis_density_triangulation = &obj_analysis_density_triang;	//for the filtered density
 
+
 	//Choosing the types of elements for initial FE mesh
-	if(obj_mesh.elementType == "FE_Q"){
-		fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
-		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->density_el_order), 1);
+	if (mesh->amrType == "dp-refinement"){
+		if (obj_mesh.elementType == "FE_Q"){
+			for (unsigned int degree = 1; degree <= 6; ++degree){
+				fe_collection.push_back(FE_Q<dim>(degree), dim);
+			}
+		}
 	}
-	if(obj_mesh.elementType == "FE_Q_hierarchical"){
-		fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
-		fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+	else{
+		if(obj_mesh.elementType == "FE_Q"){
+			fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
+			fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->density_el_order), 1);
+		}
+		if(obj_mesh.elementType == "FE_Q_hierarchical"){
+			fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
+			fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+		}
 	}
+
 
 	this->design_handler = &design_handler;	// for the design field
 	this->design_triangulation = &obj_design_triangulation;	// for the design domain
@@ -389,7 +402,7 @@ void FEM<dim>::reset(){
 	 * Link the cell_info_vector to the FE triangulation
 	 * user_index is 1, 2, 3.......
 	 */
-	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 	unsigned int cell_itr = 0;
 	for(; cell != endc; ++cell){
@@ -403,7 +416,7 @@ void FEM<dim>::reset(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
 			density_endc = design_handler->end();
 	unsigned int density_cell_itr = 0;
 	for(; density_cell != density_endc; ++density_cell){
@@ -429,7 +442,7 @@ void FEM<dim>::initialize_cycle(){
 
 	std::cout<<"Initializing the cycle "<<std::endl;
 
-	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 	unsigned int cell_itr = 0;
 	for(; cell != endc; ++cell){
@@ -442,7 +455,7 @@ void FEM<dim>::initialize_cycle(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
 			density_endc = design_handler->end();
 	unsigned int density_cell_itr = 0;
 	for(; density_cell != density_endc; ++density_cell){
@@ -511,16 +524,16 @@ void FEM<dim>::assembly(){
 	std::vector<types::global_dof_index> local_density_indices(density_per_fe_cell);
 
 	//Iterators for the FE mesh
-	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 	unsigned int cell_itr = 0;
 
 	//Iterator for density points on the FE mesh
-	typename DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler->begin_active(),
 			fe_den_endc = analysis_density_handler->end();
 
 	//Iterators for the density mesh
-	typename DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
 			density_endc = design_handler->end();
 
 	for (; cell != endc; ++cell){

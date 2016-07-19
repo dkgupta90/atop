@@ -43,8 +43,8 @@ namespace atop{
 		std::string amrType;
 
 		//defines the element order
-		unsigned int el_order;
-		unsigned int density_el_order;
+		unsigned int max_el_order;
+		unsigned int max_density_el_order;
 
 		//initial no. of design points per elemetnt
 		unsigned int initial_dcount_per_el;

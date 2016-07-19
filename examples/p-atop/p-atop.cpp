@@ -48,13 +48,13 @@ int main(){
 	mesh.meshType = "subdivided_hyper_rectangle";
 	mesh.elementType = "FE_Q";
 	mesh.density_elementType = "FE_DGQ";
-	mesh.el_order = 2;
-	mesh.density_el_order = 1;
+	mesh.max_el_order = 1;
+	mesh.max_density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
-	mesh.amrType = "dp";
-	mesh.initial_dcount_per_el = 9;
+	mesh.amrType = "dp-refinement";
+	mesh.initial_dcount_per_el = 1;
 	unsigned int nline = (int)(sqrt(mesh.initial_dcount_per_el));
-	mesh.density_subdivisions = {8*n, 4*n};
+	mesh.density_subdivisions = {8*n*2, 4*n*2};
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
 	std::vector<double> source = {0, 1.0};
@@ -78,7 +78,7 @@ int main(){
 			0.3/n/nline, 0.6);
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
 	opt.volfrac = 0.45; //Maximum permissible volume fraction

@@ -46,6 +46,12 @@ namespace atop{
 
 	private:
 		std::vector<double> refineRes;
+		std::vector<std::pair<double, unsigned int> > sortedRefineRes;
+
+		void compute_sortedRefineRes();
+		void dp_coarsening_refinement();
+		void get_element_design_bound();
+		void get_system_design_bound();
 	};
 
 	template class Adaptivity<2>;
