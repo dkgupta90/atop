@@ -14,7 +14,6 @@
 #include <atop/TopologyOptimization/penalization.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <deal.II/grid/tria.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <string.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/TopologyOptimization/projection.h>
@@ -22,6 +21,7 @@
 #include <atop/TopologyOptimization/constraints/general.h>
 #include <iostream>
 #include <vector>
+#include <deal.II/hp/dof_handler.h>
 
 using namespace dealii;
 
@@ -37,9 +37,9 @@ template <int dim>
 	// dof_handler connects to triangulation
 	// density_handler connects to fe_density_triangulation
 	// density_dof_handler connects to density_triangulation
-	DoFHandler<dim> dof_handler, analysis_density_handler, design_handler;
+	hp::DoFHandler<dim> dof_handler, analysis_density_handler, design_handler;
 
-	std::vector<CellInfo> cell_info_vector;	//stores the informatiobn related to each analysis cell
+	std::vector<CellInfo> cell_info_vector;	//stores the information related to each analysis cell
 	std::vector<CellInfo> density_cell_info_vector;	//stores information related to each cell on design mesh
 	DefineMesh<dim>* mesh;
 	FEM<dim> *obj_fem;

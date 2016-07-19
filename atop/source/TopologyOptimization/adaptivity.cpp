@@ -58,7 +58,8 @@ void Adaptivity<dim>::mesh_refine_indicator(
 		}
 		else{
 			if (fem->mesh->amrType == "dp-refinement"){
-
+				calc_refinement_res_multires();
+				compute_sortedRefineRes();
 			}
 		}
 
@@ -135,6 +136,8 @@ void Adaptivity<dim>::coupled_refine_adaptive_grayness(){
  */
 template <int dim>
 void Adaptivity<dim>::calc_refinement_res_multires(){
+
+	std::cout<<"Computing the refinement residuals.......";
 	//Getting the cycle number for refinement
 	unsigned int cycle = fem->cycle;
 
@@ -152,7 +155,36 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 
 	//Initializing the refineRes vector
 	refineRes.clear();
-	refineRes.resize(fem->triangulation->n_active_cells(), 0.0);
+	refineRes.resize(cell_info_vector->size(), 0.0);
+
+	//Iterating over the cell_info_vector
+
+	for (unsigned int cell_itr = 0; cell_itr < cell_info_vector->size(); ++cell_itr){
+		unsigned int no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
+
+		//Iterate over the design points of the current element
+		for (unsigned int ditr = 0; ditr < no_design; ++ditr){
+			double tempres = 0.0;
+			double rho = (*cell_info_vector)[cell_itr].design_points.rho[ditr];
+
+			//Checking the design point value
+			if (rho >= refine_lbound && rho <= refine_ubound){
+				tempres = fabs((refine_lbound + refine_lbound)/2 - rho)/no_design;
+			}
+			else if (rho < coarsen_lbound){
+				tempres = (rho - coarsen_lbound)/no_design;
+			}
+			else if (rho > coarsen_ubound){
+				tempres = (coarsen_ubound - rho)/no_design;
+			}
+
+			//Adding to the refinement residual vector
+			refineRes[cell_itr] += tempres;
+		}
+		//std::cout<<refineRes[cell_itr]<<std::endl;
+	}
+
+	std::cout<<"DONE"<<std::endl;
 
 }
 
@@ -256,7 +288,53 @@ void Adaptivity<dim>::execute_coarsen_refine(){
 }
 
 
+// To calculate the sortedRefineRes vector
+template <int dim>
+void Adaptivity<dim>::compute_sortedRefineRes(){
 
+	unsigned int len = refineRes.size();
+	sortedRefineRes.resize(len, {0.0, 0});
+
+	//Initialize sortedRefineRres
+	for (unsigned int i = 0; i < len; ++i){
+		sortedRefineRes[i].first = refineRes[i];
+		sortedRefineRes[i].second = i;
+	}
+
+	//sorting the residuals
+	for (unsigned int i = 0; i < len; ++i){
+		for (unsigned int j = 0; j < len-1; ++j){
+			if (sortedRefineRes[j].first > sortedRefineRes[j+1].first){
+				double tempres = sortedRefineRes[j].first;
+				unsigned int tempi = sortedRefineRes[j].second;
+				sortedRefineRes[j].first = sortedRefineRes[j+1].first;
+				sortedRefineRes[j].second = sortedRefineRes[j+1].second;
+				sortedRefineRes[j+1].first = tempres;
+				sortedRefineRes[j+1].second = tempi;
+			}
+		}
+	}
+
+/*	for (unsigned int i = 0; i < len; ++i){
+		std::cout<<sortedRefineRes[i].second<<"    "<<sortedRefineRes[i].first<<std::endl;
+	}*/
+}
+
+
+//Perform adaptive refinement/coarsening for dp-refinement strategy
+template <int dim>
+void Adaptivity<dim>::dp_coarsening_refinement(){
+
+	unsigned int no_cells = sortedRefineRes.size();
+
+	//Iterate over all the cells
+	unsigned int cell_itr = 0;
+	for (unsigned int i = 0; i < no_cells; ++i){
+
+		cell_itr = sortedRefineRes[i].second;
+
+	}
+}
 
 
 

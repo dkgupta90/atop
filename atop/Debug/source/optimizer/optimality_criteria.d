@@ -120,6 +120,8 @@ source/optimizer/optimality_criteria.d: \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h
@@ -363,6 +365,10 @@ source/optimizer/optimality_criteria.d: \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h:
 

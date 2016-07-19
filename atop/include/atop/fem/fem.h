@@ -36,6 +36,8 @@
 #include <atop/TopologyOptimization/DensityValues.h>
 #include <atop/TopologyOptimization/penalization.h>
 #include <atop/fem/boundary_values.h>
+#include <deal.II/hp/fe_values.h>
+#include <deal.II/hp/dof_handler.h>
 
 
 using namespace dealii;
@@ -54,7 +56,7 @@ namespace atop{
 		std::vector<double> *design_vector;
 
 		//DOFHandler objects
-		DoFHandler<dim> *dof_handler, *analysis_density_handler, *design_handler;
+		hp::DoFHandler<dim> *dof_handler, *analysis_density_handler, *design_handler;
 
 		//Triangulation objects
 		Triangulation<dim> *triangulation, *analysis_density_triangulation, *design_triangulation;
@@ -68,6 +70,7 @@ namespace atop{
 		LinearElastic<dim> *linear_elastic;
 		//FESystem objects
 		FESystem<dim> *fe, *fe_analysis_density, *fe_design;
+		hp::FECollection<dim> fe_collection, fe_analysis_density_collection, fe_design_collection;
 
 		//Projection object for defining the regularization properties
 		Projection *projection;
@@ -97,9 +100,9 @@ namespace atop{
 		Triangulation<dim>&,
 		Triangulation<dim>&,
 		Triangulation<dim>&,
-		DoFHandler<dim>&,
-		DoFHandler<dim>&,
-		DoFHandler<dim>&,
+		hp::DoFHandler<dim>&,
+		hp::DoFHandler<dim>&,
+		hp::DoFHandler<dim>&,
 		std::vector<CellInfo>&,
 		std::vector<CellInfo>&,
 		DefineMesh<dim>&,
