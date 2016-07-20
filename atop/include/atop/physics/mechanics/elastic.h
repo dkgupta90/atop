@@ -15,7 +15,7 @@
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/fe/fe_system.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 
 using namespace dealii;
 
@@ -34,7 +34,7 @@ namespace atop{
 				std::vector<double> &JxW,
 				unsigned int quadrature_rule,
 				FESystem<2> &fe,
-				DoFHandler<2> &dofhandler);
+				hp::DoFHandler<2> &dofhandler);
 		void get_normalized_matrix(FullMatrix<double> &D_matrix,
 				std::vector<FullMatrix<double> > &B_matrix_vector,
 				std::vector<double> &JxW,
@@ -51,7 +51,7 @@ namespace atop{
 		FullMatrix<double> D_matrix;
 		std::vector<std::vector<FullMatrix<double> > >  elem_stiffness_array;
 		void update_elastic_matrices(FESystem<2> &fe,
-				DoFHandler<2> &dofhandler);
+				hp::DoFHandler<2> &dofhandler);
 		void check_linker();
 		unsigned int get_quad_index(unsigned int quad_rule);
 	};

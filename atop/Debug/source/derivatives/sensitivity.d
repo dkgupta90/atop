@@ -118,6 +118,8 @@ source/derivatives/sensitivity.d: ../source/derivatives/sensitivity.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h:
@@ -357,5 +359,9 @@ source/derivatives/sensitivity.d: ../source/derivatives/sensitivity.cpp \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h:

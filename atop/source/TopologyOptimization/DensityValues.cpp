@@ -17,10 +17,9 @@
 #include <deal.II/fe/fe_values.h>
 #include <atop/TopologyOptimization/neighbors.h>
 #include <atop/TopologyOptimization/cell_prop.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
-
+#include <deal.II/hp/dof_handler.h>
 #include <stdlib.h>
 
 #include <math.h>
@@ -35,8 +34,8 @@ void DensityField<dim>::create_neighbors(
 		std::vector<CellInfo> &cell_info_vector,
 		FESystem<dim> &fe,
 		FESystem<dim> &density_fe,
-		DoFHandler<dim> &dof_handler,
-		DoFHandler<dim> &density_dof_handler,
+		hp::DoFHandler<dim> &dof_handler,
+		hp::DoFHandler<dim> &density_dof_handler,
 		Projection &projection,
 		DefineMesh<dim> &mesh
 		){
@@ -47,7 +46,7 @@ void DensityField<dim>::create_neighbors(
 	 */
 
 	unsigned int cell_itr1 = 0;
-	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
 				endc1= dof_handler.end();
 	for(; cell1 != endc1; ++cell1){
 
@@ -66,7 +65,7 @@ void DensityField<dim>::create_neighbors(
 		fe_values1.reinit(cell1);
 
 		//Stores cell iterators for all neighbors of the current cell
-		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
 		//Computing the cell specific filter radius
@@ -91,7 +90,7 @@ void DensityField<dim>::create_neighbors(
 			cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
 
 			unsigned int cell_itr2;
-			typename DoFHandler<2>::active_cell_iterator cell2;
+			typename hp::DoFHandler<2>::active_cell_iterator cell2;
 			//Iterate over all neighboring cells to check distance with Gauss points
 			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
 				cell2 = neighbor_iterators[ng_itr];
@@ -141,7 +140,7 @@ void DensityField<dim>::create_neighbors(
 		}
 		else{
 			//Indentifying the density cell which contains the centroid of this FE cell
-			typename DoFHandler<dim>::active_cell_iterator density_cell1;
+			typename hp::DoFHandler<dim>::active_cell_iterator density_cell1;
 			//density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
 			density_cell1 = cell1;
 
@@ -162,7 +161,7 @@ void DensityField<dim>::create_neighbors(
 			cell_info_vector[cell_itr1].neighbour_cell_area.resize(qpoints1.size());
 
 			unsigned int density_cell_itr2;
-			typename DoFHandler<2>::active_cell_iterator density_cell2;
+			typename hp::DoFHandler<2>::active_cell_iterator density_cell2;
 			//Iterate over all neighboring cells to check distance with Gauss points
 			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
 				density_cell2 = neighbor_iterators[ng_itr];
@@ -207,7 +206,7 @@ void DensityField<dim>::create_neighbors(
 		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &density_cell_info_vector,
 		FESystem<dim> &fe,
-		DoFHandler<dim> &dof_handler
+		hp::DoFHandler<dim> &dof_handler
 		){
 
 	projection_matrix.clear();	//This is the regularization operator
@@ -231,7 +230,7 @@ void DensityField<dim>::create_neighbors(
 	 * Here, we fix the radius w.r.t to the cell size of the initial triangulation
 	 * However, this needs to changed in future to be adapted w.r.t refinement in the triangulation
 	 */
-	typename DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active();
 	double cell_len = sqrt(cell1->measure());
 	this->cell_length = cell_len;	//for use in dxPhys_dx();
 	/*
@@ -242,7 +241,7 @@ void DensityField<dim>::create_neighbors(
 	for (unsigned int i = 0; i < density_cell_info_vector.size(); i++){
 
 		//For storing the cell iterators for all neighbor cells in triangulation
-		std::vector<DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
 		//Computing the projection radius of density point
@@ -272,7 +271,7 @@ void DensityField<dim>::create_neighbors(
 		density_cell_info_vector[i].neighbour_cell_area.resize(1);	//1 since only one design point stored in one density_cell
 
 		//Iterating over all the found out neighbor cells
-		typename DoFHandler<2>::active_cell_iterator cell2;
+		typename hp::DoFHandler<2>::active_cell_iterator cell2;
 		unsigned int cell_itr2;
 		for (unsigned int ng_itr = 0; ng_itr < neighbor_iterators.size(); ++ng_itr){
 			cell2 = neighbor_iterators[ng_itr];
@@ -311,9 +310,9 @@ void DensityField<dim>::create_neighbors(
 }
 
 template <int dim>
-void DensityField<dim>::neighbor_search(DoFHandler<2>::active_cell_iterator cell1,
-		DoFHandler<2>::active_cell_iterator cell,
-		std::vector<DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+void DensityField<dim>::neighbor_search(hp::DoFHandler<2>::active_cell_iterator cell1,
+		hp::DoFHandler<2>::active_cell_iterator cell,
+		std::vector<hp::DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
 		double rmin
 		){
 	for(unsigned int iface = 0; iface < GeometryInfo<2>::faces_per_cell; ++iface){

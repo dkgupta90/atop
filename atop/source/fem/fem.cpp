@@ -65,42 +65,51 @@ FEM<dim>::FEM(
 	this->triangulation = &obj_triangulation;	//for the state field on the analysis
 	this->analysis_density_triangulation = &obj_analysis_density_triang;	//for the filtered density
 
+	//For Lagrange element
+	if (mesh->elementType == "FE_Q"){
+		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+			fe_collection.push_back(FESystem<dim>(FE_Q<dim>(mesh->max_el_order), dim));
+		}
 
-	//Choosing the types of elements for initial FE mesh
-	if (mesh->amrType == "dp-refinement"){
-		if (obj_mesh.elementType == "FE_Q"){
-			for (unsigned int degree = 1; degree <= 6; ++degree){
-				fe_collection.push_back(FE_Q<dim>(degree), dim);
-			}
+	}
+
+	//For Legendre elements
+	if (mesh->elementType == "FE_Q_hierarchical"){
+		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+			fe_collection.push_back(FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->max_el_order), dim));
 		}
 	}
-	else{
-		if(obj_mesh.elementType == "FE_Q"){
-			fe = new FESystem<dim>(FE_Q<dim>(mesh->el_order), dim);
-			fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->density_el_order), 1);
-		}
-		if(obj_mesh.elementType == "FE_Q_hierarchical"){
-			fe = new FESystem<dim>(FE_Q_Hierarchical<dim>(mesh->el_order), dim);
-			fe_analysis_density = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
+
+	//For density elements assuming they are DGQ type
+	if (mesh->density_elementType == "FE_DGQ"){
+		for (unsigned int degree = 1; degree <= mesh->max_density_el_order; ++degree){
+			fe_analysis_density_collection.push_back(FESystem<dim>(FE_DGQ<dim>(mesh->max_density_el_order), 1));
+			fe_design_collection.push_back(FESystem<dim>(FE_DGQ<dim>(mesh->max_density_el_order), 1));
 		}
 	}
 
 
 	this->design_handler = &design_handler;	// for the design field
 	this->design_triangulation = &obj_design_triangulation;	// for the design domain
-
-	//Choosing the type of element for density mesh
-	//Information below is used to create the density field which will be output as the design.
-	if(obj_mesh.density_elementType == "FE_DGQ"){
-		fe_design = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
-	}
-	else{
-		fe_design = new FESystem<dim>(FE_DGQ<dim>(mesh->el_order), 1);
-	}
-
-
 	this->design_vector = &obj_design_vector;
 
+	//intializing the type of element for each cell of analysis mesh
+	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
+			cell != dof_handler.end(); ++cell){
+		cell->set_active_fe_index(0);
+	}
+
+	//intializing the type of element for each cell of analysis density mesh
+	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = analysis_density_handler.begin_active();
+			cell != analysis_density_handler.end(); ++cell){
+		cell->set_active_fe_index(0);
+	}
+
+	//intializing the type of element for each cell of design mesh
+	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = design_handler.begin_active();
+			cell != design_handler.end(); ++cell){
+		cell->set_active_fe_index(0);
+	}
 }
 
 template <int dim>
@@ -133,11 +142,11 @@ void FEM<dim>::setup_system(){
 
 	std::cout<<"Entered FEM::setup_system()"<<std::endl;
 	//FE mesh
-	dof_handler->distribute_dofs(*fe);
-	analysis_density_handler->distribute_dofs(*fe_analysis_density);	//Used to add density on every node
+	dof_handler->distribute_dofs(fe_collection);
+	analysis_density_handler->distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
 
 	//Density mesh or design mesh
-	design_handler->distribute_dofs(*fe_design);
+	design_handler->distribute_dofs(fe_design_collection);
 
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(*dof_handler,

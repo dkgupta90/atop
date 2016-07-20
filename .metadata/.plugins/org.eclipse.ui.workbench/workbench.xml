@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workbench progressCount="29" version="2.0">
+<workbench progressCount="30" version="2.0">
 <workbenchAdvisor/>
 <window height="205" maximized="true" width="921" x="466" y="307">
 <fastViewData fastViewLocation="1024"/>
@@ -52,8 +52,6 @@
 <part id="15"/>
 <part id="17"/>
 <part id="18"/>
-<part id="19"/>
-<part id="20"/>
 </presentation>
 </folder>
 </info>
@@ -72,7 +70,7 @@
 </editor>
 <editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="adaptivity.cpp" partName="adaptivity.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/adaptivity.cpp" title="adaptivity.cpp" tooltip="atop/source/TopologyOptimization/adaptivity.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/adaptivity.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="4965" selectionTopPixel="1654"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3415" selectionTopPixel="1380"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="define_mesh.cpp" partName="define_mesh.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/define_mesh.cpp" title="define_mesh.cpp" tooltip="atop/source/fem/define_mesh.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/define_mesh.cpp"/>
@@ -133,14 +131,6 @@
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="fem.cpp" partName="fem.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/fem.cpp" title="fem.cpp" tooltip="atop/source/fem/fem.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/fem.cpp"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="8850" selectionTopPixel="3990"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="adaptivity.h" partName="adaptivity.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h" title="adaptivity.h" tooltip="atop/include/atop/TopologyOptimization/adaptivity.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/adaptivity.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1098" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="fem.h" partName="fem.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h" title="fem.h" tooltip="atop/include/atop/fem/fem.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/fem.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="16" selectionOffset="1660" selectionTopPixel="555"/>
 </editor>
 </editors>
 <views>
@@ -326,7 +316,7 @@
 </folder>
 </info>
 <info part="org.eclipse.ui.editorss" ratio="0.11720698" ratioLeft="188" ratioRight="1416" relationship="2" relative="org.eclipse.ui.internal.ViewStack@1d2a15a"/>
-<info folder="true" part="org.eclipse.ui.internal.ViewStack@2c93c93e" ratio="0.5923567" ratioLeft="837" ratioRight="576" relationship="2" relative="org.eclipse.ui.editorss">
+<info folder="true" part="org.eclipse.ui.internal.ViewStack@2c93c93e" ratio="0.6284501" ratioLeft="888" ratioRight="525" relationship="2" relative="org.eclipse.ui.editorss">
 <folder activePageID="org.eclipse.ui.console.ConsoleView" appearance="2" expanded="2">
 <page content="org.eclipse.ui.console.ConsoleView" label="Console"/>
 <presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
@@ -351,19 +341,9 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/adaptivity.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/fem.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/fem/define_mesh.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/fem/fem.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/TopologyOptimization/adaptivity.h"/>
 </editors>
-<item historyLabel="adaptivity.h" index="2">
-<position info="not_deleted" x="624" y="0"/>
-</item>
-<item historyLabel="adaptivity.cpp" index="3">
-<position info="not_deleted" x="718" y="0"/>
-</item>
-<item historyLabel="optimizedesign.cpp" index="1">
-<position info="not_deleted" x="5694" y="0"/>
-</item>
-<item historyLabel="adaptivity.h" index="2">
-<position info="not_deleted" x="624" y="0"/>
-</item>
 <item historyLabel="adaptivity.h" index="2">
 <position info="not_deleted" x="1060" y="0"/>
 </item>
@@ -499,8 +479,20 @@
 <item historyLabel="adaptivity.cpp" index="3">
 <position info="not_deleted" x="4959" y="0"/>
 </item>
-<item active="true" historyLabel="adaptivity.cpp" index="3">
+<item historyLabel="adaptivity.cpp" index="3">
 <position info="not_deleted" x="4968" y="0"/>
+</item>
+<item historyLabel="fem.h" index="6">
+<position info="not_deleted" x="1660" y="16"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="3">
+<position info="not_deleted" x="5120" y="0"/>
+</item>
+<item historyLabel="adaptivity.h" index="7">
+<position info="not_deleted" x="1098" y="0"/>
+</item>
+<item active="true" historyLabel="adaptivity.cpp" index="3">
+<position info="not_deleted" x="5120" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>

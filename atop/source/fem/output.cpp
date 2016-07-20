@@ -6,12 +6,12 @@
  */
 
 #include <atop/fem/output.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/numerics/vector_tools.h>
 #include <deal.II/numerics/data_out.h>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <deal.II/hp/dof_handler.h>
 
 using namespace atop;
 using namespace dealii;
@@ -20,13 +20,13 @@ using namespace dealii;
 template <int dim>
 void OutputData<dim>::write_fe_solution(
 		std::string &filename,
-		DoFHandler<dim> &dof_handler,
+		hp::DoFHandler<dim> &dof_handler,
 		Vector<double> &solution,
 		std::vector<std::string> &solution_names
 		){
 
 	std::ofstream output(("output/" + filename).c_str());
-	DataOut<dim> data_out;
+	DataOut<dim, hp::DoFHandler<dim> > data_out;
 	data_out.attach_dof_handler(dof_handler);
 
 	data_out.add_data_vector(solution, solution_names);
@@ -56,14 +56,14 @@ void OutputData<dim>::write_design(
 template <int dim>
 void OutputData<dim>::write_design(
 				std::string &filename,
-				DoFHandler<dim> &dof_handler,
+				hp::DoFHandler<dim> &dof_handler,
 				std::vector<CellInfo> &cell_info_vector){
 	std::ofstream wfile;
 	wfile.open("output_design/" + filename, std::ios::out);
 
 	//Writing the design data
 	unsigned int cell_itr = 0;
-	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
 				endc= dof_handler.end();
 	for(; cell != endc; ++cell){
 

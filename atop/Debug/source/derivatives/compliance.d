@@ -118,6 +118,8 @@ source/derivatives/compliance.d: ../source/derivatives/compliance.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/MatrixVector.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h:
@@ -357,5 +359,9 @@ source/derivatives/compliance.d: ../source/derivatives/compliance.cpp \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/MatrixVector.h:

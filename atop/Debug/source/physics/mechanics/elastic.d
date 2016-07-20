@@ -64,14 +64,13 @@ source/physics/mechanics/elastic.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_iterator_selector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/number_cache.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h \
@@ -82,11 +81,12 @@ source/physics/mechanics/elastic.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h
 
@@ -218,21 +218,19 @@ source/physics/mechanics/elastic.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h:
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_iterator_selector.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/number_cache.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/function_map.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
 
@@ -254,15 +252,17 @@ source/physics/mechanics/elastic.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:
 

@@ -63,7 +63,7 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 		std::vector<double> &JxW,
 				unsigned int quadrature_rule,
 				FESystem<2> &fe,
-				DoFHandler<2> &dofhandler){
+				hp::DoFHandler<2> &dofhandler){
 //	/std::cout<<quadrature_rule<<std::endl;
 	QGauss<2> quadrature_formula(quadrature_rule);
 	FEValues<2> fe_values(fe,
@@ -151,7 +151,7 @@ void ElasticTools::get_normalized_matrix(FullMatrix<double> &D_matrix,
 
 
 void ElasticData::update_elastic_matrices(FESystem<2> &fe,
-		DoFHandler<2> &dofhandler){
+		hp::DoFHandler<2> &dofhandler){
 	ElasticTools elastic_tool;
 	if (current_quad_rule > 1){
 		D_matrix = FullMatrix<double>(3, 3);
