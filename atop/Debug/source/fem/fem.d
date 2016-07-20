@@ -117,12 +117,12 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out_dof_data.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/data_out_base.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_hierarchical.h \
@@ -413,6 +413,10 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out.h:
@@ -420,10 +424,6 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out_dof_data.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/data_out_base.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h:
 

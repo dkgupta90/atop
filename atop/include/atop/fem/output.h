@@ -13,6 +13,7 @@
 #include <deal.II/dofs/dof_handler.h>
 #include <deal.II/numerics/vector_tools.h>
 #include <atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/hp/dof_handler.h>
 
 
 using namespace dealii;
@@ -23,7 +24,7 @@ namespace atop{
 	public:
 		void write_fe_solution(
 				std::string &filename,
-				DoFHandler<dim> &dof_handler,
+				hp::DoFHandler<dim> &dof_handler,
 				Vector<double> &solution,
 				std::vector<std::string> &solution_names);
 		void write_design(
@@ -32,7 +33,7 @@ namespace atop{
 				unsigned int);
 		void write_design(
 				std::string &,
-				DoFHandler<dim> &,
+				hp::DoFHandler<dim> &,
 				std::vector<CellInfo> &);
 	};
 

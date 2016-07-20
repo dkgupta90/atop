@@ -16,11 +16,11 @@
 #include <atop/TopologyOptimization/neighbors.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/physics/elasticity.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/fem/define_mesh.h>
 #include <deal.II/lac/sparse_matrix.h>
+#include <deal.II/hp/dof_handler.h>
 
 using namespace dealii;
 
@@ -38,8 +38,8 @@ namespace atop{
 				std::vector<CellInfo> &cell_info_vector,
 				FESystem<dim> &fe,
 				FESystem<dim> &density_fe,
-				DoFHandler<dim> &dof_handler,
-				DoFHandler<dim> &density_dof_handler,
+				hp::DoFHandler<dim> &dof_handler,
+				hp::DoFHandler<dim> &density_dof_handler,
 				Projection &projection,
 				DefineMesh<dim> &mesh
 				);
@@ -48,7 +48,7 @@ namespace atop{
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
 				FESystem<dim> &fe,
-				DoFHandler<dim> &dof_handler
+				hp::DoFHandler<dim> &dof_handler
 				);
 
 		/**
@@ -134,9 +134,9 @@ namespace atop{
 		 * Currently, the implementation is only for dim = 2.
 		 */
 		void neighbor_search(
-				DoFHandler<2>::active_cell_iterator cell1,
-				DoFHandler<2>::active_cell_iterator cell,
-				std::vector<DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+				hp::DoFHandler<2>::active_cell_iterator cell1,
+				hp::DoFHandler<2>::active_cell_iterator cell,
+				std::vector<hp::DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
 				double rmin
 				);
 
