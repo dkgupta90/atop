@@ -1,0 +1,23 @@
+/*
+ *
+ *  Created on: Jul 21, 2016
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef INTGRATION_CPP_
+#define INTGRATION_CPP_
+
+#include <atop/math_tools/algebra/integration.h>
+using namespace atop;
+
+template <int dim>
+void GaussIntegration<dim>::get_quadRule(
+		unsigned int no_design,
+		unsigned int p_degree){
+
+}
+
+
+
+#endif /* INTGRATION_CPP_ */

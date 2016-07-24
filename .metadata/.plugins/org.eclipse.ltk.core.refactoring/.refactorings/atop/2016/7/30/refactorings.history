@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;atop/source/math_tools/algebra/intgration.cpp&apos; to &apos;integration.cpp&apos;" description="Rename resource &apos;intgration.cpp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="source/math_tools/algebra/intgration.cpp" name="integration.cpp" stamp="1469176584617" updateReferences="true"/>
+</session>

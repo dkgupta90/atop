@@ -4,13 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../source/math_tools/algebra/MatrixVector.cpp 
+../source/math_tools/algebra/MatrixVector.cpp \
+../source/math_tools/algebra/integration.cpp 
 
 OBJS += \
-./source/math_tools/algebra/MatrixVector.o 
+./source/math_tools/algebra/MatrixVector.o \
+./source/math_tools/algebra/integration.o 
 
 CPP_DEPS += \
-./source/math_tools/algebra/MatrixVector.d 
+./source/math_tools/algebra/MatrixVector.d \
+./source/math_tools/algebra/integration.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

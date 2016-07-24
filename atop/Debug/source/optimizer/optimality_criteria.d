@@ -114,14 +114,15 @@ source/optimizer/optimality_criteria.d: \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/design_analysis.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/neighbors.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h
@@ -354,6 +355,8 @@ source/optimizer/optimality_criteria.d: \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/design_analysis.h:
@@ -362,13 +365,13 @@ source/optimizer/optimality_criteria.d: \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h:
 

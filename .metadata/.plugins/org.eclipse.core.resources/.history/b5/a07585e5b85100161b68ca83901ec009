@@ -1,0 +1,326 @@
+/*
+ *
+ *  Created on: Apr 2, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#include <deal.II/grid/tria.h>
+#include <deal.II/grid/grid_refinement.h>
+#include <atop/TopologyOptimization/optimizedesign.h>
+#include <atop/fem/define_mesh.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <atop/fem/fem.h>
+#include <atop/fem/create_design.h>
+#include <atop/physics/mechanics/elastic.h>
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/optimizer/optimality_criteria.h>
+#include <atop/TopologyOptimization/adaptivity.h>
+#include <nlopt.hpp>
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <ctime>
+
+
+using namespace atop;
+using namespace dealii;
+
+
+std::string opt_algorithm;
+
+
+
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data);
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *data);
+
+/*//This is the default constructor
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(){
+}*/
+
+/**
+ * This constructor initializes the DefineMesh object and
+ * provides the information on the penalization scheme and
+ * the optimization algorithm to be used.
+ * The number of refinement cycles are set to be 5.
+ */
+
+template <int dim>
+Optimizedesign<dim>::Optimizedesign(
+		DefineMesh<dim> &obj_mesh,
+		Penalize &obj_penal,
+		Projection &obj_proj,
+		const std::string &obj_algorithm,
+		unsigned int cycles):
+		dof_handler(triangulation),
+		analysis_density_handler(analysis_density_triangulation),
+		design_handler(design_triangulation){
+	this->mesh = &obj_mesh;
+	this->penal = &obj_penal;
+	this->projection = &obj_proj;
+	opt_algorithm = obj_algorithm;
+	no_cycles = cycles;
+
+
+}
+
+template <int dim>
+void Optimizedesign<dim>::problemType(LinearElastic<dim> &obj_linear_elastic){
+	this->linear_elastic = &obj_linear_elastic;
+}
+
+template <int dim>
+void Optimizedesign<dim>::optimize(){
+
+	//Changes the string to uppercase for simple comparison
+	std::transform(opt_algorithm.begin(), opt_algorithm.end(),opt_algorithm.begin(), ::toupper);
+
+	//Create the mesh
+	this->mesh->createMesh(
+			triangulation,
+			analysis_density_triangulation,
+			design_triangulation);
+
+	//Assign the dof handlers and element types
+	obj_fem = new FEM<dim>(
+			triangulation,
+			analysis_density_triangulation,
+			design_triangulation,
+			dof_handler,
+			analysis_density_handler,
+			design_handler,
+			cell_info_vector,
+			density_cell_info_vector,
+			*mesh,
+			design_vector);
+
+	//Passing the problem type to the FEM class
+	obj_fem->problemType(*linear_elastic);
+
+	//Passing the volume fraction upper bound
+	obj_fem->volfrac = volfrac;
+
+	//Passing the regularization type to FEM class
+	obj_fem->projectionType(*projection);
+
+	//Passing the penalization object
+	obj_fem->penalization(*penal);
+
+	// Generally for uncoupled meshes, these might differ in size
+	cell_info_vector.resize(triangulation.n_active_cells());
+	density_cell_info_vector.resize(design_triangulation.n_active_cells());
+
+	//Running the number of refinement cycles
+	for(cycle = 0; cycle < no_cycles; ++cycle){
+		std::cout<<"Cycle : "<<cycle + 1 <<std::endl;
+		//Passing the cycle number
+		obj_fem->cycle = cycle;
+
+		flush(); //Flush the storage vectors
+		/**
+		 * Passing the variable for starting the iteration count
+		 * -1 is passed since inside the FEM class +1 is done at every call.
+		 */
+
+		obj_fem->itr_count = -1;
+
+		//Getting no. of design points
+		unsigned int no_design_count = obj_fem->density_field.get_design_count(
+											cycle,
+											*mesh,
+											cell_info_vector,
+											density_cell_info_vector);
+		std::cout<<"Number of design variables : "<<no_design_count<<std::endl;
+
+		design_vector.clear();
+		design_vector.resize(no_design_count); //Holds true for coupled as well as decoupled meshes
+
+		//Update the design vector at every cycle
+		obj_fem->density_field.update_design_vector(
+				cell_info_vector,
+				density_cell_info_vector,
+				design_vector,
+				cycle,
+				volfrac,
+				*mesh,
+				*projection);
+
+		//Defining the upper and lower bounds
+		std::vector<double> lb, ub;
+		obj_fem->density_field.update_design_bounds(
+				lb, ub, *mesh, *projection,
+				design_vector);
+
+
+		//Choosing the optimizer
+		if(opt_algorithm == "MMA"){
+			nlopt::opt opt(nlopt::LD_MMA, no_design_count);
+			nlopt::opt dual_opt(nlopt::LD_LBFGS,no_design_count);
+			dual_opt.set_ftol_rel(1e-14);
+			opt.set_local_optimizer(dual_opt);
+			opt.set_lower_bounds(lb);
+			opt.set_upper_bounds(ub);
+			opt.set_min_objective(myvfunc, (void*)this);
+			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-3);
+			//opt.set_ftol_abs(1e-3);
+			//opt.set_xtol_rel(1e-4);
+			opt.set_maxeval(10000);
+			double minf;
+			std::cout<<"Optimization started "<<std::endl;
+			nlopt::result result = opt.optimize(design_vector, minf);
+		}
+		else if (opt_algorithm == "OC") {
+			OC obj_oc(no_design_count);	//Object of the class for optimality criteria
+			obj_oc.set_lower_bounds(lb);
+			obj_oc.set_upper_bounds(ub);
+			obj_oc.obj_fn = myvfunc;
+			obj_oc.constraint_fn = myvconstraint;
+			obj_oc.min_obj_change = 1e-2;
+			obj_oc.obj_data = ((void*)this);
+			obj_oc.optimize(design_vector);
+		}
+
+		//Creating the final design mesh for the cycle
+		CreateDesign<dim> create_design;
+		create_design.assemble_design(*obj_fem);
+
+		//No refinement in the last cycle, since it is not used further
+		if (cycle == no_cycles - 1)
+			continue;
+
+
+/*		triangulation.refine_global(1);
+		fe_density_triangulation.refine_global(1);
+		density_triangulation.refine_global(1);*/
+
+		//Choosing the cells for refinement and coarsening
+		Adaptivity<dim> adaptivity;
+		adaptivity.update(*obj_fem);
+
+		//Execute refinement
+		adaptivity.execute_coarsen_refine();
+
+		//Update the cell_vectors
+		adaptivity.update_cell_vectors(
+				density_cell_info_vector,
+				design_handler,
+				design_triangulation,
+				*(obj_fem->fe));
+		adaptivity.update_cell_vectors(
+				cell_info_vector,
+				dof_handler,
+				triangulation,
+				*(obj_fem->fe));
+	}
+
+
+}
+
+template <int dim>
+void Optimizedesign<dim>::run_system(){
+
+	//Solve the finite element system
+	obj_fem->analyze();
+
+	//Compute the objective and gradients
+	SensitivityAnalysis<dim> obj_sens(problem_name);
+	obj_sens.set_input(
+			dof_handler,
+			cell_info_vector,
+			density_cell_info_vector,
+			*obj_fem);
+	obj_sens.run(
+			objective,
+			grad_vector);
+
+	//Update the ATOP parameters
+
+}
+
+template <int dim>
+void Optimizedesign<dim>::update_design_vector(
+		std::vector<double> &design_vec,
+		const std::vector<double> &x){
+	clock_t endt = clock();
+	end_time = double (endt)/CLOCKS_PER_SEC;
+	std::cout<<"Total time : "<<(end_time - start_time)<<std::endl;
+	std::cout<<"Updating the design vector"<<std::endl;
+	double max_dens, min_dens;
+	max_dens = -1;
+	min_dens = 2;
+	//std::cout<<x.size()<<"  "<<design_vec.size()<<std::endl;
+	for(unsigned int i = 0; i < x.size(); ++i){
+
+		design_vec[i] = x[i];
+	}
+}
+
+template <int dim>
+void Optimizedesign<dim>::flush(){
+
+}
+
+double myvfunc(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data){
+	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
+	double objective = 0;
+	//Passing the cycle and iteration count information
+
+	if(opt_design2d != NULL){
+		//Solve the FEM problem
+		opt_design2d->obj_fem->cycle = opt_design2d->cycle;
+		opt_design2d->update_design_vector(opt_design2d->design_vector, x);
+		opt_design2d->run_system();
+		grad = (opt_design2d->grad_vector);
+		for (unsigned int i = 0; i < grad.size(); ++i)
+			//std::cout<<grad[i]<<"  "<<grad.size()<<std::endl;
+		objective = opt_design2d->objective;
+		return objective;
+	}
+	Optimizedesign<3> *opt_design3d = static_cast<Optimizedesign<3>*>(my_func_data);
+	if(opt_design3d != NULL){
+
+	}
+
+	return 0;
+
+}
+
+double myvconstraint(
+		const std::vector<double> &x,
+		std::vector<double> &grad,
+		void *my_func_data){
+	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
+	double volume = 0.0;
+	if(opt_design2d != NULL){
+		//Solve the FEM problem
+		volume = opt_design2d->vol_constraint.volumeConstraint(
+				grad,
+				opt_design2d->cell_info_vector,
+				opt_design2d->density_cell_info_vector,
+				opt_design2d->obj_fem->density_field,
+				*(opt_design2d->mesh)
+				);
+		std::cout<<"Constraint value : "<<volume<<std::endl;
+		return volume;
+	}
+	Optimizedesign<3> *opt_design3d = static_cast<Optimizedesign<3>*>(my_func_data);
+	if(opt_design3d != NULL){
+
+	}
+	return 0;
+}
+
+
+
+

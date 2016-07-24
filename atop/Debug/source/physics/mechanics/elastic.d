@@ -71,24 +71,29 @@ source/physics/mechanics/elastic.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_product_polynomials.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/polynomial.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_poly.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_faces.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_objects.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
- /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h:
 
@@ -232,9 +237,11 @@ source/physics/mechanics/elastic.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h:
 
@@ -246,11 +253,15 @@ source/physics/mechanics/elastic.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_poly.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h:
 
@@ -262,8 +273,12 @@ source/physics/mechanics/elastic.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_levels.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:
-
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:

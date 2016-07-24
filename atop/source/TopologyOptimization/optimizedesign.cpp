@@ -41,10 +41,10 @@ double myvconstraint(
 		std::vector<double> &grad,
 		void *data);
 
-//This is the default constructor
+/*//This is the default constructor
 template <int dim>
 Optimizedesign<dim>::Optimizedesign(){
-}
+}*/
 
 /**
  * This constructor initializes the DefineMesh object and
@@ -190,7 +190,7 @@ void Optimizedesign<dim>::optimize(){
 
 		//Creating the final design mesh for the cycle
 		CreateDesign<dim> create_design;
-		create_design.assemble_design(*obj_fem);
+		//create_design.assemble_design(*obj_fem);
 
 		//No refinement in the last cycle, since it is not used further
 		if (cycle == no_cycles - 1)
@@ -212,13 +212,11 @@ void Optimizedesign<dim>::optimize(){
 		adaptivity.update_cell_vectors(
 				density_cell_info_vector,
 				design_handler,
-				design_triangulation,
-				*(obj_fem->fe));
+				design_triangulation);
 		adaptivity.update_cell_vectors(
 				cell_info_vector,
 				dof_handler,
-				triangulation,
-				*(obj_fem->fe));
+				triangulation);
 	}
 
 

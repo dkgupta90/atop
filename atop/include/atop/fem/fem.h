@@ -38,6 +38,7 @@
 #include <atop/fem/boundary_values.h>
 #include <deal.II/hp/fe_values.h>
 #include <deal.II/hp/dof_handler.h>
+#include <atop/math_tools/algebra/integration.h>
 
 
 using namespace dealii;
@@ -68,10 +69,13 @@ namespace atop{
 		//Object storing parameters related to the physics of the problem
 		ElasticData elastic_data;
 		LinearElastic<dim> *linear_elastic;
-		//FESystem objects
-		FESystem<dim> *fe, *fe_analysis_density, *fe_design;
-		hp::FECollection<dim> fe_collection, fe_analysis_density_collection, fe_design_collection;
 
+		//NUmerical integration object
+		GaussIntegration<dim> gauss_int;
+
+		//FESystem objects
+		hp::FECollection<dim> fe_collection, fe_analysis_density_collection, fe_design_collection;
+		hp::QCollection<dim> quadrature_collection;
 		//Projection object for defining the regularization properties
 		Projection *projection;
 
@@ -90,8 +94,8 @@ namespace atop{
 
 		unsigned int cycle, itr_count;
 
-		unsigned int current_quad_rule; //For integrating over an element
-		unsigned int running_quad_rule; //Used for quad related adaptivity
+		std::vector<unsigned int> current_quad_rule; //For integrating over an element
+		std::vector<unsigned int> running_quad_rule; //Used for quad related adaptivity
 
 		double volfrac;	//maximum permissible volume fraction
 

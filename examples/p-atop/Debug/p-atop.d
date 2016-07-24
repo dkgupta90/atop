@@ -72,19 +72,20 @@ p-atop.d: ../p-atop.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/block_mask.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h \
@@ -117,7 +118,9 @@ p-atop.d: ../p-atop.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/design_analysis.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/neighbors.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h
@@ -268,6 +271,18 @@ p-atop.d: ../p-atop.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
@@ -276,8 +291,6 @@ p-atop.d: ../p-atop.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
-
 /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
@@ -285,14 +298,6 @@ p-atop.d: ../p-atop.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_handler.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_collection.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:
 
@@ -358,7 +363,11 @@ p-atop.d: ../p-atop.cpp \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h:
 
