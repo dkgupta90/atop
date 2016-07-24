@@ -14,7 +14,7 @@
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/grid/grid_out.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/tria.h>
@@ -193,9 +193,8 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 template <int dim>
 void Adaptivity<dim>::update_cell_vectors(
 		std::vector<CellInfo> &density_cell_info_vector,
-		DoFHandler<dim> &density_dof_handler,
-		Triangulation<dim> &density_triangulation,
-		FESystem<dim> &density_fe){
+		hp::DoFHandler<dim> &density_dof_handler,
+		Triangulation<dim> &density_triangulation){
 	std::cout<<"Updating density info vector record"<<std::endl;
 	std::vector<CellInfo> temp_cellprop;
 	temp_cellprop.clear();
@@ -209,40 +208,6 @@ void Adaptivity<dim>::update_cell_vectors(
 
 		if(density_cell->level() > 0 && density_cell->parent()->user_index() > 0){
 			density_cell_info_vector[density_cell_itr] = temp_cellprop[density_cell->parent()->user_index() - 1];
-/*			QGauss<dim> qformula_child(density_cell_info_vector[density_cell_itr].quad_rule);
-			FEValues<dim> fevalues_child(density_fe,
-					qformula_child,
-					update_values |
-					update_gradients |
-					update_quadrature_points |
-					update_JxW_values
-					);
-
-			QGauss<dim> qformula_parent(density_cell_info_vector[density_cell_itr].quad_rule);
-			FEValues<dim> fevalues_parent(density_fe,
-					qformula_child,
-					update_values |
-					update_gradients |
-					update_quadrature_points |
-					update_JxW_values
-					);
-			unsigned int no_q_points = density_cell_info_vector[density_cell_itr].density.size();
-			fevalues_child.reinit(density_cell);
-			std::vector<Point<dim> > child_qpoints = fevalues_child.get_quadrature_points();
-			fevalues_parent.reinit(density_cell->parent());
-			std::vector<Point <dim> > parent_qpoints = fevalues_parent.get_quadrature_points();
-			for(unsigned int qchild = 0; qchild < no_q_points; ++qchild){
-				double dmin = 99999;
-				Point<dim> p_child = child_qpoints[qchild];
-				for(unsigned int qparent = 0; qparent < no_q_points; ++qparent){
-					Point<dim> p_parent = parent_qpoints[qparent];
-					if(p_parent.distance(p_child) >= dmin){
-						continue;
-					}
-					density_cell_info_vector[density_cell_itr].density[qchild] = temp_cellprop[density_cell->parent()->user_index() - 1].density[qparent];
-					dmin = p_parent.distance(p_child);
-				}
-			}*/
 		}
 
 		if(density_cell->user_index() > 0){

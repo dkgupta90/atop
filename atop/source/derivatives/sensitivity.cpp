@@ -6,7 +6,7 @@
  */
 
 #include <atop/derivatives/sensitivity.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/fe/fe_system.h>
 #include <atop/physics/mechanics/elastic.h>
@@ -24,7 +24,7 @@ SensitivityAnalysis<dim>::SensitivityAnalysis(
 
 template <int dim>
 void SensitivityAnalysis<dim>::set_input(
-		DoFHandler<dim> &obj_dof_handler,
+		hp::DoFHandler<dim> &obj_dof_handler,
 		std::vector<CellInfo> &obj_cell_info_vector,
 		std::vector<CellInfo> &obj_density_cell_info_vector,
 		FEM<dim> &obj_fem

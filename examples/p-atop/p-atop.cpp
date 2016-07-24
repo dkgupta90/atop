@@ -41,7 +41,7 @@ int main(){
 	//Define the mesh
 	DefineMesh<2> mesh(2);
 	mesh.coordinates = {{0, 2}, {0, 1}};
-	mesh.subdivisions = {8*n, 4*n};
+	mesh.subdivisions = {40*n, 20*n};
 	mesh.coupling = false;
 	mesh.source_fn = source_function;
 	mesh.boundary_indicator = get_boundary_indicator;
@@ -52,9 +52,9 @@ int main(){
 	mesh.max_density_el_order = 1;
 	mesh.adaptivityType = "adaptive_grayness";
 	mesh.amrType = "dp-refinement";
-	mesh.initial_dcount_per_el = 1;
+	mesh.initial_dcount_per_el = 4;
 	unsigned int nline = (int)(sqrt(mesh.initial_dcount_per_el));
-	mesh.density_subdivisions = {8*n*2, 4*n*2};
+	mesh.density_subdivisions = {40*n*nline, 20*n*nline};
 	//Define point force
 	std::vector<double> point = {2.0, 0.5};
 	std::vector<double> source = {0, 1.0};
@@ -75,7 +75,7 @@ int main(){
 
 	//Define the projection scheme
 	Projection filter("density_filter",
-			0.3/n/nline, 0.6);
+			0.06/n/nline, 0.6);
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);

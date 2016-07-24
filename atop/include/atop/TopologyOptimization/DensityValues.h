@@ -21,6 +21,8 @@
 #include <atop/fem/define_mesh.h>
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/hp/dof_handler.h>
+#include <deal.II/hp/fe_collection.h>
+#include <deal.II/hp/fe_values.h>
 
 using namespace dealii;
 
@@ -36,8 +38,7 @@ namespace atop{
 		SparseMatrix<double> projection_matrix;	//For projecting the densities
 		void create_neighbors(
 				std::vector<CellInfo> &cell_info_vector,
-				FESystem<dim> &fe,
-				FESystem<dim> &density_fe,
+				hp::FEValues<dim> &hp_fe_values,
 				hp::DoFHandler<dim> &dof_handler,
 				hp::DoFHandler<dim> &density_dof_handler,
 				Projection &projection,
@@ -47,7 +48,7 @@ namespace atop{
 		void create_neighbors(
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
-				FESystem<dim> &fe,
+				hp::FEValues<dim> &hp_fe_values,
 				hp::DoFHandler<dim> &dof_handler
 				);
 

@@ -14,7 +14,7 @@
 
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/grid/tria.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <string>
 #include <vector>
 
@@ -38,9 +38,8 @@ namespace atop{
 
 		void update_cell_vectors(
 				std::vector<CellInfo> &density_cell_info_vector,
-				DoFHandler<dim> &density_dof_handler,
-				Triangulation<dim> &density_triangulation,
-				FESystem<dim> &density_fe);
+				hp::DoFHandler<dim> &density_dof_handler,
+				Triangulation<dim> &density_triangulation);
 
 		void execute_coarsen_refine();
 

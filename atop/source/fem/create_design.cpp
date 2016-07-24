@@ -5,7 +5,6 @@
  *  
  */
 
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/grid/tria.h>
@@ -18,6 +17,10 @@
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/TopologyOptimization/DensityValues.h>
 #include <atop/fem/output.h>
+#include <deal.II/hp/dof_handler.h>
+#include <deal.II/hp/fe_values.h>
+#include <deal.II/hp/fe_collection.h>
+
 
 
 
@@ -43,8 +46,8 @@ void CreateDesign<dim>::assemble_design(
 	}
 
 	//Iterator for the design and analysis meshes
-	typename DoFHandler<dim>::active_cell_iterator design_cell;
-	typename DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator design_cell;
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler->begin_active(),
 			endc = fem->dof_handler->end();
 
 	//Iterating over the cell_info_vector
@@ -80,13 +83,19 @@ void CreateDesign<dim>::assemble_design(
 	}
 
 	std::cout<<"Finding neighbors for design field....";
+	hp::QCollection<dim> q_design_collection;
+	q_design_collection.push_back(QGauss<dim>(1));
+	hp::FEValues<dim> hp_fe_design_values(
+			fem->fe_design_collection,
+			q_design_collection,
+			update_values | update_gradients |
+			update_quadrature_points | update_JxW_values);
 
 	//Adjusting the coupling parameter of the mesh
 	fem->mesh->coupling = true;
 	design_values.create_neighbors(
 			design_info_vector,
-			*(fem->fe_design),
-			*(fem->fe_design),
+			hp_fe_design_values,
 			*(fem->design_handler),
 			*(fem->design_handler),
 			*(fem->projection),
@@ -99,9 +108,6 @@ void CreateDesign<dim>::assemble_design(
 	std::cout<<"DONE"<<std::endl;
 
 
-	const unsigned int density_per_design_cell = fem->fe_design->dofs_per_cell;	//dofs per design cell
-	std::vector<types::global_dof_index> local_design_indices(density_per_design_cell);
-	Vector<double> cell_density(density_per_design_cell);
 	cells_adjacent_per_node = 0;
 	cells_adjacent_per_node.reinit(fem->design_handler->n_dofs());	//for normalizing the nodal density value
 
@@ -114,9 +120,18 @@ void CreateDesign<dim>::assemble_design(
 	design_cell = fem->design_handler->begin_active();
 	typename DoFHandler<dim>::active_cell_iterator design_endc = fem->design_handler->end();
 
+
+
 	for (; design_cell != design_endc; ++design_cell){
 
 		unsigned int cell_itr  = design_cell->index();
+
+		hp_fe_design_values.reinit(design_cell, 0);
+		const FEValues<dim> &fe_design_values = hp_fe_design_values.get_present_fe_values();
+		const unsigned int density_per_design_cell = design_cell->get_fe().dofs_per_cell;
+
+		std::vector<types::global_dof_index> local_design_indices(density_per_design_cell);
+		Vector<double> cell_density(density_per_design_cell);
 
 		cell_density = 0;
 		design_cell->get_dof_indices(local_design_indices);

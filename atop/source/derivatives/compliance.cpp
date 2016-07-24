@@ -6,7 +6,7 @@
  */
 
 #include <atop/derivatives/compliance.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <deal.II/base/quadrature.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/fe/fe_system.h>
@@ -22,7 +22,7 @@ using namespace atop;
 
 template <int dim>
 void Compliance<dim>::set_input(
-		DoFHandler<dim> &obj_dof_handler,
+		hp::DoFHandler<dim> &obj_dof_handler,
 		std::vector<CellInfo> &obj_cell_info_vector,
 		std::vector<CellInfo> &obj_density_cell_info_vector,
 		FEM<dim> &obj_fem
@@ -33,7 +33,6 @@ void Compliance<dim>::set_input(
 	this->cell_info_vector = &obj_cell_info_vector;
 	this->density_cell_info_vector = &obj_density_cell_info_vector;
 	this->fem = &obj_fem;
-	this->fe = obj_fem.fe;
 	this->elastic_data = &(obj_fem.elastic_data);
 	this->density_field = &(obj_fem.density_field);
 
@@ -51,33 +50,39 @@ void Compliance<dim>::compute(
 	/**
 	 * Iterating over all the cells and including the contributions
 	 */
+
+	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
+			fem->quadrature_collection,
+			update_values |
+			update_gradients |
+			update_quadrature_points |
+			update_JxW_values
+			);
+
 	unsigned int cell_itr = 0;
-	typename DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 
 	for(; cell != endc; ++cell){
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		QGauss<dim> quadrature_formula(quadrature_rule);
-		FEValues<dim> fe_values(*fe,
-				quadrature_formula,
-				update_values |
-				update_gradients |
-				update_quadrature_points |
-				update_JxW_values
-				);
-		const unsigned int dofs_per_cell = fe->dofs_per_cell;
+
+		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
+		hp_fe_values.reinit(cell, quad_index);
+		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		const unsigned int n_q_points = quadrature_formula.size();
 		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-		fe_values.reinit(cell);
+		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 		cell_matrix = 0;
 		std::vector<double> E_values, dE_values;
 		E_values = (*cell_info_vector)[cell_itr].E_values;
 		dE_values = (*cell_info_vector)[cell_itr].dE_values;
-		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
+
+		unsigned int p_index = elastic_data->get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
 
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
-			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[quad_index][q_point];
+			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[p_index][quad_index][q_point];
 
 			double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;//(cellprop[cell_itr].cell_area)/max_cell_area;
 			cell_matrix.add((E_values[q_point])*area_factor,
@@ -135,21 +140,16 @@ void Compliance<dim>::compute(
 	for(; cell != endc; ++cell){
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
+		unsigned int p_index = elastic_data->get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
 		QGauss<dim> quadrature_formula(quadrature_rule);
 		std::vector<double> qweights = quadrature_formula.get_weights();	//Getting the quadrature weights
-		FEValues<dim> fe_values(*fe,
-				quadrature_formula,
-				update_values |
-				update_gradients |
-				update_quadrature_points |
-				update_JxW_values
-				);
+		hp_fe_values.reinit(cell, quad_index);
+		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 		std::vector<Point<dim> > qpoints = fe_values.get_quadrature_points();
-		const unsigned int dofs_per_cell = fe->dofs_per_cell;
+		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		const unsigned int n_q_points = quadrature_formula.size();
 		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
-		fe_values.reinit(cell);
 		std::vector<double> E_values, dE_values;
 		dE_values.clear();
 		dE_values = (*cell_info_vector)[cell_itr].dE_values;
@@ -171,7 +171,7 @@ void Compliance<dim>::compute(
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
 			//Getting the normalized matrix corresponding to the quadrature point
-			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[quad_index][q_point];
+			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[p_index][quad_index][q_point];
 
 			//Getting dE_dxPhys
 			double dE_dxPhys = dE_values[q_point];

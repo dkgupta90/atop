@@ -14,12 +14,13 @@
 #include <deal.II/numerics/vector_tools.h>
 #include <deal.II/numerics/matrix_tools.h>
 #include <deal.II/grid/grid_tools.h>
-#include <deal.II/fe/fe_values.h>
 #include <atop/TopologyOptimization/neighbors.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/hp/dof_handler.h>
+#include <deal.II/hp/fe_values.h>
+
 #include <stdlib.h>
 
 #include <math.h>
@@ -32,19 +33,18 @@ using namespace atop;
 template <int dim>
 void DensityField<dim>::create_neighbors(
 		std::vector<CellInfo> &cell_info_vector,
-		FESystem<dim> &fe,
-		FESystem<dim> &density_fe,
+		hp::FEValues<dim> &hp_fe_values,
 		hp::DoFHandler<dim> &dof_handler,
 		hp::DoFHandler<dim> &density_dof_handler,
 		Projection &projection,
 		DefineMesh<dim> &mesh
 		){
 
+
 	/*
 	 * Iterate over all the cells to check for neighbors
 	 * iterated over the cells in triangulation
 	 */
-
 	unsigned int cell_itr1 = 0;
 	typename hp::DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active(),
 				endc1= dof_handler.end();
@@ -54,15 +54,10 @@ void DensityField<dim>::create_neighbors(
 		if(cell_info_vector[cell_itr1].quad_rule == 0){
 			exit(0);
 		}
-		QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr1].quad_rule);
-		FEValues<dim> fe_values1(fe,
-				quadrature_formula1,
-				update_values |
-				update_gradients |
-				update_quadrature_points |
-				update_JxW_values
-				);
-		fe_values1.reinit(cell1);
+
+		hp_fe_values.reinit(cell1,
+				cell_info_vector[cell_itr1].quad_rule - 1);	//to related to quad_index
+		const FEValues<dim> &fe_values1= hp_fe_values.get_present_fe_values();
 
 		//Stores cell iterators for all neighbors of the current cell
 		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
@@ -205,7 +200,7 @@ template <int dim>
 void DensityField<dim>::create_neighbors(
 		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &density_cell_info_vector,
-		FESystem<dim> &fe,
+		hp::FEValues<dim> &hp_fe_values,
 		hp::DoFHandler<dim> &dof_handler
 		){
 
@@ -278,15 +273,9 @@ void DensityField<dim>::create_neighbors(
 			cell_itr2 = cell2->user_index() - 1;
 
 			QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr2].quad_rule);
-			FEValues<dim> fe_values2(fe,
-					quadrature_formula1,
-					update_values |
-					update_gradients |
-					update_quadrature_points |
-					update_JxW_values
-					);
-			fe_values2.reinit(cell2);
-			std::vector<Point<dim> > qpoints2 = fe_values2.get_quadrature_points();	//Getting the quad points for the current neighbor cell
+			hp_fe_values.reinit(cell2, cell_info_vector[cell_itr2].quad_rule-1);
+			const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
+			std::vector<Point<dim> > qpoints2 = fe_values.get_quadrature_points();	//Getting the quad points for the current neighbor cell
 
 			double distance;
 			//Iterating over all the Gauss points of the neighbor cell
@@ -600,8 +589,10 @@ void DensityField<dim>::update_design_vector(
 	else{
 		if (cycle == 0){
 			unsigned int no_design_points = design_vector.size();
+
 			design_vector.clear();
 			design_vector.resize(no_design_points, volfrac);
+
 		}
 		else{
 			design_vector.clear();

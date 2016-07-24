@@ -8,7 +8,7 @@
 #ifndef COMPLIANCE_H_
 #define COMPLIANCE_H_
 
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/fe/fe_system.h>
 #include <atop/physics/mechanics/elastic.h>
@@ -20,7 +20,7 @@ namespace atop{
 	class Compliance{
 	public:
 		void set_input(
-				DoFHandler<dim> &dof_handler,
+				hp::DoFHandler<dim> &dof_handler,
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector,
 				FEM<dim> &
@@ -30,10 +30,10 @@ namespace atop{
 				std::vector<double> &obj_grad);
 
 	private:
-		DoFHandler<dim> *dof_handler;
+		hp::DoFHandler<dim> *dof_handler;
 		std::vector<CellInfo> *cell_info_vector;
 		std::vector<CellInfo> *density_cell_info_vector;
-		FESystem<dim> *fe;
+		hp::FEValues<dim> *hp_fe_values;
 		ElasticData *elastic_data;
 		FEM<dim> *fem;
 		DensityField<dim> *density_field;

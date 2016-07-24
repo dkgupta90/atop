@@ -111,14 +111,15 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/design_analysis.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/neighbors.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out_dof_data.h \
@@ -401,6 +402,8 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/design_analysis.h:
@@ -409,13 +412,13 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/elasticity.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h:
 
