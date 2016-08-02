@@ -7,8 +7,8 @@ h = scatter(rhoX, rhoY, rhoR, rhoV, 'filled'); % Create a scatter plot and retur
 currentunits = get(gca,'Units');
 
 set(gca, 'Units', 'Points');
-colormap('gray')
-caxis([0 1.25]);
+colormap('default')
+caxis([0 1]);
 axpos = get(gca,'Position');
 
 set(gca, 'Units', currentunits);

@@ -56,8 +56,8 @@ void DensityField<dim>::create_neighbors(
 		}
 
 		hp_fe_values.reinit(cell1,
-				cell_info_vector[cell_itr1].quad_rule - 1);	//to related to quad_index
-		const FEValues<dim> &fe_values1= hp_fe_values.get_present_fe_values();
+				cell_info_vector[cell_itr1].quad_rule - 1);	//to relate to quad_index
+		const FEValues<dim> &fe_values1 = hp_fe_values.get_present_fe_values();
 
 		//Stores cell iterators for all neighbors of the current cell
 		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
@@ -721,26 +721,6 @@ void DensityField<dim>::get_dxPhys_dx(
 		//When the design index matches, the derivatives are calculated below
 		double dxPhys_dH = (density_cell_info.density[0] - cell_info.density[qpoint])/cell_info.sum_weights[qpoint];
 
-/*
-		double gamma = (density_cell_info.projection_fact - 2.0) / 5.0;	//gamma for the current density point
-		double distance = cell_info.neighbour_distance[qpoint][i];
-		double dH_dgamma = (cell_info.neighbour_weights[qpoint][i] * cell_info.sum_weights[qpoint])/(2 * gamma) * ((distance * distance) / (gamma * cell_length * cell_length) - 1.0);
-		double dgamma_dprojFact = 1.0 / 5.0;
-		double dH_dD = (cell_info.neighbour_weights[qpoint][i] * cell_info.sum_weights[qpoint]) * (-distance / (gamma * cell_length * cell_length));	// D is the distance between the gauss point and the design point
-		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
-		dxPhys_dx[1] = dxPhys_dH * dH_dgamma * dgamma_dprojFact;	//w.r.t. projection factor
-*/
-
-
-/*
-		//For linear projection
-		double distance = cell_info.neighbour_distance[qpoint][i];
-		double dH_dproj = cell_length;
-		double dH_dD = -1.0;	// D is the distance between the gauss point and the design point
-		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
-		dxPhys_dx[1] = dxPhys_dH * dH_dproj;	//w.r.t. projection factor
-*/
-
 
 		//For cubic spline
 
@@ -777,13 +757,13 @@ double DensityField<dim>::get_vol_fraction(
 		if(cell_info_vector[i].density_weights.size() == 0)
 			std::cout<<"ERRORRRRRRRR! no quad point here "<<std::endl;
 		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
+			//std::cout<<"Q"<<qpoint+1<<" : "<<cell_info_vector[i].density_weights[qpoint]<<std::endl;
 			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
 		}
 		double area_fraction = cell_info_vector[i].cell_area / max_cell_area;
 		volume += (cell_info_vector[i].cell_density * area_fraction);
 	}
 	volume /= initial_no_cells;
-	//std::cout<<"Volume fraction: "<<volume<<std::endl;
 	return volume;
 }
 

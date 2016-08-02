@@ -43,6 +43,7 @@ namespace atop{
 		std::string amrType;
 
 		//defines the element order
+		unsigned int initial_el_order, initial_density_el_order;
 		unsigned int max_el_order;
 		unsigned int max_density_el_order;
 

@@ -75,6 +75,7 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 	typename hp::DoFHandler<2>::active_cell_iterator cell = dofhandler.begin_active();
 
 	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
+
 	cell->set_active_fe_index(p_index);
 	hp_fe_values.reinit(cell, q_index);
 
@@ -164,8 +165,8 @@ void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
 		hp::QCollection<2> &temp_q_coll,
 		hp::DoFHandler<2> &dofhandler){
 
-	this->fe_collection = temp_fe_coll;
-	this->quadrature_collection = temp_q_coll;
+	this->fe_collection = &temp_fe_coll;
+	this->quadrature_collection = &temp_q_coll;
 
 	ElasticTools elastic_tool;
 
@@ -174,38 +175,38 @@ void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
 	elastic_tool.get_D_plane_stress2D(D_matrix,
 			nu);
 
-	unsigned int max_p_degree = running_quadRuleVector.size();
-	std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
+	unsigned int max_p_degree = running_quadRuleVector->size();
+	//std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
 	elem_stiffness_array.resize(max_p_degree);
 	B_matrix_list.resize(max_p_degree);
 	JxW.resize(max_p_degree);
 
-	for (unsigned int i = 0; i < current_quadRuleVector.size(); ++i)
-		std::cout<<running_quadRuleVector[i]<<std::endl;
 	for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
 		//Updating the sizes based on the new current quad rules
 		unsigned int p_index = degree - 1;
-		B_matrix_list[p_index].resize(current_quadRuleVector[p_index]);
-		JxW[p_index].resize(current_quadRuleVector[p_index]);
-		elem_stiffness_array[p_index].resize(current_quadRuleVector[p_index]);
 
-		for (unsigned int i = running_quadRuleVector[p_index]; i <= current_quadRuleVector[p_index]; ++i){
+		if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
+			continue;
+		B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
+		JxW[p_index].resize((*current_quadRuleVector)[p_index]);
+		elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
+		for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
 			unsigned int q_index = i - 1;
 			B_matrix_list[p_index][q_index].clear();
 			JxW[p_index][q_index].clear();
 			elastic_tool.get_B_matrix_2D(B_matrix_list[p_index][q_index],  JxW[p_index][q_index],
 					p_index, q_index,
-					fe_collection, quadrature_collection, dofhandler);
+					*fe_collection, *quadrature_collection, dofhandler);
 
 			elastic_tool.get_normalized_matrix(D_matrix,
 					B_matrix_list[p_index][q_index],
 					JxW[p_index][q_index],
 					elem_stiffness_array[p_index][q_index]
 					);
-		}
-		running_quadRuleVector[p_index] = current_quadRuleVector[p_index] + 1;
-	}
 
+		}
+		(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
+	}
 }
 
 unsigned int ElasticData::get_quad_index(unsigned int quad_rule){
@@ -232,6 +233,6 @@ void ElasticData::check_linker(){
 
 void ElasticData::initialize_quadRuleVectors(std::vector<unsigned int> &temp_current,
 		std::vector<unsigned int> &temp_running){
-	this->running_quadRuleVector = temp_running;
-	this->current_quadRuleVector = temp_current;
+	this->running_quadRuleVector = &temp_running;
+	this->current_quadRuleVector = &temp_current;
 }

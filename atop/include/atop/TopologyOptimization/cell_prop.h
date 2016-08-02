@@ -56,6 +56,9 @@ namespace atop{
 		unsigned int shape_function_order;
 		unsigned int n_q_points;	//No. of quadrature points
 
+		unsigned int design_bound;	//denotes the maximum number of design variables that can be associated with this cell
+		unsigned int dofs_per_cell;
+
 		double projection_radius; 	//projection radius of the current cell
 		double projection_fact;		//projection factor (to mulitply with certain element size)
 		/**

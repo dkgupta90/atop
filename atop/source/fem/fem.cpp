@@ -16,7 +16,6 @@
 #include <deal.II/fe/fe_dgq.h>
 #include <deal.II/fe/fe_q_hierarchical.h>
 #include <atop/fem/define_mesh.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/grid/tria.h>
@@ -32,8 +31,8 @@
 #include <deal.II/hp/fe_collection.h>
 #include <deal.II/hp/fe_values.h>
 #include <deal.II/hp/dof_handler.h>
-
-
+#include <deal.II/lac/dynamic_sparsity_pattern.h>
+#include <deal.II/fe/mapping_q.h>
 
 #include<vector>
 
@@ -81,7 +80,7 @@ FEM<dim>::FEM(
 	}
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order + 4; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order + 11; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 	}
 
@@ -98,10 +97,11 @@ FEM<dim>::FEM(
 	this->design_triangulation = &obj_design_triangulation;	// for the design domain
 	this->design_vector = &obj_design_vector;
 
+	unsigned int p_index = elastic_data.get_p_index(mesh->initial_el_order);
 	//intializing the type of element for each cell of analysis mesh
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
 			cell != dof_handler.end(); ++cell){
-		cell->set_active_fe_index(0);
+		cell->set_active_fe_index(p_index);
 	}
 
 	//intializing the type of element for each cell of analysis density mesh
@@ -119,7 +119,9 @@ FEM<dim>::FEM(
 
 template <int dim>
 FEM<dim>::~FEM(){
-	delete dof_handler, analysis_density_handler, design_handler;
+	delete dof_handler;
+	delete analysis_density_handler;
+	delete design_handler;
 }
 
 //Function that step-by-step solves the FE problem
@@ -157,16 +159,24 @@ void FEM<dim>::setup_system(){
 	DoFTools::make_hanging_node_constraints(*dof_handler,
 			hanging_node_constraints);
 	hanging_node_constraints.close();
-	sparsity_pattern.reinit(dof_handler->n_dofs(),
-			dof_handler->n_dofs(),
-			dof_handler->max_couplings_between_dofs());
-	DoFTools::make_sparsity_pattern(*dof_handler,
-			sparsity_pattern);
-	hanging_node_constraints.condense(sparsity_pattern);
-	sparsity_pattern.compress();
+
+ 	sparsity_pattern.reinit(dof_handler->n_dofs(),
+ 			dof_handler->n_dofs(),
+ 			dof_handler->max_couplings_between_dofs());
+ 	DoFTools::make_sparsity_pattern(*dof_handler,
+ 			sparsity_pattern);
+ 	hanging_node_constraints.condense(sparsity_pattern);
+ 	sparsity_pattern.compress();
+/*	DynamicSparsityPattern dsp (dof_handler->n_dofs());
+	DoFTools::make_sparsity_pattern (*dof_handler,
+	                                 dsp,
+	                                 hanging_node_constraints,
+	                                 true);
+	sparsity_pattern.copy_from(dsp);*/
 	system_matrix.reinit(sparsity_pattern);
-		solution.reinit(dof_handler->n_dofs());
-		system_rhs.reinit(dof_handler->n_dofs());
+
+	solution.reinit(dof_handler->n_dofs());
+	system_rhs.reinit(dof_handler->n_dofs());
 	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output
 	cells_adjacent_per_node.reinit(analysis_density_handler->n_dofs());	//for normalizing the nodal density value
 
@@ -344,6 +354,7 @@ void FEM<dim>::reset(){
 	//initializing the sizes of current and running quad rule
 	gauss_int.initialize_quadRuleVector(current_quad_rule,
 			mesh->max_el_order, mesh->initial_dcount_per_el);
+
 	running_quad_rule.clear();
 	running_quad_rule.resize(mesh->max_el_order, 1);
 
@@ -359,11 +370,12 @@ void FEM<dim>::reset(){
 	for(std::vector<CellInfo>::iterator cell_info_itr = cell_info_vector->begin();
 			cell_info_itr != cell_info_vector->end();
 			++cell_info_itr){
-		(*cell_info_itr).quad_rule = current_quad_rule[0];	//Since initially the first among various polynomials is used to start, we set to it this one.
 		(*cell_info_itr).dim = dim;
-		QGauss<dim> temp_quad(current_quad_rule[0]);
+		(*cell_info_itr).shape_function_order = mesh->initial_el_order;
+		unsigned int q_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
+		(*cell_info_itr).quad_rule = current_quad_rule[q_index];
+		QGauss<dim> temp_quad(current_quad_rule[q_index]);
 		(*cell_info_itr).n_q_points = temp_quad.size();
-		(*cell_info_itr).shape_function_order = 1.0;
 		(*cell_info_itr).cell_area = 0.00001;
 		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, 0.01);
 
@@ -477,6 +489,8 @@ void FEM<dim>::initialize_cycle(){
 		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
 				(*cell_info_vector)[cell_itr].design_points.no_points,
 				p_degree);
+		QGauss<dim> temp_quad((*cell_info_vector)[cell_itr].quad_rule);
+		(*cell_info_vector)[cell_itr].n_q_points = temp_quad.size();
 
 		++cell_itr;
 	}
@@ -570,12 +584,12 @@ void FEM<dim>::assembly(){
 
 		//Getting the q_index for the cell
 		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
-
 		hp_fe_values.reinit(cell, q_index);
 		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 		hp_fe_analysis_density_values.reinit(fe_den_cell, 0);
 		const FEValues<dim> &fe_analysis_density_values = hp_fe_analysis_density_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+		(*cell_info_vector)[cell_itr].dofs_per_cell = dofs_per_cell;
 		const unsigned int density_per_fe_cell = fe_den_cell->get_fe().dofs_per_cell;
 
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
@@ -605,12 +619,14 @@ void FEM<dim>::assembly(){
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 			unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
 			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
+				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
-
-			total_weight += fe_analysis_density_values.JxW(q_point);
+			total_weight += fe_values.JxW(q_point);
+			//std::cout<<fe_values.JxW(q_point)<<std::endl;
 		}
-
+		//std::cout<<total_weight<<std::endl;
 
 		//Calculating cell_rhs
 		for(unsigned int i = 0; i < dofs_per_cell; ++i){
@@ -622,15 +638,20 @@ void FEM<dim>::assembly(){
 			}
 		}
 
-
 		cell->get_dof_indices(local_dof_indices);
-		//for(unsigned int i = 0; i < local_dof_indices.size(); ++i)
+/*		 hanging_node_constraints.distribute_local_to_global (cell_matrix,
+		                                          cell_rhs,
+		                                          local_dof_indices,
+		                                          system_matrix,
+		                                          system_rhs);*/
+
 		for(unsigned int i = 0; i < dofs_per_cell; ++i){
 			for(unsigned int j = 0; j < dofs_per_cell; ++j){
 				system_matrix.add(local_dof_indices[i],
 						local_dof_indices[j],
 						cell_matrix(i, j));
 			}
+
 			system_rhs(local_dof_indices[i]) += cell_rhs(i);
 		}
 
@@ -638,7 +659,7 @@ void FEM<dim>::assembly(){
 		for(unsigned int i = 0; i < density_per_fe_cell; ++i){
 			for(unsigned int q_point = 0 ; q_point < n_q_points; ++q_point){
 				cell_density(i) += 	(*cell_info_vector)[cell_itr].density[q_point] *
-						(fe_analysis_density_values.JxW(q_point)/total_weight);
+						(fe_values.JxW(q_point)/total_weight);
 			}
 			nodal_density(local_density_indices[i]) += cell_density(i);
 			cells_adjacent_per_node(local_density_indices[i]) += 1;
@@ -648,9 +669,8 @@ void FEM<dim>::assembly(){
 		//Adding the density weights to the cell_info_vector
 		(*cell_info_vector)[cell_itr].density_weights.clear();
 		for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
-			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_analysis_density_values.JxW(qpoint)/total_weight);
+			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_values.JxW(qpoint)/total_weight);
 		}
-
 		++fe_den_cell;
 		++density_cell;
 		++cell_itr;
@@ -685,7 +705,6 @@ void FEM<dim>::assembly(){
 			system_matrix,
 			solution,
 			system_rhs);
-
 	//Add point-source function to the right hand side
 	add_point_source_to_rhs();
 
@@ -716,6 +735,8 @@ void FEM<dim>::add_source_to_rhs(
 
 template <int dim>
 void FEM<dim>::add_point_source_to_rhs(){
+	deallog.depth_console (2);
+
 	unsigned int no_sources = (mesh->point_source_vector).size();
 	for(unsigned int s = 0; s < no_sources; ++s){
 		std::vector<double> load_point = mesh->point_source_vector[s].first;
@@ -730,7 +751,23 @@ void FEM<dim>::add_point_source_to_rhs(){
 			ldp(i) = load_point[i];
 			ld(i) = load[i];
 		}
-		VectorTools::create_point_source_vector(*dof_handler, ldp, ld, system_rhs);
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
+				endc = dof_handler->end();
+		for (; cell != endc; ++cell){
+			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+			std::vector<types::global_dof_index> global_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(global_dof_indices);
+			for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_cell; ++v){
+				if (fabs(cell->vertex(v)[0] - ldp[0]) < 1e-12 && fabs(cell->vertex(v)[1] - ldp[1]) < 1e-12){
+					system_rhs[global_dof_indices[dim*v]] = ld[0];
+					system_rhs[global_dof_indices[dim*v + 1]] = ld[1];
+				}
+			}
+		}
+/*		hp::MappingCollection<dim> mapping;
+		mapping.push_back(MappingQ<dim>(1));
+		VectorTools::create_point_source_vector(mapping, *dof_handler, ldp, ld, system_rhs);*/
+
 	}
 }
 

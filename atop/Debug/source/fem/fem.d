@@ -93,6 +93,7 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/tridiagonal_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/lapack_support.h \
@@ -140,7 +141,6 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/block_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/trilinos_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_sparsity_pattern.h \
- /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_set_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_simple_sparsity_pattern.h \
  /usr/include/suitesparse/umfpack.h \
@@ -366,6 +366,8 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/tridiagonal_matrix.h:
@@ -459,8 +461,6 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/lac/trilinos_sparsity_pattern.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_sparsity_pattern.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/compressed_set_sparsity_pattern.h:
 

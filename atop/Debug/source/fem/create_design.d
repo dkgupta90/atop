@@ -94,6 +94,7 @@ source/fem/create_design.d: ../source/fem/create_design.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/tridiagonal_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/lapack_support.h \
@@ -318,6 +319,8 @@ source/fem/create_design.d: ../source/fem/create_design.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h:
 

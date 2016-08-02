@@ -10,6 +10,7 @@
 
 #include <atop/math_tools/algebra/integration.h>
 #include <math.h>
+#include <iostream>
 
 using namespace atop;
 
@@ -20,10 +21,9 @@ unsigned int GaussIntegration<dim>::get_quadRule(
 
 	//calculating polynomial order of design field
 	unsigned int p_design = ceil((double)(-3.0 + sqrt(1.0 + 8 * no_design))/2.0);
-
 	unsigned int p_total = p_design + 2 * p_degree;
 	unsigned int qrule = ceil((double)((p_total + 1)/2.0));
-
+	return qrule;
 }
 
 template <int dim>

@@ -202,7 +202,7 @@ void Adaptivity<dim>::update_cell_vectors(
 	density_cell_info_vector.clear();
 	density_cell_info_vector.resize(density_triangulation.n_active_cells());
 	unsigned int density_cell_itr = 0;
-	typename DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler.begin_active(),
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = density_dof_handler.begin_active(),
 			density_endc = density_dof_handler.end();
 	for(; density_cell != density_endc; ++density_cell){
 
@@ -249,6 +249,8 @@ void Adaptivity<dim>::execute_coarsen_refine(){
 	}
 	else if (fem->mesh->amrType == "dp-refinement"){
 
+			system_design_bound = get_system_design_bound();
+			update_element_design_bound();
 	}
 }
 
@@ -280,9 +282,55 @@ void Adaptivity<dim>::compute_sortedRefineRes(){
 		}
 	}
 
-/*	for (unsigned int i = 0; i < len; ++i){
+	for (unsigned int i = 0; i < len; ++i){
 		std::cout<<sortedRefineRes[i].second<<"    "<<sortedRefineRes[i].first<<std::endl;
-	}*/
+	}
+}
+
+
+//Getting the system level bound
+template <int dim>
+unsigned int Adaptivity<dim>::get_system_design_bound(){
+	unsigned int total_dofs = fem->dof_handler->n_dofs();
+	unsigned int no_hanging_nodes = (fem->hanging_node_constraints).n_constraints();
+	std::cout<<"No. of hanging nodes : "<<no_hanging_nodes<<std::endl;
+	rigid_body_modes = 3;	//hard coded right now for 2d elastostatic problem
+	unsigned int sys_bound = total_dofs - no_hanging_nodes - rigid_body_modes;
+	std::cout<<"System level bound : "<<sys_bound<<std::endl;
+	return sys_bound;
+
+}
+
+//Updating the element level bounds
+template <int dim>
+void Adaptivity<dim>::update_element_design_bound(){
+	if (fem->mesh->amrType == "dp-refinement"){
+
+		unsigned int cell_itr = 0;	//Iterator for the triangulation vector
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler->begin_active(),
+				endc = fem->dof_handler->end();
+		for (; cell != endc; ++cell){
+			unsigned int design_bound = (*cell_info_vector)[cell_itr].dofs_per_cell - rigid_body_modes;
+
+			//Iterate over all the neighbour cells
+			for (unsigned int iface = 0; iface < GeometryInfo<dim>::faces_per_cell; ++iface){
+				unsigned int ng_shape_fn_order;
+				if(cell->at_boundary(iface)) continue;
+				if(cell->neighbor(iface)->active()){
+					unsigned int ng_cell_itr = cell->neighbor(iface)->user_index();
+					ng_shape_fn_order = (*cell_info_vector)[ng_cell_itr].shape_function_order;
+				}
+
+				//Checking the hanging support point for the current cell
+				unsigned int shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
+				if (shape_fn_order <= ng_shape_fn_order)	continue;
+				design_bound = design_bound - (shape_fn_order - ng_shape_fn_order);
+			}
+			std::cout<<"cell_itr : "<<design_bound<<std::endl;
+			(*cell_info_vector)[cell_itr].design_bound = design_bound;
+			++cell_itr;
+		}
+	}
 }
 
 
@@ -300,9 +348,3 @@ void Adaptivity<dim>::dp_coarsening_refinement(){
 
 	}
 }
-
-
-
-
-
-

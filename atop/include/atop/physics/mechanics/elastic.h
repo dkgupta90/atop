@@ -49,9 +49,9 @@ namespace atop{
 	class ElasticData{
 	public:
 		double nu; //Poisson coefficient
-		std::vector<unsigned int> current_quadRuleVector, running_quadRuleVector;
-		hp::FECollection<2> fe_collection;
-		hp::QCollection<2> quadrature_collection;
+		std::vector<unsigned int> *current_quadRuleVector, *running_quadRuleVector;
+		hp::FECollection<2> *fe_collection;
+		hp::QCollection<2> *quadrature_collection;
 
 		std::vector<std::vector<std::vector<FullMatrix<double> > > > B_matrix_list;
 		std::vector<std::vector<std::vector<double> > > JxW;
