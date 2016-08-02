@@ -190,7 +190,7 @@ void Optimizedesign<dim>::optimize(){
 
 		//Creating the final design mesh for the cycle
 		CreateDesign<dim> create_design;
-		//create_design.assemble_design(*obj_fem);
+		create_design.assemble_design(*obj_fem);
 
 		//No refinement in the last cycle, since it is not used further
 		if (cycle == no_cycles - 1)

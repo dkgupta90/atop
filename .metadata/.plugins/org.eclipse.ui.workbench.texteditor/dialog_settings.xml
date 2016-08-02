@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item value="330" key="DIALOG_WIDTH"/>
-		<item value="457" key="DIALOG_Y_ORIGIN"/>
-		<item value="456" key="DIALOG_HEIGHT"/>
-		<item value="1285" key="DIALOG_X_ORIGIN"/>
+		<item value="310" key="DIALOG_WIDTH"/>
+		<item value="524" key="DIALOG_Y_ORIGIN"/>
+		<item value="436" key="DIALOG_HEIGHT"/>
+		<item value="914" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
@@ -13,16 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="n_q_points" key="selection"/>
+		<item value="" key="selection"/>
 		<list key="findhistory">
-			<item value="n_q_points"/>
-			<item value="design_values"/>
-			<item value="density_dof_handler"/>
-			<item value="density_fe"/>
-			<item value="update_design"/>
-			<item value="initialize"/>
-			<item value="DoFHandler"/>
-			<item value="DoFHanlder"/>
+			<item value="].density."/>
+			<item value="get_dof_indices"/>
+			<item value="Geometry"/>
+			<item value="dof_handler"/>
+			<item value="reinit"/>
+			<item value="mapping"/>
+			<item value="shape_function_order"/>
+			<item value="create_right_hand_side"/>
 		</list>
 		<list key="replacehistory">
 			<item value="hp::DoFHandler"/>

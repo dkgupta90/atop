@@ -27,6 +27,8 @@ namespace atop{
 		FEM<dim> *fem;
 		std::vector<CellInfo> *cell_info_vector;
 		std::vector<CellInfo> *density_cell_info_vector;
+
+		unsigned int system_design_bound;
 		void update(
 				FEM<dim> &obj_fem
 				);
@@ -35,6 +37,8 @@ namespace atop{
 				std::string& mesh_update_str);
 		void coupled_refine_adaptive_grayness();
 		void calc_refinement_res_multires();
+		void update_element_design_bound();
+		unsigned int get_system_design_bound();
 
 		void update_cell_vectors(
 				std::vector<CellInfo> &density_cell_info_vector,
@@ -44,13 +48,14 @@ namespace atop{
 		void execute_coarsen_refine();
 
 	private:
+
+		unsigned int rigid_body_modes;
 		std::vector<double> refineRes;
 		std::vector<std::pair<double, unsigned int> > sortedRefineRes;
 
 		void compute_sortedRefineRes();
 		void dp_coarsening_refinement();
-		void get_element_design_bound();
-		void get_system_design_bound();
+
 	};
 
 	template class Adaptivity<2>;

@@ -1,4 +1,4 @@
-21:49:02 **** Build of configuration Debug for project step-1 ****
+11:07:29 **** Build of configuration Debug for project step-1 ****
 make all 
 Building file: ../source/step-1.cpp
 Invoking: Cross G++ Compiler
@@ -132,13 +132,14 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4232:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-Finished building: ../source/step-1.cpp
- 
-Building target: step-1
-Invoking: Cross G++ Linker
-g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -o "step-1"  ./source/step-1.o   -latop -ldeal_II -lnlopt -ltbb
-Finished building target: step-1
- 
+../source/step-1.cpp: In function ‘int main()’:
+../source/step-1.cpp:50:7: error: ‘class atop::DefineMesh<2>’ has no member named ‘el_order’
+  mesh.el_order = 1;
+       ^
+../source/step-1.cpp:51:7: error: ‘class atop::DefineMesh<2>’ has no member named ‘density_el_order’
+  mesh.density_el_order = 1;
+       ^
+make: *** [source/step-1.o] Error 1
 
-21:49:07 Build Finished (took 4s.365ms)
+11:07:32 Build Finished (took 3s.12ms)
 

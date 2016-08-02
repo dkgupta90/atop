@@ -107,6 +107,7 @@ p-atop.d: ../p-atop.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/tridiagonal_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/lapack_support.h \
@@ -340,6 +341,8 @@ p-atop.d: ../p-atop.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h:
 

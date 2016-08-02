@@ -10,7 +10,7 @@
 #include <deal.II/base/quadrature.h>
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/fe/fe_system.h>
-#include <deal.II/fe/fe_values.h>
+#include <deal.II/hp/fe_values.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/fem/fem.h>
 #include <atop/math_tools/algebra/MatrixVector.h>
@@ -171,6 +171,7 @@ void Compliance<dim>::compute(
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
 			//Getting the normalized matrix corresponding to the quadrature point
+			//std::cout<<p_index<<"   "<<quad_index<<std::endl;
 			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[p_index][quad_index][q_point];
 
 			//Getting dE_dxPhys

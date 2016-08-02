@@ -8,6 +8,7 @@
 #include <atop/optimizer/optimality_criteria.h>
 #include <atop/TopologyOptimization/optimizedesign.h>
 #include <math.h>
+#include <cstdlib>
 
 using namespace atop;
 
@@ -50,6 +51,7 @@ void OC::optimize(
 				obj_data);
 		double current_volfrac = 0.0;
 
+
 		//Calculating volume derivatives
 		std::vector<double> vol_grad(obj_grad.size(), 0.0);
 		current_volfrac = opt_design2d->vol_constraint.volumeConstraint(
@@ -60,10 +62,9 @@ void OC::optimize(
 				*(opt_design2d->mesh)
 				);
 
-		for(unsigned int i = 0 ; i < obj_grad.size(); ++i){
 
-	}
-		double l1 = 1e-5, l2 = 100000, move = 0.2;
+
+		double l1 = 1e-5, l2 = 100000000, move = 0.2;
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
@@ -89,6 +90,8 @@ void OC::optimize(
 				(*design_vector)[i] = octemp1;
 
 			}
+
+
 			//updating the density_cell_info_vector
 			if (opt_design2d->mesh->coupling == false){
 				opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
@@ -114,6 +117,11 @@ void OC::optimize(
 					opt_design2d->cell_info_vector);
 
 			//std::cout<<(density_sum/(x_count*y_count))<<std::endl;
+			if (current_volfrac < 0 || current_volfrac > 1){
+				std::cerr<<"ERROR!! Current_volfrac : "<<current_volfrac;
+				exit(0);
+
+			}
 			if((current_volfrac - opt_design2d->volfrac) > 0){
 				l1 = lmid;
 			}
