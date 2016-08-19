@@ -11,6 +11,8 @@
 #include <atop/math_tools/algebra/integration.h>
 #include <math.h>
 #include <iostream>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <vector>
 
 using namespace atop;
 
@@ -32,6 +34,7 @@ void GaussIntegration<dim>::initialize_quadRuleVector(
 		unsigned int max_el_order,
 		unsigned int initial_no_design){
 
+	//This vector saves the quadRule required for each polynomial order with
 	quadRuleVector.clear();
 	quadRuleVector.resize(max_el_order);
 	for (unsigned int i = 0; i < quadRuleVector.size(); ++i){
@@ -40,5 +43,15 @@ void GaussIntegration<dim>::initialize_quadRuleVector(
 	}
 }
 
+template <int dim>
+void GaussIntegration<dim>::update_quadRuleVector(
+		std::vector<unsigned int> &quadRuleVector,
+		std::vector<CellInfo> &cell_info_vector){
+	for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
+		if (cell_info_vector[i].quad_rule > quadRuleVector[cell_info_vector[i].shape_function_order - 1]){
+			quadRuleVector[cell_info_vector[i].shape_function_order - 1] = cell_info_vector[i].quad_rule;
+		}
+	}
+}
 
 #endif /* INTEGRATION_CPP_ */

@@ -128,7 +128,8 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity/dp_adaptivity.h
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:
 
@@ -387,3 +388,5 @@ source/TopologyOptimization/optimizedesign.d: \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity/dp_adaptivity.h:

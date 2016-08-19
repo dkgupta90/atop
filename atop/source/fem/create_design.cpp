@@ -38,7 +38,7 @@ void CreateDesign<dim>::assemble_design(
 	//Define the temporary design_info_vector
 	design_info_vector.clear();
 	design_info_vector.resize(fem->design_triangulation->n_active_cells());
-
+	std::cout<<"No. of cells in the design mesh : "<<design_info_vector.size()<<std::endl;
 	//Initializing the density vector
 	for (unsigned int i = 0; i < design_info_vector.size(); ++i){
 		design_info_vector[i].quad_rule = 1;

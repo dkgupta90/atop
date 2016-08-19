@@ -19,6 +19,8 @@
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/tria.h>
 
+#include <atop/TopologyOptimization/adaptivity/dp_adaptivity.h>
+
 using namespace atop;
 using namespace dealii;
 
@@ -47,7 +49,7 @@ void Adaptivity<dim>::update(
  * This function chooses the right algorithm based on the provided
  * string to adaptively refine the FE mesh based on some density
  * criteria.
- */
+ 	 */
 template <int dim>
 void Adaptivity<dim>::mesh_refine_indicator(
 		std::string &update_str){
@@ -196,6 +198,11 @@ void Adaptivity<dim>::update_cell_vectors(
 		hp::DoFHandler<dim> &density_dof_handler,
 		Triangulation<dim> &density_triangulation){
 	std::cout<<"Updating density info vector record"<<std::endl;
+
+	if (fem->mesh->amrType == "dp-refinement"){
+
+		return;
+	}
 	std::vector<CellInfo> temp_cellprop;
 	temp_cellprop.clear();
 	temp_cellprop = density_cell_info_vector;
@@ -249,8 +256,10 @@ void Adaptivity<dim>::execute_coarsen_refine(){
 	}
 	else if (fem->mesh->amrType == "dp-refinement"){
 
-			system_design_bound = get_system_design_bound();
+			system_design_bound = dp_adap.get_system_design_bound(*fem);
+			if (dim == 2)	rigid_body_modes = 3;	//manually assigning the RBMs
 			update_element_design_bound();
+			dp_coarsening_refinement();	//dp-adaptivity performed
 	}
 }
 
@@ -288,18 +297,7 @@ void Adaptivity<dim>::compute_sortedRefineRes(){
 }
 
 
-//Getting the system level bound
-template <int dim>
-unsigned int Adaptivity<dim>::get_system_design_bound(){
-	unsigned int total_dofs = fem->dof_handler->n_dofs();
-	unsigned int no_hanging_nodes = (fem->hanging_node_constraints).n_constraints();
-	std::cout<<"No. of hanging nodes : "<<no_hanging_nodes<<std::endl;
-	rigid_body_modes = 3;	//hard coded right now for 2d elastostatic problem
-	unsigned int sys_bound = total_dofs - no_hanging_nodes - rigid_body_modes;
-	std::cout<<"System level bound : "<<sys_bound<<std::endl;
-	return sys_bound;
 
-}
 
 //Updating the element level bounds
 template <int dim>
@@ -317,14 +315,15 @@ void Adaptivity<dim>::update_element_design_bound(){
 				unsigned int ng_shape_fn_order;
 				if(cell->at_boundary(iface)) continue;
 				if(cell->neighbor(iface)->active()){
-					unsigned int ng_cell_itr = cell->neighbor(iface)->user_index();
+					unsigned int ng_cell_itr = cell->neighbor(iface)->user_index() - 1;
 					ng_shape_fn_order = (*cell_info_vector)[ng_cell_itr].shape_function_order;
 				}
 
 				//Checking the hanging support point for the current cell
+				//This needs to be updated for 3D, currently not right for 3D
 				unsigned int shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
 				if (shape_fn_order <= ng_shape_fn_order)	continue;
-				design_bound = design_bound - (shape_fn_order - ng_shape_fn_order);
+				design_bound = design_bound - ((pow(shape_fn_order, dim-1) - pow(ng_shape_fn_order, dim-1))*dim);
 			}
 			std::cout<<"cell_itr : "<<design_bound<<std::endl;
 			(*cell_info_vector)[cell_itr].design_bound = design_bound;
@@ -339,12 +338,80 @@ template <int dim>
 void Adaptivity<dim>::dp_coarsening_refinement(){
 
 	unsigned int no_cells = sortedRefineRes.size();
-
 	//Iterate over all the cells
-	unsigned int cell_itr = 0;
 	for (unsigned int i = 0; i < no_cells; ++i){
 
-		cell_itr = sortedRefineRes[i].second;
+		unsigned int cell_itr = sortedRefineRes[i].second;
+		unsigned int current_p_order = (*cell_info_vector)[cell_itr].shape_function_order;
+		unsigned int current_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
+		unsigned int new_p_order, new_no_design;
+		//Coarsening
+		if (fabs(sortedRefineRes[i].first) < -1e-10){
+			new_p_order = (*cell_info_vector)[cell_itr].shape_function_order;
+			new_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
+		}
+		else{
+			if (sortedRefineRes[i].first < 0){
+				if (current_p_order == 1 && current_no_design == 1){
+					new_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
+				}
+				else{
+					new_no_design = pow(floor(sqrt((double)(current_no_design - 1))), 2);	//written for 2D
+					(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
+				}
+			}
+			else if (sortedRefineRes[i].first > 0){
+				new_no_design = pow(ceil(sqrt((double)(current_no_design + 1))), 2);	//written for 2D
+				(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
+			}
+
+			unsigned int min_dofs  = new_no_design + rigid_body_modes;
+			new_p_order = ceil(pow((min_dofs/(double)dim), 1/((double)dim)) - 1);
+			std::cout<<"New p : "<<new_p_order<<"    new_no_design : "<<new_no_design<<std::endl;
+			(*cell_info_vector)[cell_itr].shape_function_order = new_p_order;
+			if (new_p_order <= 0){
+				std::cerr<<"Zero shape function order found in Adaptivity class"<<std::endl;
+				exit(0);
+			}
+			//Interpolate to the new design field for the current cell
+			dp_adap.update_designField(*cell_info_vector,
+					cell_itr,
+					new_no_design);
+		}
 
 	}
+
+
+	//Update shape functions based on analysis error criterion
+
+
+	//Correcting element-level violations
+	std::cout<<"Correcting element level violations ..."<<std::endl;
+	//Updating the shape functions and hanging constraints
+	unsigned int cell_itr = 0;	//Iterator for the triangulation vector
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler->begin_active(),
+			endc = fem->dof_handler->end();
+	for (; cell != endc; ++cell){
+		unsigned int p_index = ((fem->elastic_data)).get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		//cell->set_active_fe_index(p_index);
+
+		++cell_itr;
+	}
+
+	std::cout<<"Repairing the shape functions ..."<<std::endl;
+	dp_adap.correctify_p_order(*fem, *cell_info_vector, rigid_body_modes);
+
+	cell_itr = 0;
+	cell = fem->dof_handler->begin_active(),
+			endc = fem->dof_handler->end();
+	for (; cell != endc; ++cell){
+		std::cout<<"Updated p order : "<<(*cell_info_vector)[cell_itr].shape_function_order<<std::endl;
+		unsigned int p_index = ((fem->elastic_data)).get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		cell->set_active_fe_index(p_index);
+		cell_itr++;
+	}
+	//Correcting system-level violations
+	std::cout<<"Correcting system level violations ..."<<std::endl;
 }
+
+

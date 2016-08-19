@@ -129,13 +129,13 @@ namespace atop{
 
 		//Destructor for the class
 		~FEM();
+		void setup_system();
 
 	private:
 		Vector<double> cells_adjacent_per_node;
 		double projection_radius;
 		void clean_trash();
 		void boundary_info();
-		void setup_system();
 		void assemble_system();
 		void solve();
 		void output_results();

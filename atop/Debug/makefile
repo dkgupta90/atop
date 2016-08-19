@@ -17,6 +17,7 @@ RM := rm -rf
 -include source/derivatives/subdir.mk
 -include source/data_format/subdir.mk
 -include source/TopologyOptimization/constraints/subdir.mk
+-include source/TopologyOptimization/adaptivity/subdir.mk
 -include source/TopologyOptimization/subdir.mk
 -include subdir.mk
 -include objects.mk

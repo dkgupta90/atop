@@ -7,6 +7,8 @@
 
 #include <math.h>
 #include <vector>
+#include <atop/TopologyOptimization/cell_prop.h>
+
 
 namespace atop{
 	template <int dim>
@@ -20,6 +22,10 @@ namespace atop{
 				std::vector<unsigned int>&,
 				unsigned int,
 				unsigned int);
+
+		void update_quadRuleVector(
+				std::vector<unsigned int>&,
+				std::vector<CellInfo>&);
 	};
 
 	template class GaussIntegration<2>;

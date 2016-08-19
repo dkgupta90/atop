@@ -133,6 +133,8 @@ void FEM<dim>::analyze(){
 	itr_count++;	//Iterating the counter for the no. of iterations
 	clean_trash();
 	boundary_info();
+	std::cout<<"Entering FEM::setup_system()"<<std::endl;
+
 	setup_system();
 	assemble_system();
 	//std::cout<<"System assembled"<<std::endl;
@@ -146,37 +148,38 @@ void FEM<dim>::analyze(){
 template <int dim>
 void FEM<dim>::setup_system(){
 
-	std::cout<<"Entered FEM::setup_system()"<<std::endl;
 	//FE mesh
 	dof_handler->distribute_dofs(fe_collection);
+	solution.reinit(dof_handler->n_dofs());
+	system_rhs.reinit(dof_handler->n_dofs());
 	analysis_density_handler->distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
 
 	//Density mesh or design mesh
 	design_handler->distribute_dofs(fe_design_collection);
-
 	//hanging node constraints deal with the hp constraints as well
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(*dof_handler,
 			hanging_node_constraints);
+	std::cout<<"No. of hanging node constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
 	hanging_node_constraints.close();
-
+/*
  	sparsity_pattern.reinit(dof_handler->n_dofs(),
  			dof_handler->n_dofs(),
  			dof_handler->max_couplings_between_dofs());
  	DoFTools::make_sparsity_pattern(*dof_handler,
  			sparsity_pattern);
  	hanging_node_constraints.condense(sparsity_pattern);
- 	sparsity_pattern.compress();
-/*	DynamicSparsityPattern dsp (dof_handler->n_dofs());
+ 	sparsity_pattern.compress();*/
+	DynamicSparsityPattern dsp (dof_handler->n_dofs());
 	DoFTools::make_sparsity_pattern (*dof_handler,
 	                                 dsp,
 	                                 hanging_node_constraints,
 	                                 true);
-	sparsity_pattern.copy_from(dsp);*/
+	sparsity_pattern.copy_from(dsp);
 	system_matrix.reinit(sparsity_pattern);
 
-	solution.reinit(dof_handler->n_dofs());
-	system_rhs.reinit(dof_handler->n_dofs());
+	//solution.reinit(dof_handler->n_dofs());
+	//system_rhs.reinit(dof_handler->n_dofs());
 	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output
 	cells_adjacent_per_node.reinit(analysis_density_handler->n_dofs());	//for normalizing the nodal density value
 
@@ -463,7 +466,6 @@ void FEM<dim>::reset(){
 
 template <int dim>
 void FEM<dim>::initialize_cycle(){
-
 	/**
 	 * Link the cell_info_vector to the FE triangulation
 	 * user_index is 1, 2, 3.......
@@ -494,6 +496,8 @@ void FEM<dim>::initialize_cycle(){
 
 		++cell_itr;
 	}
+	if (cycle > 0)	gauss_int.update_quadRuleVector(current_quad_rule, *cell_info_vector);
+	std::cout<<"Quadrature rule updated "<<std::endl;
 
 	/**
 	 * Link the density_cell_info_vector to the density triangulation
@@ -566,7 +570,6 @@ void FEM<dim>::assembly(){
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
 
-
 	//Iterators for the FE mesh
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
@@ -581,7 +584,6 @@ void FEM<dim>::assembly(){
 			density_endc = design_handler->end();
 
 	for (; cell != endc; ++cell){
-
 		//Getting the q_index for the cell
 		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
@@ -613,14 +615,17 @@ void FEM<dim>::assembly(){
 		add_source_to_rhs(fe_values.get_quadrature_points(),
 				rhs_values);
 
-
 		//Calculating the cell_matrix
 		double total_weight = 0.0; // For setting the density values at the nodes
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 			unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+			//std::cout<<cycle<<" "<<p_index<<" "<<q_index<<" "<<q_point<<std::endl;
 			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+
+			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
 				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
+			//------------------------------------------------------------------------------------------------------
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
 			total_weight += fe_values.JxW(q_point);
@@ -639,13 +644,13 @@ void FEM<dim>::assembly(){
 		}
 
 		cell->get_dof_indices(local_dof_indices);
-/*		 hanging_node_constraints.distribute_local_to_global (cell_matrix,
+		 hanging_node_constraints.distribute_local_to_global (cell_matrix,
 		                                          cell_rhs,
 		                                          local_dof_indices,
 		                                          system_matrix,
-		                                          system_rhs);*/
+		                                          system_rhs);
 
-		for(unsigned int i = 0; i < dofs_per_cell; ++i){
+/*		for(unsigned int i = 0; i < dofs_per_cell; ++i){
 			for(unsigned int j = 0; j < dofs_per_cell; ++j){
 				system_matrix.add(local_dof_indices[i],
 						local_dof_indices[j],
@@ -653,7 +658,7 @@ void FEM<dim>::assembly(){
 			}
 
 			system_rhs(local_dof_indices[i]) += cell_rhs(i);
-		}
+		}*/
 
 		fe_den_cell->get_dof_indices(local_density_indices);
 		for(unsigned int i = 0; i < density_per_fe_cell; ++i){
@@ -671,6 +676,7 @@ void FEM<dim>::assembly(){
 		for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
 			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_values.JxW(qpoint)/total_weight);
 		}
+
 		++fe_den_cell;
 		++density_cell;
 		++cell_itr;
@@ -689,10 +695,10 @@ void FEM<dim>::assembly(){
 	}
 
 
-
 	//Constraining the hanging nodes
-	hanging_node_constraints.condense(system_matrix);
-	hanging_node_constraints.condense(system_rhs);
+	//hanging_node_constraints.condense(system_matrix);
+	//hanging_node_constraints.condense(system_rhs);
+	std::cout<<"No. of hanging constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
 
 	//Applying the boundary conditions
 	std::map<types::global_dof_index, double> boundary_values;
@@ -705,8 +711,10 @@ void FEM<dim>::assembly(){
 			system_matrix,
 			solution,
 			system_rhs);
+
 	//Add point-source function to the right hand side
 	add_point_source_to_rhs();
+
 
 }
 
@@ -810,6 +818,8 @@ void FEM<dim>::clean_trash(){
 	}
 	else{
 		for (unsigned int i = 0; i < cell_info_vector->size(); ++i){
+			(*cell_info_vector)[i].design_points.dxPhys_drho.clear();
+			(*cell_info_vector)[i].design_points.dxPhys_drho.resize((*cell_info_vector)[i].design_points.no_points);
 			for(unsigned int j = 0; j < (*cell_info_vector)[i].design_points.no_points; ++j){
 				(*cell_info_vector)[i].design_points.dxPhys_drho[j] = 0.0;
 			}

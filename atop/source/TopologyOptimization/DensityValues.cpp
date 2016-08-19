@@ -456,7 +456,11 @@ void DensityField<dim>::smoothing(
 		}
 	}
 	else{
+
 		for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
+
+			cell_info_vector[cell_itr].density.clear();
+			cell_info_vector[cell_itr].density.resize(cell_info_vector[cell_itr].n_q_points);
 			for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
 				double xPhys = 0.0;
 				unsigned int cell_itr2, ng_pt_itr;

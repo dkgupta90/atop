@@ -187,6 +187,7 @@ void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
 
 		if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
 			continue;
+		std::cout<<degree<<"  "<<(*running_quadRuleVector)[p_index]<<"   "<<(*current_quadRuleVector)[p_index]<<std::endl;
 		B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
 		JxW[p_index].resize((*current_quadRuleVector)[p_index]);
 		elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);

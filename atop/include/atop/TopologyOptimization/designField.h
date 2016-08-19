@@ -32,6 +32,9 @@ namespace atop{
 				double);
 		void update_field_manual(unsigned int);
 
+		void update_no_points(unsigned int);
+
+
 	};
 }
 

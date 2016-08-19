@@ -33,4 +33,5 @@ source/derivatives \
 source/data_format \
 source/TopologyOptimization \
 source/TopologyOptimization/constraints \
+source/TopologyOptimization/adaptivity \
 
