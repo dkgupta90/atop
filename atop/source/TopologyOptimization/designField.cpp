@@ -143,3 +143,20 @@ void DesignField::update_field_manual(unsigned int ctr){
 
 
 }
+
+void DesignField::update_no_points(unsigned int no_design_points){
+	this->no_points = no_design_points;
+	unsigned int dim = pointX[0].size();
+	rho.clear();
+	pointX.clear();
+	rho.resize(0);
+	pointX.resize(0);
+	rho.resize(no_points);
+	pointX.resize(no_points);
+
+	for (unsigned int i = 0; i < rho.size(); ++i){
+		pointX[i].clear();
+		pointX[i].resize(dim, 0.);
+	}
+
+}

@@ -80,8 +80,8 @@ void Compliance<dim>::compute(
 		dE_values = (*cell_info_vector)[cell_itr].dE_values;
 
 		unsigned int p_index = elastic_data->get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
-
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+			//std::cout<<cell_itr<<"   "<<(*cell_info_vector)[cell_itr].density[q_point]<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
 			FullMatrix<double> normalized_matrix = elastic_data->elem_stiffness_array[p_index][quad_index][q_point];
 
 			double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;//(cellprop[cell_itr].cell_area)/max_cell_area;

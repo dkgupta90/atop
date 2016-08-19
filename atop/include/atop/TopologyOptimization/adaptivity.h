@@ -11,6 +11,7 @@
 #include <atop/fem/fem.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/TopologyOptimization/cell_prop.h>
+#include <atop/TopologyOptimization/adaptivity/dp_adaptivity.h>
 
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/grid/tria.h>
@@ -29,6 +30,8 @@ namespace atop{
 		std::vector<CellInfo> *density_cell_info_vector;
 
 		unsigned int system_design_bound;
+		dpAdaptivity<dim> dp_adap;
+
 		void update(
 				FEM<dim> &obj_fem
 				);
@@ -38,7 +41,6 @@ namespace atop{
 		void coupled_refine_adaptive_grayness();
 		void calc_refinement_res_multires();
 		void update_element_design_bound();
-		unsigned int get_system_design_bound();
 
 		void update_cell_vectors(
 				std::vector<CellInfo> &density_cell_info_vector,
@@ -55,7 +57,6 @@ namespace atop{
 
 		void compute_sortedRefineRes();
 		void dp_coarsening_refinement();
-
 	};
 
 	template class Adaptivity<2>;

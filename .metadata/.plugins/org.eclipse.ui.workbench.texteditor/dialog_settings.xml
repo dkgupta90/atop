@@ -2,9 +2,9 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="310" key="DIALOG_WIDTH"/>
-		<item value="524" key="DIALOG_Y_ORIGIN"/>
+		<item value="365" key="DIALOG_Y_ORIGIN"/>
 		<item value="436" key="DIALOG_HEIGHT"/>
-		<item value="914" key="DIALOG_X_ORIGIN"/>
+		<item value="862" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
@@ -15,14 +15,14 @@
 		<item value="false" key="wholeword"/>
 		<item value="" key="selection"/>
 		<list key="findhistory">
-			<item value="].density."/>
-			<item value="get_dof_indices"/>
-			<item value="Geometry"/>
-			<item value="dof_handler"/>
-			<item value="reinit"/>
-			<item value="mapping"/>
-			<item value="shape_function_order"/>
-			<item value="create_right_hand_side"/>
+			<item value="active_fe"/>
+			<item value="set_user"/>
+			<item value="Reached"/>
+			<item value="update_param"/>
+			<item value="penal"/>
+			<item value="malloc"/>
+			<item value="mallox"/>
+			<item value="get_system_design_bound"/>
 		</list>
 		<list key="replacehistory">
 			<item value="hp::DoFHandler"/>

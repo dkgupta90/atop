@@ -1,0 +1,27 @@
+/*
+ *
+ *  Created on: Aug 14, 2016
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef DP_ADAPTIVITY_H_
+#define DP_ADAPTIVITY_H_
+
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+namespace atop{
+	template <int dim>
+	class dpAdaptivity{
+	public:
+
+		void
+	};
+}
+
+
+
+#endif /* DP_ADAPTIVITY_H_ */

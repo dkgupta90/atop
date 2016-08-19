@@ -1,4 +1,4 @@
-14:45:48 **** Build of configuration Debug for project p-atop ****
+10:59:36 **** Build of configuration Debug for project p-atop ****
 make all 
 Building file: ../p-atop.cpp
 Invoking: Cross G++ Compiler
@@ -140,5 +140,5 @@ g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projec
 Finished building target: p-atop
  
 
-14:45:53 Build Finished (took 4s.163ms)
+10:59:40 Build Finished (took 4s.164ms)
 

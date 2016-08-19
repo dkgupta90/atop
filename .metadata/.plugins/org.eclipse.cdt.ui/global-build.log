@@ -1,8 +1,8 @@
-14:45:47 **** Clean-only build of configuration Debug for project p-atop ****
+10:59:35 **** Clean-only build of configuration Debug for project p-atop ****
 make clean 
 rm -rf  ./p-atop.o  ./p-atop.d  p-atop
  
-14:45:48 **** Build of configuration Debug for project p-atop ****
+10:59:36 **** Build of configuration Debug for project p-atop ****
 make all 
 Building file: ../p-atop.cpp
 Invoking: Cross G++ Compiler
