@@ -47,4 +47,5 @@ double GeneralConstraints<dim>::volumeConstraint(
 
 
 	return (volume - density_field.volfrac);
+
 }

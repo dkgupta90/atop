@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item value="310" key="DIALOG_WIDTH"/>
-		<item value="365" key="DIALOG_Y_ORIGIN"/>
-		<item value="436" key="DIALOG_HEIGHT"/>
-		<item value="862" key="DIALOG_X_ORIGIN"/>
-		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item value="true" key="wrap"/>
 		<item value="false" key="isRegEx"/>
+		<item value="62" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
-		<item value="" key="selection"/>
 		<list key="findhistory">
-			<item value="active_fe"/>
-			<item value="set_user"/>
-			<item value="Reached"/>
-			<item value="update_param"/>
-			<item value="penal"/>
-			<item value="malloc"/>
-			<item value="mallox"/>
-			<item value="get_system_design_bound"/>
+			<item value="44"/>
+			<item value="62"/>
+			<item value="42"/>
+			<item value="set_boundary"/>
+			<item value="nan"/>
+			<item value="Volfrac"/>
+			<item value="Cell para"/>
+			<item value="output"/>
 		</list>
 		<list key="replacehistory">
+			<item value="fem-&gt;"/>
+			<item value="."/>
+			<item value="obj_fem"/>
+			<item value="obj_fem."/>
 			<item value="hp::DoFHandler"/>
 			<item value="Simple_Bar"/>
 			<item value="atop"/>
 		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="312" key="DIALOG_WIDTH"/>
+		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<item value="492" key="DIALOG_HEIGHT"/>
+		<item value="541" key="DIALOG_Y_ORIGIN"/>
+		<item value="1107" key="DIALOG_X_ORIGIN"/>
 	</section>
 </section>

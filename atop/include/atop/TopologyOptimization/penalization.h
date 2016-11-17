@@ -42,6 +42,8 @@ namespace atop{
 				double,
 				std::vector<CellInfo>&);
 
+		double penalized_factor(double xPhys);
+
 	};
 }
 

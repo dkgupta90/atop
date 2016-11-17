@@ -4,19 +4,21 @@
 		<item value="178" key="DIALOG_Y_ORIGIN"/>
 		<item value="606" key="DIALOG_X_ORIGIN"/>
 	</section>
+	<section name="NewWizardAction">
+	</section>
 	<section name="InstallationDialogSettings">
 		<item value="798" key="DIALOG_WIDTH"/>
-		<item value="-316" key="DIALOG_Y_ORIGIN"/>
-		<item value="828" key="DIALOG_HEIGHT"/>
-		<item value="-82" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<item value="828" key="DIALOG_HEIGHT"/>
+		<item value="-297" key="DIALOG_Y_ORIGIN"/>
+		<item value="-82" key="DIALOG_X_ORIGIN"/>
 	</section>
 	<section name="ShowViewDialog">
 		<item value="394" key="DIALOG_WIDTH"/>
-		<item value="244" key="DIALOG_Y_ORIGIN"/>
-		<item value="463" key="DIALOG_HEIGHT"/>
-		<item value="740" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<item value="463" key="DIALOG_HEIGHT"/>
+		<item value="244" key="DIALOG_Y_ORIGIN"/>
+		<item value="740" key="DIALOG_X_ORIGIN"/>
 	</section>
 	<section name="ImportExportAction">
 	</section>

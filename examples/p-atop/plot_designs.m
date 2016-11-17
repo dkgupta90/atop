@@ -1,12 +1,12 @@
 % To visualize all the designs
 clc;
-no_cycles = 3;
+no_cycles = 2;
 no_iter = 150;
 nely  = 4;
 fname = 'design-';
 f = figure('units','normalized','position',[0 0 1 1]);
-for i = 3:1:no_cycles
-    for j = 1:1:9
+for i =  1:1:10%no_cycles
+    for j = 2:1:2
         j
         fid = fopen(['output_design/', fname, num2str(i), '_', num2str(j), '.dat']);
         data = textscan(fid, '%f%f%f');
@@ -26,4 +26,12 @@ for i = 3:1:no_cycles
         ax.YColor = [0.5 0.5 0.5]
         ax.GridAlpha = 1;
     end
+    
+    clc;
+no_cycles = 2;
+no_iter = 150;
+nely  = 4;
+fname = 'design-';
+f = figure('units','normalized','position',[0 0 1 1]);
+    
 end

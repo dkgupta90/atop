@@ -11,14 +11,20 @@
 #include <iostream>
 #include <string>
 #include <atop/fem/define_mesh.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/hp/dof_handler.h>
+#include <deal.II/dofs/dof_accessor.h>
+
 
 namespace atop{
 	class Projection{
 	public:
 		std::string projection_type;
+		std::string adaptivityType;
 		double radius;
 		double gamma;
 		double fact, minFact, maxFact;	//factors for calculating projection radius w.r.t element size
+		unsigned int cycle;
 		//Above it is assumed that elements are square or regular hexahedrons for now.
 
 		/**
@@ -46,7 +52,25 @@ namespace atop{
 				double,
 				double);
 
+		/*
+		 * This constructor is currently specifically tailored for dp-refinement and the projection length is the
+		 * distance between the design points
+		 */
+		Projection(std::string,
+				std::string,
+				double);
+
+		Projection(std::string,
+				std::string,
+				double,
+				double);
+
+		void update_projections(std::vector<CellInfo> &cell_info_vector,
+				hp::DoFHandler<2> &dof_handler);
+
 		~Projection();
+
+
 
 	};
 }

@@ -1,4 +1,4 @@
-11:07:29 **** Build of configuration Debug for project step-1 ****
+17:07:30 **** Build of configuration Debug for project step-1 ****
 make all 
 Building file: ../source/step-1.cpp
 Invoking: Cross G++ Compiler
@@ -141,5 +141,5 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
        ^
 make: *** [source/step-1.o] Error 1
 
-11:07:32 Build Finished (took 3s.12ms)
+17:07:33 Build Finished (took 3s.11ms)
 
