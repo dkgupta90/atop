@@ -127,6 +127,15 @@ namespace atop{
 				DefineMesh<dim> &mesh,
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector);
+
+		void get_xPhys_for_face(std::vector<double> &face_xPhys,
+				hp::FECollection<dim> &temp_fe_coll,
+				hp::QCollection<dim-1> &temp_q_coll,
+				hp::DoFHandler<dim> &dofhandler,
+				std::vector<CellInfo> &cell_info_vector,
+				typename hp::DoFHandler<dim>::active_cell_iterator &cell,
+				unsigned int face_itr);
+
 	private:
 
 		/**
@@ -150,6 +159,7 @@ namespace atop{
 						std::vector<CellInfo>  &cell_info_vector,
 						std::vector<CellInfo> &density_cell_info_vector,
 						double);
+
 
 
 	};

@@ -83,5 +83,55 @@ void OutputData<dim>::write_design(
 		}
 		++cell_itr;
 	}
+	wfile.close();
+}
+
+template <int dim>
+void OutputData<dim>::write_density(std::vector<CellInfo> &design_info_vector,
+		unsigned int cycle,
+		unsigned int itr_count){
+	std::ofstream wfile;
+	std::string filename = "density_";
+	std::stringstream ss;
+	ss<< cycle +1<<"_"<<itr_count+1;
+	filename += ss.str();
+	filename += ".dat";
+	wfile.open("output_design/" + filename, std::ios::out);
+
+	//Writing the no. of density cells into the file
+	wfile<<design_info_vector.size()<<"\n";
+
+	//Writing the densities iteratively
+	for (unsigned int cell_itr = 0; cell_itr < design_info_vector.size(); ++cell_itr){
+		wfile<<design_info_vector[cell_itr].density[0]<<"\n";
+	}
+	wfile.close();
+}
+
+template <int dim>
+void OutputData<dim>::read_xPhys_from_file(std::vector<CellInfo> & cell_info_vector,
+				const std::string &filename){
+
+	std::ifstream rfile;
+	rfile.open(filename, std::ios::in);
+    if (!rfile)  {                     // if it does not work
+		std::cerr << "Can't open Data!\n";
+		exit(0);
+	}
+    unsigned int no_cells;
+	//check if the mesh and the data from the file comply
+	rfile>>no_cells;
+	if (no_cells != cell_info_vector.size()){
+		std::cerr<<" Dimensional mismatch  in OutputData::read_xPhys_from_file\n";
+		exit(0);
+	}
+
+	for (unsigned int i = 0; i < no_cells; ++i){
+		double density;
+		rfile>>density;
+		for (unsigned int qpoint = 0; qpoint < cell_info_vector[i].density.size(); ++qpoint){
+			cell_info_vector[i].density[qpoint] = density;
+		}
+	}
 }
 

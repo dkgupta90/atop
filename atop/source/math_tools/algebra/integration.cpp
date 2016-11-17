@@ -34,7 +34,7 @@ void GaussIntegration<dim>::initialize_quadRuleVector(
 		unsigned int max_el_order,
 		unsigned int initial_no_design){
 
-	//This vector saves the quadRule required for each polynomial order with
+	//This vector saves the quadRule required for each polynomial order with the initial design field chosen
 	quadRuleVector.clear();
 	quadRuleVector.resize(max_el_order);
 	for (unsigned int i = 0; i < quadRuleVector.size(); ++i){
@@ -43,6 +43,12 @@ void GaussIntegration<dim>::initialize_quadRuleVector(
 	}
 }
 
+/*
+ * This function iterates over all the cells and compares the quad rule of each cell to the quad rule stored corresponding
+ * to that polynomial order. If the former is larger, the later is accordingly updated.
+ * Larger quad rules are possible because of the design resolution. Thus, each cell is checked if for certain polynomial order,
+ * a higher quad rule might be needed,
+ */
 template <int dim>
 void GaussIntegration<dim>::update_quadRuleVector(
 		std::vector<unsigned int> &quadRuleVector,

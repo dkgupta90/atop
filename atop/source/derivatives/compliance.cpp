@@ -16,6 +16,7 @@
 #include <atop/math_tools/algebra/MatrixVector.h>
 #include <atop/TopologyOptimization/DensityValues.h>
 #include <iomanip>
+#include <fstream>
 
 using namespace dealii;
 using namespace atop;
@@ -270,13 +271,45 @@ void Compliance<dim>::compute(
 							cell_itr2,
 							ngpt_itr);
 
-					//Adding the dxPhys_dx information into the cell containing this design point
-					(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
+					//Adding the dxPhys_dx information into the cell containing this pseudo-design point
+					//(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
+					(*cell_info_vector)[cell_itr2].pseudo_design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
+
+
+					//Iterating over all the design points of the cell
+					for (unsigned int j = 0; j < (*cell_info_vector)[cell_itr2].pseudo_design_points.dx_drho[ngpt_itr].size(); ++j){
+
+						double dx_drho = (*cell_info_vector)[cell_itr2].pseudo_design_points.dx_drho[ngpt_itr][j];
+						if ((fabs(dx_drho) - 0) < 1e-12)	continue;
+
+
+						(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[j] += (qweights[q_point] * dxPhys_dx * dx_drho);
+
+						double dEfactor = dE_dxPhys * dxPhys_dx * dx_drho;
+						cell_matrix = 0.0;
+						cell_matrix.add(dEfactor,
+								normalized_matrix);
+
+						Vector<double> temp_array(dofs_per_cell);
+						temp_array = 0;
+						Matrix_Vector matvec;
+						matvec.vector_matrix_multiply(
+								cell_array,
+								cell_matrix,
+								temp_array,
+								dofs_per_cell,
+								dofs_per_cell);
+						dobj = matvec.vector_vector_inner_product(
+								temp_array,
+								cell_array);
+						temp_obj_grad[cell_itr2][j] -= dobj;
+
+					}
 
 					//double area_factor = 1; //(*cell_info_vector)[cell_itr].cell_area/density_field->max_cell_area;
 					//(*density_cell_info_vector)[density_cell_itr2].dxPhys[0] += (dxPhys_dx * area_factor);
 
-					double dEfactor = dE_dxPhys * dxPhys_dx;
+/*					double dEfactor = dE_dxPhys * dxPhys_dx;
 					cell_matrix = 0.0;
 					cell_matrix.add(dEfactor,
 							normalized_matrix);
@@ -294,7 +327,7 @@ void Compliance<dim>::compute(
 							temp_array,
 							cell_array);
 					//Adding to the grad vector
-					temp_obj_grad[cell_itr2][ngpt_itr] -= dobj;
+					temp_obj_grad[cell_itr2][ngpt_itr] -= dobj;*/
 				}
 
 			}
@@ -320,5 +353,30 @@ void Compliance<dim>::compute(
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
 	std::cout<<"CPU time for sensitivity analysis: "<<time2<<" seconds"<<std::endl;
+
+	fem->timer->pause();
+	//Add details in the log file
+	std::ofstream wfile;
+	if (fem->itr_count == 0){
+		if (fem->cycle == 0){
+			wfile.open("output/output.log", std::ios::out);
+		}
+		else{
+			wfile.open("output/output.log", std::ios::app);
+
+		}
+		wfile<<"Cycle : "<<fem->cycle+1<<"\n";
+		wfile<<"Total Dofs : "<<(*fem).dof_handler.n_dofs()<<"\n";
+		wfile<<"Constraints : "<<(*fem).hanging_node_constraints.n_constraints()<<"\n";
+		wfile<<"Design count : "<<fem->design_vector->size()<<"\n";
+		wfile<<fem->itr_count+1<<"\t"<<objective<<"\t"<<fem->volfrac<<"\n";
+		wfile.close();
+	}
+	else{
+		wfile.open("output/output.log", std::ios::app);
+		wfile<<fem->itr_count+1<<"\t"<<objective<<"\t"<<fem->volfrac<<"\t"<<(*(fem->cell_info_vector))[0].projection_radius<<"\n";
+		wfile.close();
+	}
+	fem->timer->resume();
 }
 

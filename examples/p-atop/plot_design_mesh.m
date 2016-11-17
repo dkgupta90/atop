@@ -15,7 +15,7 @@ set(gca, 'Units', currentunits);
 
 markerRadius = rhoR./diff(ylim).*axpos(4); % Calculate Marker width in points
 
-set(h, 'SizeData', 4 .* markerRadius .^2);
+set(h, 'SizeData', 2 .* markerRadius .^2);
 
 end
 

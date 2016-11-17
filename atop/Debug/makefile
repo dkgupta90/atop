@@ -13,9 +13,11 @@ RM := rm -rf
 -include source/output/subdir.mk
 -include source/optimizer/subdir.mk
 -include source/math_tools/algebra/subdir.mk
+-include source/fem/ErrorIndicator/subdir.mk
 -include source/fem/subdir.mk
 -include source/derivatives/subdir.mk
 -include source/data_format/subdir.mk
+-include source/additional_tools/subdir.mk
 -include source/TopologyOptimization/constraints/subdir.mk
 -include source/TopologyOptimization/adaptivity/subdir.mk
 -include source/TopologyOptimization/subdir.mk
@@ -23,23 +25,23 @@ RM := rm -rf
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
-ifneq ($(strip $(C++_DEPS)),)
--include $(C++_DEPS)
-endif
-ifneq ($(strip $(C_DEPS)),)
--include $(C_DEPS)
-endif
 ifneq ($(strip $(CC_DEPS)),)
 -include $(CC_DEPS)
 endif
-ifneq ($(strip $(CPP_DEPS)),)
--include $(CPP_DEPS)
+ifneq ($(strip $(C++_DEPS)),)
+-include $(C++_DEPS)
+endif
+ifneq ($(strip $(C_UPPER_DEPS)),)
+-include $(C_UPPER_DEPS)
 endif
 ifneq ($(strip $(CXX_DEPS)),)
 -include $(CXX_DEPS)
 endif
-ifneq ($(strip $(C_UPPER_DEPS)),)
--include $(C_UPPER_DEPS)
+ifneq ($(strip $(C_DEPS)),)
+-include $(C_DEPS)
+endif
+ifneq ($(strip $(CPP_DEPS)),)
+-include $(CPP_DEPS)
 endif
 endif
 
@@ -60,7 +62,7 @@ libatop.a: $(OBJS) $(USER_OBJS)
 
 # Other Targets
 clean:
-	-$(RM) $(C++_DEPS)$(OBJS)$(C_DEPS)$(CC_DEPS)$(ARCHIVES)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) libatop.a
+	-$(RM) $(CC_DEPS)$(C++_DEPS)$(OBJS)$(C_UPPER_DEPS)$(CXX_DEPS)$(ARCHIVES)$(C_DEPS)$(CPP_DEPS) libatop.a
 	-@echo ' '
 
 .PHONY: all clean dependents

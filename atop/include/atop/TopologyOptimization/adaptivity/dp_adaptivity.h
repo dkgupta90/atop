@@ -48,7 +48,41 @@ namespace atop{
 				FEM<dim> &obj_fem,
 				std::vector<CellInfo>&,
 				typename hp::DoFHandler<dim>::active_cell_iterator&);
+
+
+		/**
+		 * This function returns the system level bound excluding the hanging nodes, without the mesh having been updated
+		 */
+		unsigned int get_corrected_system_design_bound(
+				FEM<dim> &obj_fem,
+				std::vector<CellInfo>&);
+
+		void project_design(
+				std::vector<double>&,
+				std::vector<std::vector<double> >&,
+				std::vector<double>&,
+				std::vector<std::vector<double> >&);
+
+		void update_p_order_contrast(
+				FEM<dim> &obj_fem,
+				std::vector<CellInfo>&);
+
+/*
+ * This function reduces the contrast in the number of design variables between adjacent elements.
+ * It ensures that the contrast is not more than d-factor difference of 1 (will be adapted later).
+ * For example, if there are 25 design points in a certain FE, then the neighbors should have a minimum of
+ * 16 design points in a 2D space setting.
+ * Within this function, there is another subroutine which checks if the element is completely void or solid,
+ * and then checks it neighbors for the same. If this condition is satisfied, then the p- and d-orders of that element are not corrected
+ * for the reduction of contrast.
+ */
+		void update_design_contrast(
+				FEM<dim> &obj_fem,
+				std::vector<CellInfo>&,
+				unsigned int);
 	};
+
+
 
 	template class dpAdaptivity<2>;
 }

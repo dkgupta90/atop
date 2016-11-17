@@ -13,7 +13,6 @@
 #include <vector>
 #include <string>
 #include <deal.II/grid/tria.h>
-#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/fe/fe_q.h>
@@ -38,7 +37,9 @@
 #include <atop/fem/boundary_values.h>
 #include <deal.II/hp/fe_values.h>
 #include <deal.II/hp/dof_handler.h>
+#include <deal.II/hp/fe_collection.h>
 #include <atop/math_tools/algebra/integration.h>
+#include <atop/additional_tools/timer.h>
 
 
 using namespace dealii;
@@ -55,16 +56,17 @@ namespace atop{
 
 		//Design vector for optimization purposes
 		std::vector<double> *design_vector;
+		Triangulation<dim> triangulation, analysis_density_triangulation, design_triangulation;
 
 		//DOFHandler objects
-		hp::DoFHandler<dim> *dof_handler, *analysis_density_handler, *design_handler;
+		hp::DoFHandler<dim> dof_handler, analysis_density_handler, design_handler;
 
 		//Triangulation objects
-		Triangulation<dim> *triangulation, *analysis_density_triangulation, *design_triangulation;
 
 		//Objects for cell and density cell properties
 		std::vector<CellInfo> *cell_info_vector;
 		std::vector<CellInfo> *density_cell_info_vector;
+		unsigned int max_design_points_per_cell;	//this is used to decide the uniform resolution of pseudo-design domain
 
 		//Object storing parameters related to the physics of the problem
 		ElasticData elastic_data;
@@ -73,9 +75,13 @@ namespace atop{
 		//NUmerical integration object
 		GaussIntegration<dim> gauss_int;
 
+		//Pointer to Timer object declared in the optimizedesign class
+		Timer *timer;
+
 		//FESystem objects
 		hp::FECollection<dim> fe_collection, fe_analysis_density_collection, fe_design_collection;
 		hp::QCollection<dim> quadrature_collection;
+		hp::QCollection<dim-1> face_quadrature_collection;
 		//Projection object for defining the regularization properties
 		Projection *projection;
 
@@ -91,6 +97,13 @@ namespace atop{
 		Vector<double> solution;
 		Vector<double> system_rhs;
 		Vector<double> nodal_density;
+		Vector<double> nodal_p_order;	//to save the poylnomial order in each element
+		Vector<double> nodal_d_count;	//to save the design distribution
+
+
+		std::map<types::global_dof_index, double> boundary_values;
+
+
 
 		unsigned int cycle, itr_count;
 
@@ -101,20 +114,17 @@ namespace atop{
 
 		//Constructor for initializing the dof_handlers
 		FEM(
-		Triangulation<dim>&,
-		Triangulation<dim>&,
-		Triangulation<dim>&,
-		hp::DoFHandler<dim>&,
-		hp::DoFHandler<dim>&,
-		hp::DoFHandler<dim>&,
 		std::vector<CellInfo>&,
 		std::vector<CellInfo>&,
 		DefineMesh<dim>&,
-		std::vector<double>&);
+		std::vector<double>&,
+		Timer &);
 
 		//Solving the FE problem
 		void analyze();
 
+		void initialize_pseudo_designField();
+		void update_pseudo_designField();
 		void assemble_design();	//Design densities allocated based on the design point that lies inside the element.
 
 
@@ -130,12 +140,12 @@ namespace atop{
 		//Destructor for the class
 		~FEM();
 		void setup_system();
+		void boundary_info();
 
 	private:
 		Vector<double> cells_adjacent_per_node;
 		double projection_radius;
 		void clean_trash();
-		void boundary_info();
 		void assemble_system();
 		void solve();
 		void output_results();
@@ -144,10 +154,13 @@ namespace atop{
 		void update_physics();
 		void assembly();
 
+
 		void add_source_to_rhs(
 				const std::vector<Point<dim> > &,
 				std::vector<Vector<double> > &);
 		void add_point_source_to_rhs();
+
+
 
 	};
 	template class FEM<2>;

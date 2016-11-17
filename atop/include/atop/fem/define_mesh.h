@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 #include <deal.II/grid/tria.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 
 using namespace dealii;
 
@@ -79,7 +79,7 @@ namespace atop{
 		Triangulation<dim>* design_triangulation;
 
 		//DOF Handler object
-		DoFHandler<dim> dof_handler;
+		//hp::DoFHandler<dim> dof_handler;
 
 		//Function for creating the mesh
 		void createMesh(
@@ -90,6 +90,9 @@ namespace atop{
 		void boundary_info();
 
 		unsigned int design_var_per_point();
+
+		void update_outputDesignMesh(Triangulation<dim> &design_triangulation,
+				unsigned int);
 
 	};
 	template class DefineMesh<2>;

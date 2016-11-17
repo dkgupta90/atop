@@ -59,10 +59,7 @@ Optimizedesign<dim>::Optimizedesign(
 		Penalize &obj_penal,
 		Projection &obj_proj,
 		const std::string &obj_algorithm,
-		unsigned int cycles):
-		dof_handler(triangulation),
-		analysis_density_handler(analysis_density_triangulation),
-		design_handler(design_triangulation){
+		unsigned int cycles){
 	this->mesh = &obj_mesh;
 	this->penal = &obj_penal;
 	this->projection = &obj_proj;
@@ -83,25 +80,16 @@ void Optimizedesign<dim>::optimize(){
 	//Changes the string to uppercase for simple comparison
 	std::transform(opt_algorithm.begin(), opt_algorithm.end(),opt_algorithm.begin(), ::toupper);
 
-	//Create the mesh
-	this->mesh->createMesh(
-			triangulation,
-			analysis_density_triangulation,
-			design_triangulation);
+
+	std::cout<<"Launching ATOP..."<<std::endl;
 
 	//Assign the dof handlers and element types
 	obj_fem = new FEM<dim>(
-			triangulation,
-			analysis_density_triangulation,
-			design_triangulation,
-			dof_handler,
-			analysis_density_handler,
-			design_handler,
 			cell_info_vector,
 			density_cell_info_vector,
 			*mesh,
-			design_vector);
-
+			design_vector,
+			timer);
 	//Passing the problem type to the FEM class
 	obj_fem->problemType(*linear_elastic);
 
@@ -115,14 +103,15 @@ void Optimizedesign<dim>::optimize(){
 	obj_fem->penalization(*penal);
 
 	// Generally for uncoupled meshes, these might differ in size
-	cell_info_vector.resize(triangulation.n_active_cells());
-	density_cell_info_vector.resize(design_triangulation.n_active_cells());
+	cell_info_vector.resize(obj_fem->triangulation.n_active_cells());
+	density_cell_info_vector.resize(obj_fem->design_triangulation.n_active_cells());
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
 		std::cout<<"Cycle : "<<cycle + 1 <<std::endl;
 		//Passing the cycle number
 		obj_fem->cycle = cycle;
+		//penal->penal_power = 1.0 + 0.2*cycle;
 
 		flush(); //Flush the storage vectors
 		/**
@@ -183,14 +172,17 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-2;
+			obj_oc.min_obj_change = 1e-2;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
 
+
+		timer.pause();
 		//Creating the final design mesh for the cycle
 		CreateDesign<dim> create_design;
 		create_design.assemble_design(*obj_fem);
+		timer.resume();
 
 		//No refinement in the last cycle, since it is not used further
 		if (cycle == no_cycles - 1)
@@ -211,13 +203,15 @@ void Optimizedesign<dim>::optimize(){
 		//Update the cell_vectors
 		adaptivity.update_cell_vectors(
 				density_cell_info_vector,
-				design_handler,
-				design_triangulation);
+				obj_fem->design_handler,
+				obj_fem->design_triangulation);
 		adaptivity.update_cell_vectors(
 				cell_info_vector,
-				dof_handler,
-				triangulation);
+				obj_fem->dof_handler,
+				obj_fem->triangulation);
 	}
+
+	timer.stop();
 
 
 }
@@ -231,7 +225,7 @@ void Optimizedesign<dim>::run_system(){
 	//Compute the objective and gradients
 	SensitivityAnalysis<dim> obj_sens(problem_name);
 	obj_sens.set_input(
-			dof_handler,
+			obj_fem->dof_handler,
 			cell_info_vector,
 			density_cell_info_vector,
 			*obj_fem);
@@ -280,8 +274,6 @@ double myvfunc(
 		opt_design2d->update_design_vector(opt_design2d->design_vector, x);
 		opt_design2d->run_system();
 		grad = (opt_design2d->grad_vector);
-		for (unsigned int i = 0; i < grad.size(); ++i)
-			//std::cout<<grad[i]<<"  "<<grad.size()<<std::endl;
 		objective = opt_design2d->objective;
 		return objective;
 	}

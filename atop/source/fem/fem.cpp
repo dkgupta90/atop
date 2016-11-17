@@ -33,6 +33,9 @@
 #include <deal.II/hp/dof_handler.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/fe/mapping_q.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/lac/full_matrix.h>
+
 
 #include<vector>
 
@@ -45,24 +48,25 @@ using namespace dealii;
 //Constructor for initialization
 template<int dim>
 FEM<dim>::FEM(
-		Triangulation<dim> &obj_triangulation,
-		Triangulation<dim> &obj_analysis_density_triang,
-		Triangulation<dim> &obj_design_triangulation,
-		hp::DoFHandler<dim> &dof_handler,
-		hp::DoFHandler<dim> &analysis_density_handler,
-		hp::DoFHandler<dim> &design_handler,
-		std::vector<CellInfo> &cell_info_vector,
-		std::vector<CellInfo> &density_cell_info_vector,
+		std::vector<CellInfo> &obj_cell_info_vector,
+		std::vector<CellInfo> &obj_density_cell_info_vector,
 		DefineMesh<dim> &obj_mesh,
-		std::vector<double> &obj_design_vector){
+		std::vector<double> &obj_design_vector,
+		Timer &obj_timer):
+		dof_handler(triangulation),
+		analysis_density_handler(analysis_density_triangulation),
+		design_handler(design_triangulation){
 
-	this->cell_info_vector = &cell_info_vector;
-	this->density_cell_info_vector = &density_cell_info_vector;
+	this->cell_info_vector = &obj_cell_info_vector;
+	this->density_cell_info_vector = &obj_density_cell_info_vector;
 	this->mesh = &obj_mesh;
-	this->dof_handler = &dof_handler;	// for the state field on the analysis
-	this->analysis_density_handler = &analysis_density_handler;	// for the filtered density field
-	this->triangulation = &obj_triangulation;	//for the state field on the analysis
-	this->analysis_density_triangulation = &obj_analysis_density_triang;	//for the filtered density
+	this->timer = &obj_timer;
+
+	//Create the mesh
+	this->mesh->createMesh(
+			triangulation,
+			analysis_density_triangulation,
+			design_triangulation);
 
 	//For Lagrange element
 	if (mesh->elementType == "FE_Q"){
@@ -72,7 +76,7 @@ FEM<dim>::FEM(
 
 	}
 
-	//For Legendre elements
+	//For Legendre elements (not tested yet)
 	if (mesh->elementType == "FE_Q_hierarchical"){
 		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
 			fe_collection.push_back(FESystem<dim>(FE_Q_Hierarchical<dim>(degree), dim));
@@ -80,8 +84,9 @@ FEM<dim>::FEM(
 	}
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order + 11; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+11; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
+		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
 
 	//For density elements assuming they are DGQ type
@@ -93,16 +98,22 @@ FEM<dim>::FEM(
 	}
 
 
-	this->design_handler = &design_handler;	// for the design field
-	this->design_triangulation = &obj_design_triangulation;	// for the design domain
 	this->design_vector = &obj_design_vector;
 
+	unsigned int cell_itr = 0;
 	unsigned int p_index = elastic_data.get_p_index(mesh->initial_el_order);
 	//intializing the type of element for each cell of analysis mesh
-	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
+	for (typename hp::DoFHandler<dim>::active_cell_iterator cell =dof_handler.begin_active();
 			cell != dof_handler.end(); ++cell){
 		cell->set_active_fe_index(p_index);
+/*		if (cell_itr == 5){
+			cell->set_active_fe_index(p_index + 2);
+		}*/
+
+		cell_itr++;
+
 	}
+	//dof_handler.begin_active()->set_active_fe_index(1);
 
 	//intializing the type of element for each cell of analysis density mesh
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = analysis_density_handler.begin_active();
@@ -119,9 +130,7 @@ FEM<dim>::FEM(
 
 template <int dim>
 FEM<dim>::~FEM(){
-	delete dof_handler;
-	delete analysis_density_handler;
-	delete design_handler;
+
 }
 
 //Function that step-by-step solves the FE problem
@@ -130,9 +139,11 @@ void FEM<dim>::analyze(){
 	//std::cout<<"Entered FEM::analyze()"<<std::endl;
 	//Setting up and assembling the Fe system
 
+
+
 	itr_count++;	//Iterating the counter for the no. of iterations
 	clean_trash();
-	boundary_info();
+	//boundary_info();
 	std::cout<<"Entering FEM::setup_system()"<<std::endl;
 
 	setup_system();
@@ -148,40 +159,54 @@ void FEM<dim>::analyze(){
 template <int dim>
 void FEM<dim>::setup_system(){
 
+	boundary_values.clear();
 	//FE mesh
-	dof_handler->distribute_dofs(fe_collection);
-	solution.reinit(dof_handler->n_dofs());
-	system_rhs.reinit(dof_handler->n_dofs());
-	analysis_density_handler->distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
+	dof_handler.distribute_dofs(fe_collection);
+
+	hanging_node_constraints.clear();
+	DoFTools::make_hanging_node_constraints(dof_handler,
+			hanging_node_constraints);
+	boundary_info();
+	//Applying the boundary conditions
+	BoundaryValues<dim> boundary_v;
+
+	VectorTools::interpolate_boundary_values(dof_handler,
+			42,
+			/*ZeroFunction<dim>(),*/boundary_v,
+			boundary_values);
+
+	hanging_node_constraints.close();
+	  std::cout<< "No.of degrees of freedom: " << dof_handler.n_dofs() << "\n";
+	std::cout<<"No. of hanging node constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
+
+	//solution.reinit(dof_handler.n_dofs());
+	//system_rhs.reinit(dof_handler.n_dofs());
+	analysis_density_handler.distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
 
 	//Density mesh or design mesh
-	design_handler->distribute_dofs(fe_design_collection);
-	//hanging node constraints deal with the hp constraints as well
-	hanging_node_constraints.clear();
-	DoFTools::make_hanging_node_constraints(*dof_handler,
-			hanging_node_constraints);
-	std::cout<<"No. of hanging node constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
-	hanging_node_constraints.close();
-/*
- 	sparsity_pattern.reinit(dof_handler->n_dofs(),
+	design_handler.distribute_dofs(fe_design_collection);
+
+/* 	sparsity_pattern.reinit(dof_handler->n_dofs(),
  			dof_handler->n_dofs(),
  			dof_handler->max_couplings_between_dofs());
  	DoFTools::make_sparsity_pattern(*dof_handler,
  			sparsity_pattern);
  	hanging_node_constraints.condense(sparsity_pattern);
  	sparsity_pattern.compress();*/
-	DynamicSparsityPattern dsp (dof_handler->n_dofs());
-	DoFTools::make_sparsity_pattern (*dof_handler,
+	DynamicSparsityPattern dsp (dof_handler.n_dofs());
+	DoFTools::make_sparsity_pattern (dof_handler,
 	                                 dsp,
 	                                 hanging_node_constraints,
-	                                 true);
+	                                 false);
 	sparsity_pattern.copy_from(dsp);
 	system_matrix.reinit(sparsity_pattern);
 
-	//solution.reinit(dof_handler->n_dofs());
-	//system_rhs.reinit(dof_handler->n_dofs());
-	nodal_density.reinit(analysis_density_handler->n_dofs());	//filtered densities for the output
-	cells_adjacent_per_node.reinit(analysis_density_handler->n_dofs());	//for normalizing the nodal density value
+	solution.reinit(dof_handler.n_dofs());
+	system_rhs.reinit(dof_handler.n_dofs());
+	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for the output
+	nodal_p_order.reinit(analysis_density_handler.n_dofs());
+	cells_adjacent_per_node.reinit(analysis_density_handler.n_dofs());	//for normalizing the nodal density value
+	nodal_d_count.reinit(analysis_density_handler.n_dofs());
 
 
 
@@ -200,8 +225,14 @@ void FEM<dim>::assemble_system(){
 		reset();	//Initializes the variables and vectors
 	}
 
-	//updating the density_cell_info vector with the new design
-	if (itr_count != -1){
+
+/*
+ * At every iteration, the content of design_vector needs to be copied into the
+ * cell_info_vector.
+ * For first iteration of every cycle from 2 to n, adaptive refinement might take place.
+ * The updated content is in cell_info_vector, thus in this step, we do not perform this step.
+ */
+	if (!(cycle > 0  && itr_count == 0)){
 		//Update the density_cell_info_vector
 		if (mesh->coupling == false && mesh->adaptivityType != "movingdesignpoints"){
 			density_field.update_density_cell_info_vector(
@@ -232,15 +263,21 @@ void FEM<dim>::assemble_system(){
 					*cell_info_vector,
 					*density_cell_info_vector,
 					hp_fe_values,
-					*dof_handler);
+					dof_handler);
 		}
 	}
+
+	//update the pseudo-design field
+    update_pseudo_designField();
 
 	//Apply smoothing operation on the density values
 	density_field.smoothing(*cell_info_vector,
 			*density_cell_info_vector,
 			*mesh);
 	std::cout<<"Smoothing done"<<std::endl;
+/*	OutputData<dim> out_soln;
+	out_soln.read_xPhys_from_file(*cell_info_vector,
+			"output_design/density_5_11.dat");*/
 
 	//Updating the physics of the problem
 	update_physics();
@@ -320,8 +357,8 @@ void FEM<dim>::output_results(){
 		Assert(false, ExcNotImplemented);
 	}
 	OutputData<dim> out_soln;
-	out_soln.write_fe_solution(filename, *dof_handler,
-			solution, solution_names);
+	out_soln.write_fe_solution(filename, dof_handler,
+			system_rhs, solution_names);
 
 	//Writing the density solution
 	filename = "density-";
@@ -330,8 +367,28 @@ void FEM<dim>::output_results(){
 	std::vector<std::string> density_names;
 	density_names.clear();
 	density_names.push_back("density");
-	out_soln.write_fe_solution(filename, *analysis_density_handler,
+	out_soln.write_fe_solution(filename, analysis_density_handler,
 			nodal_density, density_names);
+
+	//Writing the shape order
+	if (itr_count == 1){
+		filename = "shape-";
+		filename += ss.str();
+		filename += ".vtk";
+		std::vector<std::string> density_names;
+		density_names.clear();
+		density_names.push_back("p-order");
+		out_soln.write_fe_solution(filename, analysis_density_handler,
+				nodal_p_order, density_names);
+
+		filename = "d_count-";
+		filename += ss.str();
+		filename += ".vtk";
+		density_names.clear();
+		density_names.push_back("d-count");
+		out_soln.write_fe_solution(filename, analysis_density_handler,
+				nodal_d_count, density_names);
+	}
 
 	//std::cout<<"Output written"<<std::endl;
 
@@ -347,7 +404,7 @@ void FEM<dim>::output_results(){
 	}
 	else{
 		out_soln.write_design(filename,
-				*dof_handler,
+				dof_handler,
 				*cell_info_vector);
 	}
 
@@ -370,11 +427,12 @@ void FEM<dim>::reset(){
 	/**
 	 * Initialize the cell parameters for all the FE cells, will be updated in initialize function
 	 */
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active();
 	for(std::vector<CellInfo>::iterator cell_info_itr = cell_info_vector->begin();
 			cell_info_itr != cell_info_vector->end();
 			++cell_info_itr){
 		(*cell_info_itr).dim = dim;
-		(*cell_info_itr).shape_function_order = mesh->initial_el_order;
+		(*cell_info_itr).shape_function_order = cell->active_fe_index() + 1;
 		unsigned int q_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
 		(*cell_info_itr).quad_rule = current_quad_rule[q_index];
 		QGauss<dim> temp_quad(current_quad_rule[q_index]);
@@ -386,8 +444,16 @@ void FEM<dim>::reset(){
 		if(mesh->coupling == false && mesh->adaptivityType == "adaptive_grayness"){
 			(*cell_info_itr).design_points.no_points = mesh->initial_dcount_per_el;
 			(*cell_info_itr).design_points.initialize_field(dim, mesh->initial_dcount_per_el, 1, volfrac);
+
+			//here, we assume that the initial design mesh is uniform, so psuedo_design mesh is kept the same
+			(*cell_info_itr).pseudo_design_points.no_points = mesh->initial_dcount_per_el;
+			(*cell_info_itr).pseudo_design_points.initialize_field(dim, mesh->initial_dcount_per_el, 1, volfrac);
 		}
+
+		cell++;
 	}
+	max_design_points_per_cell = mesh->initial_dcount_per_el;	//initialized, will be updated at every cycle of refinement
+
 
 	//Initialize the density cell parameters for all the density cells
 	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
@@ -402,6 +468,9 @@ void FEM<dim>::reset(){
 			//Setting the density quad rule to 1
 			(*design_point_info_itr).density.resize(1);
 			(*design_point_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
+
+
+
 			(*design_point_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
 
 			//Adding the position of the design point
@@ -427,15 +496,12 @@ void FEM<dim>::reset(){
 		}
 	}
 
-
-
-
 	/**
 	 * Link the cell_info_vector to the FE triangulation
 	 * user_index is 1, 2, 3.......
 	 */
-	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
-			endc = dof_handler->end();
+	cell = dof_handler.begin_active();
+	typename hp::DoFHandler<dim>::active_cell_iterator endc = dof_handler.end();
 	unsigned int cell_itr = 0;
 	for(; cell != endc; ++cell){
 		cell->set_user_index(cell_itr + 1);
@@ -448,8 +514,8 @@ void FEM<dim>::reset(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
-			density_endc = design_handler->end();
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
+			density_endc = design_handler.end();
 	unsigned int density_cell_itr = 0;
 	for(; density_cell != density_endc; ++density_cell){
 		density_cell->set_user_index(density_cell_itr + 1);
@@ -459,7 +525,7 @@ void FEM<dim>::reset(){
 
 	// These parameters are currently defined assuming that the final density is also represented on the analysis mesh
 	density_field.max_cell_area = (*cell_info_vector)[0].cell_area;
-	density_field.initial_no_cells = triangulation->n_active_cells();
+	density_field.initial_no_cells = triangulation.n_active_cells();
 	density_field.volfrac = volfrac;
 
 }
@@ -473,6 +539,9 @@ void FEM<dim>::initialize_cycle(){
 
 	std::cout<<"Initializing the cycle "<<std::endl;
 
+	//Initializing the pseudo-design field parameters
+	initialize_pseudo_designField();
+
 	//Updating the hp_fe_values
 	hp::FEValues<dim> hp_fe_values(fe_collection,
 				quadrature_collection,
@@ -480,14 +549,14 @@ void FEM<dim>::initialize_cycle(){
 				update_quadrature_points | update_JxW_values);
 
 	//Updating the cell area and quadrature index for each cell
-	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
-			endc = dof_handler->end();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
 	unsigned int cell_itr = 0;
 	GaussIntegration<dim> gauss_int;
 	for(; cell != endc; ++cell){
 		cell->set_user_index(cell_itr + 1);
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
-		unsigned int p_degree = cell->active_fe_index() + 1;
+		unsigned int p_degree = (*cell_info_vector)[cell_itr].shape_function_order;
 		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
 				(*cell_info_vector)[cell_itr].design_points.no_points,
 				p_degree);
@@ -503,15 +572,24 @@ void FEM<dim>::initialize_cycle(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
-			density_endc = design_handler->end();
+	std::cout<<"reached here 01"<<std::endl;
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
+			density_endc = design_handler.end();
 	unsigned int density_cell_itr = 0;
-	for(; density_cell != density_endc; ++density_cell){
-		density_cell->set_user_index(density_cell_itr + 1);
-		(*density_cell_info_vector)[density_cell_itr].cell_area = density_cell->measure();
-		++density_cell_itr;
-	}
 
+/*	for(; density_cell != density_endc; ++density_cell){
+		std::cout<<"reached here 03"<<std::endl;
+
+		density_cell->set_user_index(density_cell_itr + 1);
+		std::cout<<"reached here 04"<<std::endl;
+
+		(*density_cell_info_vector)[density_cell_itr].cell_area = density_cell->measure();
+		std::cout<<"reached here 05"<<std::endl;
+
+		++density_cell_itr;
+	}*/
+
+	std::cout<<"Updating the design vector here"<<std::endl;
 	density_field.update_design_vector(*cell_info_vector,
 			*density_cell_info_vector,
 			*design_vector,
@@ -521,21 +599,28 @@ void FEM<dim>::initialize_cycle(){
 			*projection);
 	double time1 = clock();
 
-	std::cout<<"Looking for neighbours;   ";
+	timer->pause();
+	std::cout<<"Looking for neighbours..."<<std::endl;
 
 	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
 		density_field.create_neighbors(
 				*cell_info_vector,
 				*density_cell_info_vector,
 				hp_fe_values,
-				*dof_handler);
+				dof_handler);
 	}
 	else{
+
+		//Update thye filter radii
+		projection->cycle = cycle;
+		projection->update_projections(*cell_info_vector,
+				dof_handler);
+		std::cout<<"Projections updated "<<std::endl;
 		density_field.create_neighbors(
 				*cell_info_vector,
 				hp_fe_values,
-				*dof_handler,
-				*design_handler,
+				dof_handler,
+				design_handler,
 				*projection,
 				*mesh);
 	}
@@ -543,7 +628,50 @@ void FEM<dim>::initialize_cycle(){
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
 	std::cout<<"Neighbours' indices stored : time taken = "<<time2<<" seconds"<<std::endl;
+	timer->resume();
 
+}
+
+template <int dim>
+void FEM<dim>::initialize_pseudo_designField(){
+
+
+	//Updating the max_design_points_per_cell parameter
+
+	if (cycle >= 0){
+
+		//Finding the resolution of the design mesh
+		unsigned temp_max_design = 0;
+		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+			if ((*cell_info_vector)[i].design_points.no_points > temp_max_design)
+				temp_max_design = (*cell_info_vector)[i].design_points.no_points;
+		}
+
+		//temp_max_design = 100;
+		max_design_points_per_cell = temp_max_design;
+
+		//Updating the distribution and number of design points per cell
+		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+			(*cell_info_vector)[i].pseudo_design_points.no_points = temp_max_design;
+			(*cell_info_vector)[i].pseudo_design_points.initialize_field(dim, temp_max_design, 1, volfrac);
+
+		}
+	}
+
+	//Updating the weights for projection from design mesh to pseudo-design mesh
+	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designWeights(max_design_points_per_cell,
+				(*cell_info_vector)[i].design_points.pointX,
+				(*cell_info_vector)[i].cell_area);
+	}
+}
+
+template <int dim>
+void FEM<dim>::update_pseudo_designField(){
+	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designField(
+				(*cell_info_vector)[i].design_points.rho);
+	}
 }
 
 template <int dim>
@@ -553,7 +681,7 @@ void FEM<dim>::update_physics(){
 	if(linear_elastic){
 		elastic_data.update_elastic_matrices(fe_collection,
 				quadrature_collection,
-				*dof_handler);
+				dof_handler);
 	}
 }
 
@@ -565,37 +693,49 @@ void FEM<dim>::assembly(){
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
 
+	hp::FEFaceValues<dim> hp_fe_face_values(fe_collection,
+				face_quadrature_collection,
+				update_values | update_gradients |
+				update_quadrature_points | update_JxW_values);
+
 	hp::FEValues<dim> hp_fe_analysis_density_values(fe_analysis_density_collection,
 				quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
 
 	//Iterators for the FE mesh
-	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
-			endc = dof_handler->end();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
 	unsigned int cell_itr = 0;
 
 	//Iterator for density points on the FE mesh
-	typename hp::DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler->begin_active(),
-			fe_den_endc = analysis_density_handler->end();
+	typename hp::DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler.begin_active(),
+			fe_den_endc = analysis_density_handler.end();
 
 	//Iterators for the density mesh
-	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler->begin_active(),
-			density_endc = design_handler->end();
+	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
+			density_endc = design_handler.end();
+
 
 	for (; cell != endc; ++cell){
+		//std::cout<<cell_itr<<std::endl;
 		//Getting the q_index for the cell
 		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
 		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
-		hp_fe_analysis_density_values.reinit(fe_den_cell, 0);
-		const FEValues<dim> &fe_analysis_density_values = hp_fe_analysis_density_values.get_present_fe_values();
+		//hp_fe_analysis_density_values.reinit(fe_den_cell, 0);
+		//const FEValues<dim> &fe_analysis_density_values = hp_fe_analysis_density_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		(*cell_info_vector)[cell_itr].dofs_per_cell = dofs_per_cell;
+
+		//		std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<dofs_per_cell<<std::endl;
+
+
 		const unsigned int density_per_fe_cell = fe_den_cell->get_fe().dofs_per_cell;
 
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+		normalized_matrix = 0;
 
 		Vector<double> cell_rhs(dofs_per_cell);
 		Vector<double> cell_density(density_per_fe_cell);
@@ -606,31 +746,61 @@ void FEM<dim>::assembly(){
 		cell_matrix = 0;
 		cell_rhs = 0;
 		cell_density = 0;
-		QGauss<dim> quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
-		unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
+		//QGauss<dim> quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
+		//unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
+		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
+		QGauss<dim-1> face_quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
+		unsigned int n_face_q_points = face_quadrature_formula.size();
 
 		//Add source function to the right hand side
 		std::vector<Vector<double>> rhs_values(n_q_points,
 				Vector<double>(dim));
-		add_source_to_rhs(fe_values.get_quadrature_points(),
-				rhs_values);
+/*		add_source_to_rhs(fe_values.get_quadrature_points(),
+				rhs_values);*/
 
 		//Calculating the cell_matrix
 		double total_weight = 0.0; // For setting the density values at the nodes
-		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
-			unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
-			//std::cout<<cycle<<" "<<p_index<<" "<<q_index<<" "<<q_point<<std::endl;
-			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+		unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
 
+
+		//std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<n_q_points<<std::endl;
+
+/*		FullMatrix<double> D_matrix(3, 3);
+		FullMatrix<double> B_matrix(3, dofs_per_cell);
+		double JxW;
+		ElasticTools elastic_tool;
+
+		elastic_tool.get_D_plane_stress2D(D_matrix,
+				0.3);*/
+
+		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+
+			normalized_matrix = 0;
+
+/*			elastic_tool.get_point_B_matrix_2D(B_matrix,  JxW,
+					cell, hp_fe_values, q_index, q_point);*/
+
+			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+/*			normalized_matrix.triple_product(D_matrix,
+					B_matrix,
+					B_matrix,
+					true,
+					false,
+					JxW);*/
+			//std::cout<<q_point<<std::endl;
+
+			//if (cell_itr == 6)   normalized_matrix.print(std::cout);
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
 				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
 			//------------------------------------------------------------------------------------------------------
+
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
 			total_weight += fe_values.JxW(q_point);
 			//std::cout<<fe_values.JxW(q_point)<<std::endl;
 		}
+
 		//std::cout<<total_weight<<std::endl;
 
 		//Calculating cell_rhs
@@ -643,12 +813,34 @@ void FEM<dim>::assembly(){
 			}
 		}
 
+		//Adding distributed load on the edge
+        for (unsigned int face_number=0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
+          if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 62)){
+              hp_fe_face_values.reinit (cell, face_number, q_index);
+              const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+              for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
+                {
+                  for (unsigned int i=0; i<dofs_per_cell; ++i){
+                	  std::vector<double> distLoad = {0.0, 0.5};
+          			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
+                    cell_rhs(i) += (distLoad[component_i] *
+                                   fe_face_values.shape_value(i,q_point) *
+                                    fe_face_values.JxW(q_point));
+                  }
+                	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
+
+                }
+            }
+
+        }
 		cell->get_dof_indices(local_dof_indices);
 		 hanging_node_constraints.distribute_local_to_global (cell_matrix,
 		                                          cell_rhs,
 		                                          local_dof_indices,
 		                                          system_matrix,
 		                                          system_rhs);
+
+
 
 /*		for(unsigned int i = 0; i < dofs_per_cell; ++i){
 			for(unsigned int j = 0; j < dofs_per_cell; ++j){
@@ -667,6 +859,9 @@ void FEM<dim>::assembly(){
 						(fe_values.JxW(q_point)/total_weight);
 			}
 			nodal_density(local_density_indices[i]) += cell_density(i);
+			nodal_p_order(local_density_indices[i]) += (*cell_info_vector)[cell_itr].shape_function_order;
+			nodal_d_count(local_density_indices[i]) += (*cell_info_vector)[cell_itr].design_points.no_points;
+
 			cells_adjacent_per_node(local_density_indices[i]) += 1;
 		}
 
@@ -682,6 +877,13 @@ void FEM<dim>::assembly(){
 		++cell_itr;
 	}
 
+	//Add point-source function to the right hand side
+	add_point_source_to_rhs();
+
+
+	double volfrac = density_field.get_vol_fraction(*cell_info_vector);
+	std::cout<<"Volfrac : "<<volfrac<<std::endl;
+
 
 	//Normalizing the nodal density vector
 	for(unsigned int i = 0; i < nodal_density.size(); ++i){
@@ -691,6 +893,9 @@ void FEM<dim>::assembly(){
 		}
 		else{
 			nodal_density(i) /= denom;
+			nodal_p_order(i) /= denom;
+			nodal_d_count(i) /= denom;
+
 		}
 	}
 
@@ -698,22 +903,12 @@ void FEM<dim>::assembly(){
 	//Constraining the hanging nodes
 	//hanging_node_constraints.condense(system_matrix);
 	//hanging_node_constraints.condense(system_rhs);
-	std::cout<<"No. of hanging constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
 
-	//Applying the boundary conditions
-	std::map<types::global_dof_index, double> boundary_values;
-	BoundaryValues<dim> boundary_v;
-	VectorTools::interpolate_boundary_values(*dof_handler,
-			42,
-			boundary_v,
-			boundary_values);
 	MatrixTools::apply_boundary_values(boundary_values,
 			system_matrix,
 			solution,
 			system_rhs);
 
-	//Add point-source function to the right hand side
-	add_point_source_to_rhs();
 
 
 }
@@ -759,22 +954,24 @@ void FEM<dim>::add_point_source_to_rhs(){
 			ldp(i) = load_point[i];
 			ld(i) = load[i];
 		}
-		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
-				endc = dof_handler->end();
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
 		for (; cell != endc; ++cell){
 			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 			std::vector<types::global_dof_index> global_dof_indices(dofs_per_cell);
 			cell->get_dof_indices(global_dof_indices);
 			for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_cell; ++v){
 				if (fabs(cell->vertex(v)[0] - ldp[0]) < 1e-12 && fabs(cell->vertex(v)[1] - ldp[1]) < 1e-12){
-					system_rhs[global_dof_indices[dim*v]] = ld[0];
-					system_rhs[global_dof_indices[dim*v + 1]] = ld[1];
+					system_rhs(cell->vertex_dof_index(v-1, 1)) = 0;
+					system_rhs(cell->vertex_dof_index(v-1, 2)) = 1;
+					//system_rhs[global_dof_indices[dim*v]] = ld[0];
+					//system_rhs[global_dof_indices[dim*v + 1]] = ld[1];
 				}
 			}
 		}
 /*		hp::MappingCollection<dim> mapping;
 		mapping.push_back(MappingQ<dim>(1));
-		VectorTools::create_point_source_vector(mapping, *dof_handler, ldp, ld, system_rhs);*/
+		VectorTools::create_point_source_vector(mapping, dof_handler, ldp, ld, system_rhs);*/
 
 	}
 }
@@ -783,8 +980,8 @@ void FEM<dim>::add_point_source_to_rhs(){
 template <int dim>
 void FEM<dim>::boundary_info(){
 	for (typename Triangulation<dim>::active_cell_iterator
-			cell = triangulation->begin();
-			cell != triangulation->end();
+			cell = triangulation.begin();
+			cell != triangulation.end();
 			++cell ){
 		for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
 			Point<dim> point1 = cell->face(f)->center();
@@ -793,7 +990,8 @@ void FEM<dim>::boundary_info(){
 				x[i] = point1(i);
 			}
 			unsigned int indic = mesh->boundary_indicator(x);
-			cell->face(f)->set_boundary_indicator(indic);
+			if (indic == 9999)	continue;
+			cell->face(f)->set_boundary_id(indic);
 
 		}
 	}
@@ -802,10 +1000,12 @@ void FEM<dim>::boundary_info(){
 template <int dim>
 void FEM<dim>::clean_trash(){
 	system_matrix.clear();
-	solution = 0;
 	system_rhs = 0;
 	nodal_density = 0;
+	nodal_p_order = 0;
+	nodal_d_count = 0;
 	cells_adjacent_per_node = 0;
+	solution = 0;
 
 	if (mesh->coupling == true || mesh->adaptivityType == "movingdesignpoints"){
 		unsigned int no_des_per_point = mesh->design_var_per_point();
@@ -820,19 +1020,20 @@ void FEM<dim>::clean_trash(){
 		for (unsigned int i = 0; i < cell_info_vector->size(); ++i){
 			(*cell_info_vector)[i].design_points.dxPhys_drho.clear();
 			(*cell_info_vector)[i].design_points.dxPhys_drho.resize((*cell_info_vector)[i].design_points.no_points);
+
 			for(unsigned int j = 0; j < (*cell_info_vector)[i].design_points.no_points; ++j){
 				(*cell_info_vector)[i].design_points.dxPhys_drho[j] = 0.0;
 			}
+
+			(*cell_info_vector)[i].refine_coarsen_flag = 0;
 		}
 	}
+
+	boundary_values.clear();
 	std::cout<<"Trash cleaned "<<std::endl;
 
 }
 
-
-//This function is called at the end of each cycle to save the decoupled design
-//This is an expensive function evaluation and will affect the performance
-//Thus, it should only be used when the design is needed.
 
 
 

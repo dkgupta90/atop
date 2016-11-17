@@ -8,9 +8,11 @@
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/fem/define_mesh.h>
 #include <math.h>
-#include <deal.II/dofs/dof_handler.h>
+#include <deal.II/hp/dof_handler.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <math.h>
 
 using namespace atop;
 
@@ -44,4 +46,48 @@ Projection::Projection(
 	this->fact = r;	//factor for current radius
 	this->minFact = minR;	//factor for minimum projection
 	this->maxFact = maxR;	//factor for maximum projection
+}
+
+Projection::Projection(
+		std::string type,
+		std::string adaptivity_Type,
+		double r){
+	projection_type = type;
+	adaptivityType = adaptivity_Type;
+	radius = r;
+}
+
+Projection::Projection(
+		std::string type,
+		std::string adaptivity_Type,
+		double r,
+		double g){
+	projection_type = type;
+	adaptivityType = adaptivity_Type;
+	radius = r;
+	gamma = g;
+}
+
+void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
+		hp::DoFHandler<2> &dof_handler){
+
+	//Iterating over all the cells
+	typename hp::DoFHandler<2>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
+	unsigned int cell_itr = 0;
+
+	for (; cell != endc; ++cell){
+
+
+/*		double cell_len = sqrt(cell->measure());
+		double voxel_len = cell_len / (sqrt(cell_info_vector[cell_itr].design_points.no_points));
+		cell_info_vector[cell_itr].projection_radius = voxel_len * radius;*/
+
+
+		double d_factor = round((sqrt(cell_info_vector[cell_itr].pseudo_design_points.no_points)));
+		cell_info_vector[cell_itr].projection_radius = /*(radius/(cycle+1)) * pow(gamma, cycle);// */
+														/*0.015;*/ (radius/d_factor) * pow(gamma, d_factor-1);
+		cell_itr++;
+	}
+
 }

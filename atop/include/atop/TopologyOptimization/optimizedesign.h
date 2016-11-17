@@ -30,14 +30,9 @@ template <int dim>
 	class Optimizedesign{
 	public:
 
-	Triangulation<dim> triangulation;	//Used to store the analysis information (vector dofs at each node)
-	Triangulation<dim> analysis_density_triangulation; //Used to represent the filtered density field
-	Triangulation<dim> design_triangulation;	// Used to store the design densities
-
 	// dof_handler connects to triangulation
 	// density_handler connects to fe_density_triangulation
 	// density_dof_handler connects to density_triangulation
-	hp::DoFHandler<dim> dof_handler, analysis_density_handler, design_handler;
 
 	std::vector<CellInfo> cell_info_vector;	//stores the information related to each analysis cell
 	std::vector<CellInfo> density_cell_info_vector;	//stores information related to each cell on design mesh
@@ -64,6 +59,9 @@ template <int dim>
 
 	//Object of general constraints class
 	GeneralConstraints<dim> vol_constraint;
+
+	//Object of Timer class for performance evlation
+	Timer timer;
 
 	//Optimization related parameters
 	std::vector<double> design_vector;

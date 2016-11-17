@@ -100,16 +100,20 @@ namespace atop{
 		std::vector< std::vector<double> > neighbour_distance;
 		std::vector< std::vector<double> > neighbour_weights;
 		std::vector<std::vector<double> > neighbour_cell_area;
+		std::vector<std::vector<double> > neighbour_cell_area_fraction;
+
 		std::vector<double> sum_weights;
 
 		std::vector<double> density_weights; //saves the weight times area for the integration point
 
 		std::vector<double> dxPhys;	//To be used only in density_cell_info_vector
 		double cell_area;
+		double cell_area_fraction;
 
 		double cell_density;	//To be used for computing material volume fraction
 
 		DesignField design_points;
+		DesignField pseudo_design_points;	//The uniform mesh to avoid strange curves at the corners
 		//CellInfo();
 
 	};

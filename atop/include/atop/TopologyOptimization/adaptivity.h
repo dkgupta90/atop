@@ -49,6 +49,8 @@ namespace atop{
 
 		void execute_coarsen_refine();
 
+		void increase_decrease_p_order();
+
 	private:
 
 		unsigned int rigid_body_modes;

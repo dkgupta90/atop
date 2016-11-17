@@ -10,16 +10,21 @@ source/fem/output.d: ../source/fem/output.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/exceptions.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/data_out_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/point.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/table_indices.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/iterator.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_accessors.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/utilities.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_deprecated.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/table.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/memory_consumption.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/shared_ptr.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/type_traits.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/utilities.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/parallel.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/synchronous_iterator.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/tuple.h \
@@ -52,16 +57,21 @@ source/fem/output.d: ../source/fem/output.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h \
- /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/distributed/tria_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/function.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/../std_cxx11/function.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/../std_cxx11/tuple.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/array.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/array_view.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_update_flags.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/full_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/exceptions.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/identity_matrix.h \
@@ -79,15 +89,8 @@ source/fem/output.d: ../source/fem/output.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_product_polynomials.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/polynomial.h \
@@ -97,7 +100,13 @@ source/fem/output.d: ../source/fem/output.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h \
- /home/dkgupta/bin/deal.II/include/deal.II/grid/manifold.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function.h \
@@ -127,11 +136,23 @@ source/fem/output.d: ../source/fem/output.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/tensor_base.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/table_indices.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/iterator.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor_accessors.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/utilities.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor_deprecated.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/table.h:
 
@@ -139,13 +160,11 @@ source/fem/output.d: ../source/fem/output.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/shared_ptr.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h:
-
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/type_traits.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/utilities.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/mpi.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/aligned_vector.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/parallel.h:
 
@@ -211,15 +230,23 @@ source/fem/output.d: ../source/fem/output.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/distributed/tria.h:
+/home/dkgupta/bin/deal.II/include/deal.II/distributed/tria_base.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/function.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/../std_cxx11/function.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/tuple.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx1x/../std_cxx11/tuple.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/derivative_form.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/array.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/array_view.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_update_flags.h:
 
@@ -230,6 +257,8 @@ source/fem/output.d: ../source/fem/output.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_base.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/vector_slice.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/full_matrix.h:
 
@@ -265,23 +294,9 @@ source/fem/output.d: ../source/fem/output.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/unique_ptr.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h:
 
@@ -301,7 +316,19 @@ source/fem/output.d: ../source/fem/output.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/grid/manifold.h:
+/home/dkgupta/bin/deal.II/include/deal.II/hp/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
 

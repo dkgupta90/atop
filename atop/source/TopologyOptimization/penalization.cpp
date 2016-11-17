@@ -71,3 +71,19 @@ void Penalize::update_param(
 	}
 }
 
+double Penalize::penalized_factor(double xPhys){
+
+	double E0 = 1.0;
+	double Emin = E0 * factmin;
+
+	if (scheme == "SIMP"){
+		double Evalue = (Emin + (E0 - Emin)*(pow(xPhys, penal_power)));
+		return Evalue;
+	}
+	else if (scheme == "RAMP"){
+			double denom = 1 + (penal_power * (1 - xPhys));
+			double Evalue = Emin + (xPhys / denom) * (E0 - Emin);
+			return Evalue;
+	}
+}
+

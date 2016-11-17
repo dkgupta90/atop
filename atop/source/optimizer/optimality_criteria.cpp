@@ -62,9 +62,12 @@ void OC::optimize(
 				*(opt_design2d->mesh)
 				);
 
-
-
 		double l1 = 1e-5, l2 = 100000000, move = 0.2;
+/*		if (opt_design2d->obj_fem->itr_count == 57 && opt_design2d->cycle == 0){
+			std::cout<<"Entered here for check"<<std::endl;
+			l1 = l2;
+		}*/
+
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
@@ -83,8 +86,8 @@ void OC::optimize(
 				if ((old_density - move) > octemp1){
 					octemp1 = old_density - move;
 				}
-				if (octemp1 < (*lb)[i] + 0.00001){
-					octemp1 = (*lb)[i] + 0.00001;
+				if (octemp1 < (*lb)[i] + 1e-9){
+					octemp1 = (*lb)[i] + 1e-9;
 				}
 
 				(*design_vector)[i] = octemp1;
@@ -104,6 +107,9 @@ void OC::optimize(
 						opt_design2d->density_cell_info_vector,
 						*design_vector);
 			}
+
+			//update the pseudo-design field
+			opt_design2d->obj_fem->update_pseudo_designField();
 
 			//Applying smoothing
 			opt_design2d->obj_fem->density_field.smoothing(
@@ -132,4 +138,6 @@ void OC::optimize(
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
 	}while(fabs(old_objective - objective) > min_obj_change);
+
+
 }
