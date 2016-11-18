@@ -44,7 +44,7 @@ namespace atop{
 		 * This function calculates the element level design bound for a given shape function
 		 * It checks the neighbors and deducts the constrained dofs also.
 		 */
-		void get_corrected_design_bound(
+		unsigned int get_corrected_design_bound(
 				FEM<dim> &obj_fem,
 				std::vector<CellInfo>&,
 				typename hp::DoFHandler<dim>::active_cell_iterator&);

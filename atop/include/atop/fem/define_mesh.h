@@ -48,7 +48,7 @@ namespace atop{
 		unsigned int max_density_el_order;
 
 		//initial no. of design points per elemetnt
-		unsigned int initial_dcount_per_el;
+		unsigned int initial_dcount_per_el, max_dcount_per_el;
 
 		//Saves the coordinates for physical dimensions of the mesh
 		std::vector<std::vector<double> > coordinates;

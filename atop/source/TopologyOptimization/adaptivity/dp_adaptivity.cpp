@@ -68,7 +68,7 @@ void dpAdaptivity<dim>::correctify_p_order(
 	for (; cell != endc; ++cell){
 		do{
 			//Update the design bound for the cell
-			get_corrected_design_bound(fem, cell_info_vector, cell);
+			cell_info_vector[cell_itr].design_bound = get_corrected_design_bound(fem, cell_info_vector, cell);
 
 			if (cell_info_vector[cell_itr].design_bound < cell_info_vector[cell_itr].design_points.no_points){
 				cell_info_vector[cell_itr].shape_function_order++;	//increase the shape order by 1
@@ -89,7 +89,7 @@ unsigned int dpAdaptivity<dim>::get_design_bound(
 }
 
 template <int dim>
-void dpAdaptivity<dim>::get_corrected_design_bound(
+unsigned int dpAdaptivity<dim>::get_corrected_design_bound(
 		FEM<dim> &fem,
 		std::vector<CellInfo> &cell_info_vector,
 		typename hp::DoFHandler<dim>::active_cell_iterator &cell){
@@ -114,7 +114,7 @@ void dpAdaptivity<dim>::get_corrected_design_bound(
 		design_bound = design_bound - ((pow(shape_fn_order, dim-1) - pow(ng_shape_fn_order, dim-1))*dim);
 	}
 	//std::cout<<"cell_itr : "<<design_bound<<std::endl;
-	cell_info_vector[cell_itr].design_bound = design_bound;
+	return design_bound;
 }
 
 
