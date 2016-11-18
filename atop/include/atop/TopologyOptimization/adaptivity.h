@@ -59,6 +59,16 @@ namespace atop{
 
 		void compute_sortedRefineRes();
 		void dp_coarsening_refinement();
+
+		/*
+		 * This function is an improved version of the dp-coarsening/refinement approach. Here the number of design variables
+		 * can be non-perfect squares which implies that for certain p-order, a higher number number of design variables can be used.
+		 * Note that the design distribution is generated using k-means clustering method and even though there might be geometrical
+		 * symmetry, the optimized might not be exactly symmetrical since the design distributions aint.
+		 */
+		void improved_dp_coarsening_refinement();
+
+		void run_dp_analysis_based_refinement();	//Only analysis part of the refinement is done here
 	};
 
 	template class Adaptivity<2>;

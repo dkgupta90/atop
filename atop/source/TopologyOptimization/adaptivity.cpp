@@ -303,7 +303,8 @@ void Adaptivity<dim>::execute_coarsen_refine(){
 			system_design_bound = dp_adap.get_system_design_bound(*fem);
 			if (dim == 2)	rigid_body_modes = 3;	//manually assigning the RBMs
 			update_element_design_bound();
-			dp_coarsening_refinement();	//dp-adaptivity performed
+			//dp_coarsening_refinement();	//dp-adaptivity performed
+			improved_dp_coarsening_refinement();
 	}
 }
 
@@ -381,37 +382,7 @@ void Adaptivity<dim>::update_element_design_bound(){
 template <int dim>
 void Adaptivity<dim>::dp_coarsening_refinement(){
 
-	if (fem->cycle < 2){
-		//Update shape functions based on analysis error criterion
-		cout<<"Performing analysis based refinement : "<<std::endl;
-
-		std::vector<double> estimated_error_per_cell (fem->triangulation.n_active_cells());
-		StressJumpIndicator<dim> modKellyObj(*fem,
-				estimated_error_per_cell,
-				*cell_info_vector);
-
-		modKellyObj.estimate();
-
-
-		Vector<double> error_indicator(estimated_error_per_cell.size());
-		for (unsigned int i = 0; i < error_indicator.size(); ++i)
-			error_indicator(i) = estimated_error_per_cell[i];
-
-		GridRefinement::refine_and_coarsen_fixed_number (fem->triangulation,
-														   error_indicator,
-														   0.1, 0.05);
-
-	   increase_decrease_p_order();	//refined/coarsened
-	   std::cout<<"Analysis based refinement done "<<std::endl;
-	}
-
-	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
-		if ((*cell_info_vector)[i].shape_function_order == 0){
-			std::cerr<<"Zero shape function order found here\n";
-			exit(0);
-		}
-	}
-//-------------------------------------------------------------------------------------------------------------------
+	run_dp_analysis_based_refinement();
 
    std::cout<<"Performing design based refinement "<<std::endl;
 	unsigned int no_cells = sortedRefineRes.size();
@@ -527,6 +498,143 @@ void Adaptivity<dim>::dp_coarsening_refinement(){
 
 }
 
+template <int dim>
+void Adaptivity<dim>::improved_dp_coarsening_refinement(){
+
+	//Analysis based refinement
+	run_dp_analysis_based_refinement();
+	//------------------------------------------------------------------
+
+	std::cout<<"Initiating design based refinement module ....."<<std::endl;
+	unsigned int no_cells = sortedRefineRes.size();
+
+/*
+ * In the code below, the refinement residuals are used to perform dp-refinement
+ * For -ve values, cells are considered for cooarsening
+ * For +ve values, cells are considered for refinement
+ */
+
+	//Iterate over all the cells
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin(),
+			endc = fem->dof_handler.end();
+	unsigned int cell_itr = 0;
+
+	//Updating the p-orders based on the refineRes values
+	for (; cell != endc; ++cell){
+
+			int current_p_order = (*cell_info_vector)[cell_itr].shape_function_order;
+			int current_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
+			std::cout<<cell_itr<<"  "<<current_p_order<<" "<<current_no_design<<std::endl;
+			int new_p_order = current_p_order;
+
+			if (fabs(refineRes[cell_itr]) < 1e-14){
+				//Do not update the p-order
+			}
+			else{
+				int diff;
+
+				//Coarsening
+				if (refineRes[cell_itr] < 1e-14){
+					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag != 1){
+						if (dim == 2 && current_p_order > 1){
+							int current_dfactor = ceil(sqrt(current_no_design));
+							diff = 1 + 2 * (current_dfactor);
+
+							int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1);
+
+							std::cout<<current_no_design - (int)diff<<std::endl;
+							if ((current_no_design - diff) > lower_design_bound){
+								new_p_order = current_p_order;
+							}
+							else{
+								new_p_order = current_p_order - 1;
+							}
+						}
+					}
+				}
+				else{
+					int current_dfactor = ceil(sqrt(current_no_design));
+
+					//calculating ceil d_Factor
+					if (dim == 2){
+						diff = 1 + 2*current_dfactor;
+					}
+				    int corrected_design_bound = dp_adap.get_corrected_design_bound(*fem, *cell_info_vector, cell);
+				    std::cout<<"Corrected design bound : "<<corrected_design_bound<<std::endl;
+					if (current_no_design + diff <= corrected_design_bound){
+						new_p_order = current_p_order;
+					}
+					else{
+						new_p_order = current_p_order + 1;
+					}
+				}
+			}
+			(*cell_info_vector)[cell_itr].shape_function_order = new_p_order;
+			if (new_p_order <= 0){
+				std::cerr<<"Zero shape function order found in Adaptivity class"<<std::endl;
+				exit(0);
+			}
+
+			std::cout<<"refine flag : "<<(*cell_info_vector)[cell_itr].refine_coarsen_flag<<"  "<<current_p_order<<"    "<<new_p_order<<std::endl;
+			cell_itr++;
+
+	}
+//----------------------------------------------------------------------------------------------------------------------------------
+
+	/*
+	 * finding the maximum and minimum order of d field and p field
+	 * This information is used to reduce the p- and d-contrasts in the active refinement areas
+	 */
+
+
+	unsigned int min_p_order = 999, max_p_order = 0;
+	for (unsigned int i = 0; i < cell_info_vector->size(); ++i){
+		if ((*cell_info_vector)[i].shape_function_order < min_p_order)	min_p_order = (*cell_info_vector)[i].shape_function_order;
+		if ((*cell_info_vector)[i].shape_function_order > max_p_order)	max_p_order = (*cell_info_vector)[i].shape_function_order;
+
+
+	}
+
+	std::cout<<"Polishing the p-distribution for 1-level hanging "<<std::endl;
+	dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
+
+	cell_itr = 0;
+	cell = fem->dof_handler.begin_active(),
+			endc = fem->dof_handler.end();
+	for (; cell != endc; ++cell){
+		//std::cout<<"Updated p order : "<<(*cell_info_vector)[cell_itr].shape_function_order<<std::endl;
+		unsigned int p_index = ((fem->elastic_data)).get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		cell->set_active_fe_index(p_index);
+		cell_itr++;
+	}
+	//Correcting system-level violations
+	std::cout<<"Correcting system level violations ..."<<std::endl;
+	//unsigned int temp = dp_adap.get_corrected_system_design_bound(*fem, *cell_info_vector);
+	std::cout<<"System level violations corrected "<<std::endl;
+
+	std::cout<<"Crashed here "<<std::endl;
+
+
+
+/*
+	for (int i = round(sqrt(min_d_points)); i <= int(round(sqrt(max_d_points))-2); ++i){
+		std::cout<<i<<"      Regularizing design field ..."<<std::endl;
+		dp_adap.update_design_contrast(*fem, *cell_info_vector, rigid_body_modes);
+	}*/
+
+/*	for (int i = min_p_order; i <= (int)(max_p_order-2); ++i){
+		std::cout<<i<<"  "<<max_p_order<<"      Repairing the shape functions ..."<<std::endl;
+		if (i > 12) exit(0);
+		dp_adap.correctify_p_order(*fem, *cell_info_vector, rigid_body_modes);
+	}*/
+
+
+
+
+
+
+}
+
 
 //function to update the polynomial order of the cells using the analysis indicator
 template <int dim>
@@ -551,4 +659,39 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 
 		++cell_itr;
 	}
+}
+
+template <int dim>
+void Adaptivity<dim>::run_dp_analysis_based_refinement(){
+	if (fem->cycle < 2){
+		//Update shape functions based on analysis error criterion
+		cout<<"Performing analysis based refinement : "<<std::endl;
+
+		std::vector<double> estimated_error_per_cell (fem->triangulation.n_active_cells());
+		StressJumpIndicator<dim> modKellyObj(*fem,
+				estimated_error_per_cell,
+				*cell_info_vector);
+
+		modKellyObj.estimate();
+
+
+		Vector<double> error_indicator(estimated_error_per_cell.size());
+		for (unsigned int i = 0; i < error_indicator.size(); ++i)
+			error_indicator(i) = estimated_error_per_cell[i];
+
+		GridRefinement::refine_and_coarsen_fixed_number (fem->triangulation,
+														   error_indicator,
+														   0.1, 0.05);
+
+	   increase_decrease_p_order();	//refined/coarsened
+	   std::cout<<"Analysis based refinement done "<<std::endl;
+	}
+
+	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+		if ((*cell_info_vector)[i].shape_function_order == 0){
+			std::cerr<<"Zero shape function order found here\n";
+			exit(0);
+		}
+	}
+
 }
