@@ -62,7 +62,8 @@ void OC::optimize(
 				*(opt_design2d->mesh)
 				);
 
-		double l1 = 1e-5, l2 = 100000000, move = 0.2;
+		double l1 = 1e-5, l2 = 100000000, move = 0.08;
+		//l1 = l2;
 /*		if (opt_design2d->obj_fem->itr_count == 57 && opt_design2d->cycle == 0){
 			std::cout<<"Entered here for check"<<std::endl;
 			l1 = l2;
@@ -73,10 +74,21 @@ void OC::optimize(
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
 				double octemp1;
 				double old_density = old_design_vector[i];
-				if (obj_grad[i] > 0){
+/*				if (obj_grad[i] > 0){
 					std::cout<<"Error located "<<obj_grad[i]<<std::endl;
+				}*/
+
+				//For compliant mechanism
+				if (opt_design2d->problem_name == "compliant_mechanism" && obj_grad[i] > 0){
+					obj_grad[i] = -1e-10;
+					octemp1 = old_density * (pow(-(obj_grad[i]/(lmid * vol_grad[i])), 0.5));
+
 				}
-				octemp1 = old_density * (sqrt(-obj_grad[i]/(lmid * vol_grad[i])));
+				else{
+					octemp1 = old_density * (sqrt(-(obj_grad[i]/(lmid * vol_grad[i]))));
+
+				}
+				//std::cout<<octemp1<<std::endl;
 				if ((old_density + move) < octemp1){
 					octemp1 = old_density + move;
 				}
@@ -137,7 +149,7 @@ void OC::optimize(
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
-	}while(fabs(old_objective - objective) > min_obj_change);
+	}while(fabs(old_objective - objective) > min_obj_change || opt_design2d->obj_fem->itr_count < 10);
 
 
 }

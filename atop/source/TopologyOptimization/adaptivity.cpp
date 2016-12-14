@@ -164,7 +164,7 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 	double rhomax = 1.0;
 	double rhomid = (rhomax + rhomin)/2;
 	double alpha = 0.2;
-	double beta = 1.2;
+	double beta = 1.4;
 
 	double refine_lbound = rhomin + ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
 	double refine_ubound = rhomax - ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
@@ -524,7 +524,6 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
 			int current_p_order = (*cell_info_vector)[cell_itr].shape_function_order;
 			int current_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
-			std::cout<<cell_itr<<"  "<<current_p_order<<" "<<current_no_design<<std::endl;
 			int new_p_order = current_p_order;
 
 			if (fabs(refineRes[cell_itr]) < 1e-14){
@@ -533,23 +532,41 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 			else{
 				int diff;
 
+				int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1);
+				int upper_design_bound = dp_adap.get_design_bound(current_p_order);
+
 				//Coarsening
-				if (refineRes[cell_itr] < 1e-14){
+				if (refineRes[cell_itr] < 0){
 					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag != 1){
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
 						if (dim == 2 && current_p_order > 1){
 							int current_dfactor = ceil(sqrt(current_no_design));
 							diff = 1 + 2 * (current_dfactor);
 
-							int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1);
 
-							std::cout<<current_no_design - (int)diff<<std::endl;
 							if ((current_no_design - diff) > lower_design_bound){
 								new_p_order = current_p_order;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;
 							}
 							else{
 								new_p_order = current_p_order - 1;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
 							}
+
+/*							if ((current_no_design) > ((double)upper_design_bound + (double)lower_design_bound)/2){
+								new_p_order = current_p_order;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;
+								(*cell_info_vector)[cell_itr].temp_design_value = round(((double)upper_design_bound + (double)lower_design_bound)/2);
+							}
+							else{
+								new_p_order = current_p_order - 1;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
+							}*/
 						}
+
+						//Flag above also includes cases where the current p-order is 1 and no p-coarsening can be done
+						//This is because for this case also, d can be reduced to 1, if possible
+
 					}
 				}
 				else{
@@ -560,13 +577,24 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 						diff = 1 + 2*current_dfactor;
 					}
 				    int corrected_design_bound = dp_adap.get_corrected_design_bound(*fem, *cell_info_vector, cell);
-				    std::cout<<"Corrected design bound : "<<corrected_design_bound<<std::endl;
 					if (current_no_design + diff <= corrected_design_bound){
 						new_p_order = current_p_order;
 					}
 					else{
 						new_p_order = current_p_order + 1;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
 					}
+
+/*					if ((current_no_design) < ((double)upper_design_bound + (double)lower_design_bound)/2){
+						new_p_order = current_p_order;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
+						(*cell_info_vector)[cell_itr].temp_design_value = round(((double)upper_design_bound + (double)lower_design_bound)/2);
+
+					}
+					else{
+						new_p_order = current_p_order + 1;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 3;
+					}*/
 				}
 			}
 			(*cell_info_vector)[cell_itr].shape_function_order = new_p_order;
@@ -575,7 +603,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 				exit(0);
 			}
 
-			std::cout<<"refine flag : "<<(*cell_info_vector)[cell_itr].refine_coarsen_flag<<"  "<<current_p_order<<"    "<<new_p_order<<std::endl;
+			//std::cout<<"refine flag : "<<(*cell_info_vector)[cell_itr].refine_coarsen_flag<<"  "<<current_p_order<<"    "<<new_p_order<<std::endl;
 			cell_itr++;
 
 	}
@@ -607,31 +635,17 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 		cell->set_active_fe_index(p_index);
 		cell_itr++;
 	}
+
+	//Update the design field to allow maximum number of permissible design variables as per element-bound in each element.
+	dp_adap.update_design_for_elem_bound_only(
+					*fem,
+					*cell_info_vector);
+/*
 	//Correcting system-level violations
 	std::cout<<"Correcting system level violations ..."<<std::endl;
 	//unsigned int temp = dp_adap.get_corrected_system_design_bound(*fem, *cell_info_vector);
 	std::cout<<"System level violations corrected "<<std::endl;
-
-	std::cout<<"Crashed here "<<std::endl;
-
-
-
-/*
-	for (int i = round(sqrt(min_d_points)); i <= int(round(sqrt(max_d_points))-2); ++i){
-		std::cout<<i<<"      Regularizing design field ..."<<std::endl;
-		dp_adap.update_design_contrast(*fem, *cell_info_vector, rigid_body_modes);
-	}*/
-
-/*	for (int i = min_p_order; i <= (int)(max_p_order-2); ++i){
-		std::cout<<i<<"  "<<max_p_order<<"      Repairing the shape functions ..."<<std::endl;
-		if (i > 12) exit(0);
-		dp_adap.correctify_p_order(*fem, *cell_info_vector, rigid_body_modes);
-	}*/
-
-
-
-
-
+*/
 
 }
 

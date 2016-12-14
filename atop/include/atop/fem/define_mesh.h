@@ -62,6 +62,9 @@ namespace atop{
 
 		//Holds all coordinates and magnitudes of all point sources
 		std::vector< std::pair< std::vector<double> , std::vector<double> > > point_source_vector;
+		std::vector< std::pair< std::vector<double> , std::vector<double> > > point_stiffness_vector;
+		std::vector< std::pair< std::vector<double> , std::vector<double> > > point_l_vector;
+
 
 		//Constructor for getting only number of physical dimensions
 		DefineMesh(int);

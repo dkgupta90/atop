@@ -52,6 +52,52 @@ void dpAdaptivity<dim>::update_designField(
 
 
 template <int dim>
+void dpAdaptivity<dim>::update_design_for_elem_bound_only(
+		FEM<dim> &fem,
+				std::vector<CellInfo> &cell_info_vector){
+
+	unsigned int cell_itr = 0;
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem.dof_handler.begin_active(),
+			endc = fem.dof_handler.end();
+	for (; cell != endc; ++cell){
+		unsigned int new_no_design = get_corrected_design_bound(fem, cell_info_vector, cell);
+		//new_no_design = round(new_no_design * 0.8);
+		//std::cout<<new_no_design<<std::endl;
+
+
+		if (cell_info_vector[cell_itr].shape_function_order == 1 && cell_info_vector[cell_itr].refine_coarsen_flag < 0){
+			new_no_design = 1;
+		}
+
+		if (cell_info_vector[cell_itr].refine_coarsen_flag == -2){
+			int current_no_design = cell_info_vector[cell_itr].design_points.no_points;
+			int current_dfactor = ceil(sqrt(current_no_design) - 0.00001);
+			int diff = 1 + 2 * (current_dfactor);
+			new_no_design = current_no_design - diff;
+		}
+
+/*		if (cell_info_vector[cell_itr].refine_coarsen_flag == -2){
+			new_no_design = cell_info_vector[cell_itr].temp_design_value;
+		}*/
+		//Checking the design resolution compared to the maximum asked
+		if (new_no_design > fem.mesh->max_dcount_per_el)	new_no_design = fem.mesh->max_dcount_per_el;
+
+		//refine_coarsen_flag=1 refers to analysis based refinement and
+		//no d-refinement is needed for this case
+		if (cell_info_vector[cell_itr].refine_coarsen_flag == 1){
+
+		}
+/*		else if (cell_info_vector[cell_itr].refine_coarsen_flag == 2){
+			new_no_design = cell_info_vector[cell_itr].temp_design_value;
+		}*/
+		else{
+			update_designField(cell_info_vector, cell_itr, new_no_design);
+		}
+		cell_itr++;
+	}
+}
+
+template <int dim>
 void dpAdaptivity<dim>::correctify_p_order(
 		FEM<dim> &fem,
 		std::vector<CellInfo> &cell_info_vector,

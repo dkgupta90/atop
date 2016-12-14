@@ -1,0 +1,99 @@
+/*
+ *
+ *  Created on: Apr 2, 2015
+ *      Author: Deepak K. Gupta
+ *  
+ */
+
+#ifndef OPTIMIZEDESIGN_H_
+#define OPTIMIZEDESIGN_H_
+
+#include <atop/fem/define_mesh.h>
+#include <atop/fem/fem.h>
+#include <atop/fem/create_design.h>
+#include <atop/TopologyOptimization/penalization.h>
+#include <atop/physics/mechanics/elastic.h>
+#include <deal.II/grid/tria.h>
+#include <string.h>
+#include <atop/TopologyOptimization/cell_prop.h>
+#include <atop/TopologyOptimization/projection.h>
+#include <atop/derivatives/sensitivity.h>
+#include <atop/TopologyOptimization/constraints/general.h>
+#include <iostream>
+#include <vector>
+#include <deal.II/hp/dof_handler.h>
+
+using namespace dealii;
+
+namespace atop{
+template <int dim>
+	class Optimizedesign{
+	public:
+
+	// dof_handler connects to triangulation
+	// density_handler connects to fe_density_triangulation
+	// density_dof_handler connects to density_triangulation
+
+	std::vector<CellInfo> cell_info_vector;	//stores the information related to each analysis cell
+	std::vector<CellInfo> density_cell_info_vector;	//stores information related to each cell on design mesh
+	DefineMesh<dim>* mesh;
+	FEM<dim> *obj_fem;
+	unsigned int cycle, no_cycles;
+
+	double volfrac;	//volume fraction
+
+	//Objects for defining the physics of the problem
+	LinearElastic<dim> *linear_elastic;
+
+	//name of optimization problem
+	std::string problem_name;
+
+	//Object for providing the projection operator details
+	Projection *projection;
+
+	//Object for penalization of densities
+	Penalize *penal;
+
+	//Timers to time the optimization routine
+	double start_time, end_time;
+
+	//Object of general constraints class
+	GeneralConstraints<dim> vol_constraint;
+
+	//Object of Timer class for performance evlation
+	Timer timer;
+
+	//Optimization related parameters
+	std::vector<double> design_vector;
+	double objective;
+	std::vector<double> grad_vector;
+
+		Optimizedesign();
+
+		Optimizedesign(
+				atop::DefineMesh<dim>&,
+				atop::Penalize&,
+				atop::Projection&,
+				const std::string&,
+				unsigned int cycles = 5);
+
+		void problemType(LinearElastic<dim> &obj_linear_elastic);
+
+		void optimize();
+		void run_system();
+		void update_design_vector(
+				std::vector<double> &,
+				const std::vector<double> &);
+
+	private:
+		void flush();
+
+
+	};
+
+template class Optimizedesign<2>;
+}
+
+
+
+#endif /* OPTIMIZEDESIGN_H_ */

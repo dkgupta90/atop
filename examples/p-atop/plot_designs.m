@@ -2,10 +2,10 @@
 clc;
 no_cycles = 2;
 no_iter = 150;
-nely  = 4;
+nely  = 20;
 fname = 'design-';
 f = figure('units','normalized','position',[0 0 1 1]);
-for i =  1:1:10%no_cycles
+for i =  4:1:10%no_cycles
     for j = 2:1:2
         j
         fid = fopen(['output_design/', fname, num2str(i), '_', num2str(j), '.dat']);

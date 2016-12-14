@@ -64,7 +64,11 @@ void Compliance<dim>::compute(
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 
-	for(; cell != endc; ++cell){
+	Matrix_Vector matvec;
+	objective = matvec.vector_vector_inner_product(
+					fem->system_rhs,
+					fem->solution);
+/*	for(; cell != endc; ++cell){
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		QGauss<dim> quadrature_formula(quadrature_rule);
 
@@ -113,7 +117,7 @@ void Compliance<dim>::compute(
 				cell_array);
 			++cell_itr;
 			//std::cout<<objective<<std::endl;
-	}
+	}*/
 	std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
 
 

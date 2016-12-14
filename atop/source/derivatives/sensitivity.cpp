@@ -12,6 +12,7 @@
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/fem/fem.h>
 #include <atop/derivatives/compliance.h>
+#include <atop/derivatives/compliant_mechanism.h>
 
 using namespace dealii;
 using namespace atop;
@@ -49,6 +50,15 @@ void SensitivityAnalysis<dim>::run(
 				*density_cell_info_vector,
 				*fem);
 		obj_compliance.compute(obj, obj_grad);
+	}
+	else if (problem_name == "compliant_mechanism"){
+		CompliantMechanism<dim> obj_comp;
+		obj_comp.set_input(
+				*dof_handler,
+				*cell_info_vector,
+				*density_cell_info_vector,
+				*fem);
+		obj_comp.compute(obj, obj_grad);
 	}
 }
 

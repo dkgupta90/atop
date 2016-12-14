@@ -28,11 +28,19 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 			values(1) = 0;
 		}
 	}
+	else if (model_problem == 5){
+		//cantilever problem
+		xmin = 0, ymin = 0, xmax = 1, ymax = 1;
+		if (std::fabs(p(0) - (ymin)) < 1e-12){
+			values(0) = 1;
+			values(1) = 0;
+		}
+	}
 	else if (model_problem == 3){
 		//cantilever problem
 		xmin = 0, ymin = 0, xmax = 2, ymax = 1;
 		if (std::fabs(p(0) - (xmin)) < 1e-12){
-			values(0) = -1;
+			values(0) = 0;
 			values(1) = 0;
 		}
 	}

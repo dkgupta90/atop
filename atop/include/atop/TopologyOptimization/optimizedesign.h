@@ -47,6 +47,7 @@ template <int dim>
 
 	//name of optimization problem
 	std::string problem_name;
+	bool is_problem_self_adjoint;
 
 	//Object for providing the projection operator details
 	Projection *projection;

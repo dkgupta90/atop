@@ -5,14 +5,17 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../source/derivatives/compliance.cpp \
+../source/derivatives/compliant_mechanism.cpp \
 ../source/derivatives/sensitivity.cpp 
 
 OBJS += \
 ./source/derivatives/compliance.o \
+./source/derivatives/compliant_mechanism.o \
 ./source/derivatives/sensitivity.o 
 
 CPP_DEPS += \
 ./source/derivatives/compliance.d \
+./source/derivatives/compliant_mechanism.d \
 ./source/derivatives/sensitivity.d 
 
 

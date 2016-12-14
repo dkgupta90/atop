@@ -62,6 +62,7 @@ namespace atop{
 		double projection_radius; 	//projection radius of the current cell
 		double projection_fact;		//projection factor (to mulitply with certain element size)
 		int refine_coarsen_flag;	//-1 for coarsen and 1 for refine
+		unsigned int temp_design_value;
 		/**
 		 * density values for the mesh
 		 * refers to unfiltered density values for the design/density mesh
