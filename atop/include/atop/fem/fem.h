@@ -95,7 +95,9 @@ namespace atop{
 		SparsityPattern sparsity_pattern;
 		SparseMatrix<double> system_matrix;
 		Vector<double> solution;
+		Vector<double> lambda_solution;
 		Vector<double> system_rhs;
+		Vector<double> l_vector;
 		Vector<double> nodal_density;
 		Vector<double> nodal_p_order;	//to save the poylnomial order in each element
 		Vector<double> nodal_d_count;	//to save the design distribution
@@ -106,6 +108,8 @@ namespace atop{
 
 
 		unsigned int cycle, itr_count;
+
+		bool self_adjoint;
 
 		std::vector<unsigned int> current_quad_rule; //For integrating over an element
 		std::vector<unsigned int> running_quad_rule; //Used for quad related adaptivity
@@ -159,6 +163,10 @@ namespace atop{
 				const std::vector<Point<dim> > &,
 				std::vector<Vector<double> > &);
 		void add_point_source_to_rhs();
+		void add_point_stiffness_to_system();
+		void add_point_to_l_vector();
+
+		void add_boundary_constraints();
 
 
 

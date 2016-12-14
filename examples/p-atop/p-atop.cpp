@@ -45,10 +45,10 @@ unsigned int get_boundary_indicator(std::vector<double> X){
 unsigned int get_boundary_indicator_dist(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[0] - 0) < 1e-12)	//fixed Dirichlet b.c.
-		return 42;
 	if (fabs(X[1] - 1) < 1e-12)
-		return 62;	//Rolling Dirichlet b.c.
+		return 62;	//for adding distributed load
+	else if (fabs(X[0] - 0) < 1e-12)	//fixed Dirichlet b.c.
+		return 42;
 	else
 		return 9999;
 
@@ -58,10 +58,10 @@ unsigned int get_boundary_indicator_dist(std::vector<double> X){
 unsigned int get_boundary_indicator_force_inv(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - 0.2) < 1e-12)
+	if (fabs(X[0] - 0) < 1e-12 && (X[1] - 0.05) < 0)
 		return 42;
 	else if (fabs(X[1] - 1) < 1e-12)
-		return 62;	//Neumann boundary for distributed load
+		return 52;	//Neumann boundary for distributed load
 	else
 		return 9999;
 
@@ -94,26 +94,33 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
-	opt.problem_name = "minimum_compliance";
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	//opt.problem_name = "minimum_compliance";
+	opt.problem_name = "compliant_mechanism";
+	opt.is_problem_self_adjoint = false;
 	opt.problemType(material1);
-	opt.volfrac = 0.45; //Maximum permissible volume fraction
+	opt.volfrac = 0.3; //Maximum permissible volume fraction
+
+	//Initializing the compulsory variables
+	mesh.point_stiffness_vector.clear();
+	mesh.point_l_vector.clear();
 
 	//Parameters for defining the test cases for dp-refinement
-	std::string test_problem = "cantilever2D";
+	std::string test_problem = "compliant_mechanism2D";
+	//std::string test_problem = "compliant_mechanism2D";
 	unsigned int dim = 2;
 
 	if (dim == 2){
 		if (test_problem == "cantilever2D"){
 			mesh.coordinates = {{0, 2}, {0, 1}};
-			mesh.subdivisions = {16, 8};
+			mesh.subdivisions = {40, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 2;
+			mesh.initial_el_order = 4;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 11;
+			mesh.max_el_order = 10;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 9;
+			mesh.initial_dcount_per_el = 25;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
@@ -122,7 +129,7 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "distLoad";
+			std::string loadType = "pointLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
@@ -143,11 +150,11 @@ int main(){
 			mesh.subdivisions = {40, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 3;
+			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 11;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 16;
+			mesh.initial_dcount_per_el = 9;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
 
@@ -155,13 +162,27 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "distLoad";
+			std::string loadType = "pointLoad";
 			if (loadType == "pointLoad"){
-				mesh.boundary_indicator = get_boundary_indicator;
+				mesh.boundary_indicator = get_boundary_indicator_force_inv;
+
 				//Define point force
-				std::vector<double> point = {2.0, 0.5};
-				std::vector<double> source = {0, 1.0};
+				std::vector<double> point = {0, 1};
+				std::vector<double> source = {1, 0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
+
+				//Define point stiffnesses
+				point = {0.0, 1.0};
+				source = {1.0, 0.0};
+				mesh.point_stiffness_vector.push_back(std::make_pair(point, source)); //make pairs and push
+				point = {2.0, 1.0};
+				source = {0.001, 0.0};
+				mesh.point_stiffness_vector.push_back(std::make_pair(point, source)); //make pairs and push
+
+				point = {2, 1};
+				source = {1, 0};
+				mesh.point_l_vector.push_back(std::make_pair(point, source)); //make pairs and push
+
 				   //empty dist load
 			}
 			else if (loadType == "distLoad"){

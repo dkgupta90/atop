@@ -67,6 +67,10 @@ namespace atop{
 				FEM<dim> &obj_fem,
 				std::vector<CellInfo>&);
 
+		void update_design_for_elem_bound_only(
+				FEM<dim> &obj_fem,
+				std::vector<CellInfo>&);
+
 /*
  * This function reduces the contrast in the number of design variables between adjacent elements.
  * It ensures that the contrast is not more than d-factor difference of 1 (will be adapted later).

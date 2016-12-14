@@ -9,6 +9,7 @@
 #include <atop/TopologyOptimization/designField.h>
 #include <math.h>
 #include <iostream>
+#include <fstream>
 
 using namespace atop;
 
@@ -53,92 +54,43 @@ void DesignField::update_field_manual(unsigned int ctr){
 	unsigned int dim = pointX[0].size();	//getting the no. of dimensions of the problem
 	unsigned int no_points = pointX.size();
 	if (dim == 2){
-		if (no_points == 1){
-			pointX[0][0] = 0.0;
-			pointX[0][1] = 0.0;
-		}
-		else if (no_points == 2){
-			pointX[0][0] = -0.5;
-			pointX[0][1] = 0.0;
-
-			pointX[1][0] = 0.5;
-			pointX[1][1] = 0.0;
-		}
-		else if (no_points == 3){
-			pointX[0][0] = -0.5;
-			pointX[0][1] = 0.5;
-
-			pointX[1][0] = -0.5;
-			pointX[1][1] = -0.5;
-
-			pointX[2][0] = 0.5;
-			pointX[2][1] = 0.0;
-
-		}
-/*		else if (no_points == 4){
-			pointX[0][0] = -0.5;
-			pointX[0][1] = -0.5;
-
-			pointX[1][0] = 0.5;
-			pointX[1][1] = -0.5;
-
-			pointX[2][0] = 0.5;
-			pointX[2][1] = 0.5;
-
-			pointX[3][0] = -0.5;
-			pointX[3][1] = 0.5;
-		}*/
-
-		else if (no_points == 5){
-			pointX[0][0] = -0.5;
-			pointX[0][1] = -0.5;
-
-			pointX[1][0] = 0.5;
-			pointX[1][1] = -0.5;
-
-			pointX[2][0] = 0.5;
-			pointX[2][1] = 0.5;
-
-			pointX[3][0] = -0.5;
-			pointX[3][1] = 0.5;
-
-			pointX[4][0] = 0.0;
-			pointX[4][1] = 0.0;
-		}
-
-		else{
+		if (isPerfectSquare(no_points) == true){
 			unsigned int dxcount = (unsigned int)(round(sqrt(no_points)));
 			double dx = 2.0/(dxcount);
 
 			for (unsigned int i = 0; i < dxcount; i++){
 				for (unsigned int j = 0; j < dxcount; j++){
-					pointX[i*dxcount + j][0] = -1 + (i+0.5)*dx;
-					pointX[i*dxcount + j][1] = -1 + (j+0.5)*dx;
+					pointX[i*dxcount + j][0] = -1 + (j+0.5)*dx;
+					pointX[i*dxcount + j][1] = -1 + (i+0.5)*dx;
 				}
 			}
 		}
-/*		for (unsigned int i = 0; i < no_points; ++i){
-			if (i == 0){
-				pointX[i][0] = 0.0;
-				pointX[i][1] = 0.0;
+		else{
+			std::ifstream rfile;
+			rfile.open("designField/designField.dat", std::ios::in);
+
+			if (!rfile.is_open()){
+				std::cerr<<"designField.dat not found\n";
 			}
-			else if (i == 1){
-				pointX[i][0] = -0.5;
-				pointX[i][1] = -0.5;
+
+			std::string temps;
+			for (unsigned int i = 1; i <= no_points-1; i++)
+			        std::getline(rfile, temps);
+			double k;
+			rfile>>k;	//reading the no.of points
+
+			if (fabs((double)no_points - k) > 1e-12){
+
+				std::cerr<<"Mismatch in reading the no. of points in file : "<<no_points<<"  "<<k<<"\n";
+				exit(0);
 			}
-			else if (i == 2){
-				pointX[i][0] = 0.5;
-				pointX[i][1] = -0.5;
+			for (unsigned int pt = 0; pt < no_points; ++pt){
+				rfile>>pointX[pt][0];
+				rfile>>pointX[pt][1];
+				//std::cout<<pt<<" "<<pointX[pt][0]<<"   "<<pointX[pt][1]<<std::endl;
 			}
-			else if (i == 3){
-				pointX[i][0] = 0.5;
-				pointX[i][1] = 0.5;
-			}
-			else if (i == 4){
-				pointX[i][0] = -0.5;
-				pointX[i][1] = 0.5;
-			}
-		}*/
+
+		}
 	}
 
 
@@ -169,7 +121,7 @@ void DesignField::update_pseudo_designWeights(unsigned int max_design_points_per
 	if (dim == 2){
 		//Calculating the pseudo-filter radius
 		unsigned int max_d_factor = round(sqrt(max_design_points_per_cell));
-		unsigned int d_factor = round(sqrt(dp_PointX.size()));
+		unsigned int d_factor = floor(sqrt(dp_PointX.size()));
 
 		//Below, 2.0 is used as the length of the cell, since all the design points defined within the cell
 		//assume that the cell is 2X2 in length and are relative to it with center at 0,0.
@@ -227,5 +179,15 @@ void DesignField::update_pseudo_designField(
 		for (unsigned int k = 0; k < dp_rho.size(); ++k){
 			rho[j] += (dx_drho[j][k] * dp_rho[k]);
 		}
+	}
+}
+
+bool DesignField::isPerfectSquare(unsigned int no_design_points){
+	double sqroot = sqrt((double)no_design_points);
+	if (fabs(sqroot - (double)(floor(sqroot))) < 1e-12){
+		return true;
+	}
+	else{
+		return false;
 	}
 }

@@ -132,7 +132,8 @@ source/derivatives/sensitivity.d: ../source/derivatives/sensitivity.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/boundary_values.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/math_tools/algebra/integration.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/additional_tools/timer.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliant_mechanism.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h:
 
@@ -401,3 +402,5 @@ source/derivatives/sensitivity.d: ../source/derivatives/sensitivity.cpp \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/additional_tools/timer.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliance.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliant_mechanism.h:

@@ -152,14 +152,14 @@ void Optimizedesign<dim>::optimize(){
 		//Choosing the optimizer
 		if(opt_algorithm == "MMA"){
 			nlopt::opt opt(nlopt::LD_MMA, no_design_count);
-			nlopt::opt dual_opt(nlopt::LD_LBFGS,no_design_count);
-			dual_opt.set_ftol_rel(1e-14);
-			opt.set_local_optimizer(dual_opt);
+			//nlopt::opt dual_opt(nlopt::LD_LBFGS,no_design_count);
+			//dual_opt.set_ftol_rel(1e-2);
+			//opt.set_local_optimizer(dual_opt);
 			opt.set_lower_bounds(lb);
 			opt.set_upper_bounds(ub);
 			opt.set_min_objective(myvfunc, (void*)this);
 			opt.add_inequality_constraint(myvconstraint, (void*)this, 1e-3);
-			//opt.set_ftol_abs(1e-3);
+			opt.set_ftol_abs(1e-3);
 			//opt.set_xtol_rel(1e-4);
 			opt.set_maxeval(10000);
 			double minf;
@@ -220,6 +220,7 @@ template <int dim>
 void Optimizedesign<dim>::run_system(){
 
 	//Solve the finite element system
+	obj_fem->self_adjoint = is_problem_self_adjoint;
 	obj_fem->analyze();
 
 	//Compute the objective and gradients

@@ -84,7 +84,7 @@ FEM<dim>::FEM(
 	}
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+11; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+10; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -163,11 +163,15 @@ void FEM<dim>::setup_system(){
 	//FE mesh
 	dof_handler.distribute_dofs(fe_collection);
 
+
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(dof_handler,
 			hanging_node_constraints);
-	boundary_info();
+
 	//Applying the boundary conditions
+	boundary_info();
+
+	add_boundary_constraints();	//For adding complex boudnary related constraints
 	BoundaryValues<dim> boundary_v;
 
 	VectorTools::interpolate_boundary_values(dof_handler,
@@ -203,6 +207,9 @@ void FEM<dim>::setup_system(){
 
 	solution.reinit(dof_handler.n_dofs());
 	system_rhs.reinit(dof_handler.n_dofs());
+	lambda_solution.reinit(dof_handler.n_dofs());
+	l_vector.reinit(dof_handler.n_dofs());
+
 	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for the output
 	nodal_p_order.reinit(analysis_density_handler.n_dofs());
 	cells_adjacent_per_node.reinit(analysis_density_handler.n_dofs());	//for normalizing the nodal density value
@@ -277,9 +284,12 @@ void FEM<dim>::assemble_system(){
 	std::cout<<"Smoothing done"<<std::endl;
 /*	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
-			"output_design/density_5_11.dat");*/
+			"output_design/density_1_40.dat");*/
+
+
 
 	//Updating the physics of the problem
+
 	update_physics();
 	std::cout<<"Physics updated"<<std::endl;
 
@@ -324,7 +334,17 @@ void FEM<dim>::solve(){
 	A_direct.initialize(system_matrix);
 	A_direct.vmult (solution, system_rhs);
 
+	if (self_adjoint == false){
+		std::cout<<"Calculating lambda "<<std::endl;
+		A_direct.vmult(lambda_solution, l_vector);
+		lambda_solution *= -1;
+	}
 	hanging_node_constraints.distribute(solution);
+	hanging_node_constraints.distribute(lambda_solution);
+
+	//std::cout<<"Printing rhs vector"<<std::endl;
+	// (unsigned int i = 0; i < system_rhs.size(); ++i)	std::cout<<system_rhs(i)<<std::endl;
+
 
 
 }
@@ -358,7 +378,7 @@ void FEM<dim>::output_results(){
 	}
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			system_rhs, solution_names);
+			solution, solution_names);
 
 	//Writing the density solution
 	filename = "density-";
@@ -540,8 +560,10 @@ void FEM<dim>::initialize_cycle(){
 	std::cout<<"Initializing the cycle "<<std::endl;
 
 	//Initializing the pseudo-design field parameters
+	std::cout<<"Initializing the peudo-design field"<<std::endl;
 	initialize_pseudo_designField();
 
+	std::cout<<"Psuedo design field initialized"<<std::endl;
 	//Updating the hp_fe_values
 	hp::FEValues<dim> hp_fe_values(fe_collection,
 				quadrature_collection,
@@ -646,17 +668,17 @@ void FEM<dim>::initialize_pseudo_designField(){
 			if ((*cell_info_vector)[i].design_points.no_points > temp_max_design)
 				temp_max_design = (*cell_info_vector)[i].design_points.no_points;
 		}
-
-		//temp_max_design = 100;
-		max_design_points_per_cell = temp_max_design;
+		//temp_max_design = 64;
+		max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);
 
 		//Updating the distribution and number of design points per cell
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
-			(*cell_info_vector)[i].pseudo_design_points.no_points = temp_max_design;
-			(*cell_info_vector)[i].pseudo_design_points.initialize_field(dim, temp_max_design, 1, volfrac);
+			(*cell_info_vector)[i].pseudo_design_points.no_points = max_design_points_per_cell;
+			(*cell_info_vector)[i].pseudo_design_points.initialize_field(dim, max_design_points_per_cell, 1, volfrac);
 
 		}
 	}
+
 
 	//Updating the weights for projection from design mesh to pseudo-design mesh
 	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
@@ -717,6 +739,11 @@ void FEM<dim>::assembly(){
 			density_endc = design_handler.end();
 
 
+	add_point_source_to_rhs();
+	add_point_stiffness_to_system();
+	add_point_to_l_vector();
+
+
 	for (; cell != endc; ++cell){
 		//std::cout<<cell_itr<<std::endl;
 		//Getting the q_index for the cell
@@ -773,6 +800,8 @@ void FEM<dim>::assembly(){
 		elastic_tool.get_D_plane_stress2D(D_matrix,
 				0.3);*/
 
+		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
+
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
 			normalized_matrix = 0;
@@ -787,9 +816,19 @@ void FEM<dim>::assembly(){
 					true,
 					false,
 					JxW);*/
-			//std::cout<<q_point<<std::endl;
 
-			//if (cell_itr == 6)   normalized_matrix.print(std::cout);
+/*
+ * The code below is only used to assign E_values at the Gauss points for test purpose.
+ * For most of the cases, it should be commented out.
+ */
+
+/*			if (quad_points[q_point](1) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
+			else if (quad_points[q_point](1) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
+			else if (quad_points[q_point](0) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
+			else if (quad_points[q_point](0) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
+			else								(*cell_info_vector)[cell_itr].E_values[q_point] = 1.0;
+			std::cout<<q_point<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;*/
+
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
 				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
@@ -878,7 +917,7 @@ void FEM<dim>::assembly(){
 	}
 
 	//Add point-source function to the right hand side
-	add_point_source_to_rhs();
+	//add_point_source_to_rhs();
 
 
 	double volfrac = density_field.get_vol_fraction(*cell_info_vector);
@@ -938,8 +977,9 @@ void FEM<dim>::add_source_to_rhs(
 
 template <int dim>
 void FEM<dim>::add_point_source_to_rhs(){
-	deallog.depth_console (2);
+		deallog.depth_console (2);
 
+    std::cout<<"Entered here"<<std::endl;
 	unsigned int no_sources = (mesh->point_source_vector).size();
 	for(unsigned int s = 0; s < no_sources; ++s){
 		std::vector<double> load_point = mesh->point_source_vector[s].first;
@@ -949,30 +989,184 @@ void FEM<dim>::add_point_source_to_rhs(){
 		Assert (load.size() == dim,
 				ExcDimensionMismatch(load.size(), dim));
 
+
 		Point<dim> ldp, ld;
 		for(unsigned int i = 0; i < dim; ++i){
 			ldp(i) = load_point[i];
 			ld(i) = load[i];
 		}
+
+
 		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
 				endc = dof_handler.end();
+		//Iterating over all the cells
 		for (; cell != endc; ++cell){
 			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
-			std::vector<types::global_dof_index> global_dof_indices(dofs_per_cell);
-			cell->get_dof_indices(global_dof_indices);
-			for (unsigned int v = 0; v < GeometryInfo<dim>::vertices_per_cell; ++v){
-				if (fabs(cell->vertex(v)[0] - ldp[0]) < 1e-12 && fabs(cell->vertex(v)[1] - ldp[1]) < 1e-12){
-					system_rhs(cell->vertex_dof_index(v-1, 1)) = 0;
-					system_rhs(cell->vertex_dof_index(v-1, 2)) = 1;
-					//system_rhs[global_dof_indices[dim*v]] = ld[0];
-					//system_rhs[global_dof_indices[dim*v + 1]] = ld[1];
+			std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(local_dof_indices);
+
+			std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+
+			//Iterate over all the support points and check
+			for (unsigned int i = 0; i < dofs_per_cell; ++i){
+				unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+				//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+				Point<dim> temp_point = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+				if (temp_point.distance(ldp) < 1e-12){
+					system_rhs(local_dof_indices[i]) = ld(comp_i);
 				}
 			}
 		}
-/*		hp::MappingCollection<dim> mapping;
-		mapping.push_back(MappingQ<dim>(1));
-		VectorTools::create_point_source_vector(mapping, dof_handler, ldp, ld, system_rhs);*/
+	}
+}
 
+template <int dim>
+void FEM<dim>::add_point_stiffness_to_system(){
+	deallog.depth_console (2);
+	std::cout<<"Adding point stiffnesses into the global stiffness matrix"<<std::endl;
+
+	unsigned int no_sources = (mesh->point_stiffness_vector).size();
+	if (no_sources == 0)	return;
+
+	for(unsigned int s = 0; s < no_sources; ++s){
+		std::vector<double> stiffness_point = mesh->point_stiffness_vector[s].first;
+		std::vector<double> stiffness = mesh->point_stiffness_vector[s].second;
+		Assert (load_point.size() == dim,
+				ExcDimensionMismatch(stiffness_point.size(), dim));
+		Assert (load.size() == dim,
+				ExcDimensionMismatch(stiffness.size(), dim));
+
+		Point<dim> sdp, sd;
+		for(unsigned int i = 0; i < dim; ++i){
+			sdp(i) = stiffness_point[i];
+			sd(i) = stiffness[i];
+		}
+
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
+		//Iterating over all the cells
+		for (; cell != endc; ++cell){
+			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+			std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(local_dof_indices);
+
+			std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+
+			//Iterate over all the support points and check
+			for (unsigned int i = 0; i < dofs_per_cell; ++i){
+				unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+				//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+				Point<dim> temp_point = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+				if (temp_point.distance(sdp) < 1e-12){
+					std::cout<<"Updated stiffness "<<std::endl;
+					system_matrix.add(local_dof_indices[i], local_dof_indices[i], sd(comp_i));
+				}
+			}
+		}
+
+	}
+
+
+}
+
+template <int dim>
+void FEM<dim>::add_point_to_l_vector(){
+
+	std::cout<<"Adding point_l into the l_vector"<<std::endl;
+
+	unsigned int no_sources = (mesh->point_l_vector).size();
+	for(unsigned int s = 0; s < no_sources; ++s){
+		std::vector<double> load_point = mesh->point_l_vector[s].first;
+		std::vector<double> load = mesh->point_l_vector[s].second;
+		Assert (load_point.size() == dim,
+				ExcDimensionMismatch(load_point.size(), dim));
+		Assert (load.size() == dim,
+				ExcDimensionMismatch(load.size(), dim));
+
+
+		Point<dim> ldp, ld;
+		for(unsigned int i = 0; i < dim; ++i){
+			ldp(i) = load_point[i];
+			ld(i) = load[i];
+		}
+
+
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
+		//Iterating over all the cells
+		for (; cell != endc; ++cell){
+			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+			std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(local_dof_indices);
+
+			std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+
+			//Iterate over all the support points and check
+			for (unsigned int i = 0; i < dofs_per_cell; ++i){
+				unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+				//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+				Point<dim> temp_point = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+				if (temp_point.distance(ldp) < 1e-12){
+					l_vector(local_dof_indices[i]) = ld(comp_i);
+				}
+			}
+		}
+
+	}
+}
+
+template <int dim>
+void FEM<dim>::add_boundary_constraints(){
+
+
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
+
+	//Iterating over all the cells
+	for (; cell != endc; ++cell){
+		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+		cell->get_dof_indices(local_dof_indices);
+
+		std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+		//Iterate over all the faces to check for boundary_id
+
+		bool indic52 = false;
+
+		for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
+
+			if (cell->face(f)->boundary_id() == 52){
+				indic52 = true;
+				break;
+			}
+		}
+
+		if (indic52 == true){
+
+			//Iterate over all the support points and check
+			for (unsigned int i = 0; i < dofs_per_cell; ++i){
+				if (dim == 2){
+					//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+					Point<dim> temp_points = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+					unsigned int boundary_indic = mesh->boundary_indicator({temp_points(0),
+							temp_points(1)});
+					if (boundary_indic == 52){
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
+
+						if (comp_i == 1){
+							hanging_node_constraints.add_line(local_dof_indices[i]);
+							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+						}
+
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -1006,6 +1200,9 @@ void FEM<dim>::clean_trash(){
 	nodal_d_count = 0;
 	cells_adjacent_per_node = 0;
 	solution = 0;
+
+	l_vector = 0;
+	lambda_solution = 0;
 
 	if (mesh->coupling == true || mesh->adaptivityType == "movingdesignpoints"){
 		unsigned int no_des_per_point = mesh->design_var_per_point();
