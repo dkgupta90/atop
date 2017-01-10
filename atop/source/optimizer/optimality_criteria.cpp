@@ -62,26 +62,26 @@ void OC::optimize(
 				*(opt_design2d->mesh)
 				);
 
+
+
+
 		double l1 = 1e-5, l2 = 100000000, move = 0.08;
 		//l1 = l2;
-/*		if (opt_design2d->obj_fem->itr_count == 57 && opt_design2d->cycle == 0){
-			std::cout<<"Entered here for check"<<std::endl;
-			l1 = l2;
-		}*/
+
 
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
 				double octemp1;
 				double old_density = old_design_vector[i];
-/*				if (obj_grad[i] > 0){
+				if (obj_grad[i] > 0){
 					std::cout<<"Error located "<<obj_grad[i]<<std::endl;
-				}*/
+				}
 
 				//For compliant mechanism
 				if (opt_design2d->problem_name == "compliant_mechanism" && obj_grad[i] > 0){
 					obj_grad[i] = -1e-10;
-					octemp1 = old_density * (pow(-(obj_grad[i]/(lmid * vol_grad[i])), 0.5));
+					octemp1 = old_density * (pow(-(obj_grad[i]/(lmid * vol_grad[i])), 0.3));
 
 				}
 				else{
@@ -149,7 +149,7 @@ void OC::optimize(
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
-	}while(fabs(old_objective - objective) > min_obj_change || opt_design2d->obj_fem->itr_count < 10);
+	}while(fabs(old_objective - objective) > min_obj_change);// || opt_design2d->obj_fem->itr_count < 10);
 
 
 }

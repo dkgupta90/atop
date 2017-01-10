@@ -80,7 +80,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.25, 1.0);
+			"dp-refinement", 0.025, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -95,9 +95,9 @@ int main(){
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
-	//opt.problem_name = "minimum_compliance";
-	opt.problem_name = "compliant_mechanism";
-	opt.is_problem_self_adjoint = false;
+	opt.problem_name = "minimum_compliance";
+	//opt.problem_name = "compliant_mechanism";
+	opt.is_problem_self_adjoint = true;
 	opt.problemType(material1);
 	opt.volfrac = 0.3; //Maximum permissible volume fraction
 
@@ -106,21 +106,21 @@ int main(){
 	mesh.point_l_vector.clear();
 
 	//Parameters for defining the test cases for dp-refinement
-	std::string test_problem = "compliant_mechanism2D";
 	//std::string test_problem = "compliant_mechanism2D";
+	std::string test_problem = "cantilever2D";
 	unsigned int dim = 2;
 
 	if (dim == 2){
 		if (test_problem == "cantilever2D"){
 			mesh.coordinates = {{0, 2}, {0, 1}};
-			mesh.subdivisions = {40, 20};
+			mesh.subdivisions = {80, 40};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 4;
+			mesh.initial_el_order = 6;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 10;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 25;
+			mesh.initial_dcount_per_el = 1;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
@@ -129,7 +129,7 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "pointLoad";
+			std::string loadType = "distLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force

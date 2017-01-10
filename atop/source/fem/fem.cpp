@@ -84,7 +84,7 @@ FEM<dim>::FEM(
 	}
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+10; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+15; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -277,14 +277,34 @@ void FEM<dim>::assemble_system(){
 	//update the pseudo-design field
     update_pseudo_designField();
 
+    //Manually updating the pseudo_densities
+/*    if (itr_count == 0){
+        for (unsigned int cell_itr = 0; cell_itr < (*cell_info_vector).size(); ++cell_itr){
+        	if (cell_itr != 1){
+        		for (unsigned int dpoint = 0; dpoint < (*cell_info_vector)[cell_itr].design_points.no_points; ++dpoint){
+        			(*cell_info_vector)[cell_itr].design_points.rho[dpoint] = 1.0;
+        			(*cell_info_vector)[cell_itr].pseudo_design_points.rho[dpoint] = 1.0;
+        		}
+        	}
+        	else{
+        		for (unsigned int dpoint = 0; dpoint < (*cell_info_vector)[cell_itr].design_points.no_points; ++dpoint){
+        			(*cell_info_vector)[cell_itr].design_points.rho[dpoint] = 0.55;
+        			(*cell_info_vector)[cell_itr].pseudo_design_points.rho[dpoint] = 0.55;
+
+        		}
+        	}
+        }
+    }*/
+
+
 	//Apply smoothing operation on the density values
 	density_field.smoothing(*cell_info_vector,
 			*density_cell_info_vector,
 			*mesh);
 	std::cout<<"Smoothing done"<<std::endl;
-/*	OutputData<dim> out_soln;
+	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
-			"output_design/density_1_40.dat");*/
+			"output_design/density_1_46.dat");
 
 
 
@@ -342,6 +362,9 @@ void FEM<dim>::solve(){
 	hanging_node_constraints.distribute(solution);
 	hanging_node_constraints.distribute(lambda_solution);
 
+/*	for (unsigned int i = 0; i < solution.size(); ++i){
+		std::cout<<solution[i]<<std::endl;
+	}*/
 	//std::cout<<"Printing rhs vector"<<std::endl;
 	// (unsigned int i = 0; i < system_rhs.size(); ++i)	std::cout<<system_rhs(i)<<std::endl;
 
@@ -776,6 +799,7 @@ void FEM<dim>::assembly(){
 		//QGauss<dim> quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
 		//unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
 		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
+		//std::cout<<"NO. of q points : "<<n_q_points<<std::endl;
 		QGauss<dim-1> face_quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
 		unsigned int n_face_q_points = face_quadrature_formula.size();
 
@@ -814,7 +838,7 @@ void FEM<dim>::assembly(){
 					B_matrix,
 					B_matrix,
 					true,
-					false,
+					false,dis
 					JxW);*/
 
 /*
@@ -822,12 +846,14 @@ void FEM<dim>::assembly(){
  * For most of the cases, it should be commented out.
  */
 
-/*			if (quad_points[q_point](1) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
+/*
+			if (quad_points[q_point](1) < 0.5)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-1;
 			else if (quad_points[q_point](1) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
 			else if (quad_points[q_point](0) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
 			else if (quad_points[q_point](0) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else								(*cell_info_vector)[cell_itr].E_values[q_point] = 1.0;
-			std::cout<<q_point<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;*/
+			else								(*cell_info_vector)[cell_itr].E_values[q_point] = 1;
+			//std::cout<<q_point<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
+*/
 
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
@@ -861,6 +887,40 @@ void FEM<dim>::assembly(){
                 {
                   for (unsigned int i=0; i<dofs_per_cell; ++i){
                 	  std::vector<double> distLoad = {0.0, 0.5};
+          			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
+                    cell_rhs(i) += (distLoad[component_i] *
+                                   fe_face_values.shape_value(i,q_point) *
+                                    fe_face_values.JxW(q_point));
+                  }
+                	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
+
+                }
+            }
+
+          if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 63)){
+              hp_fe_face_values.reinit (cell, face_number, q_index);
+              const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+              for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
+                {
+                  for (unsigned int i=0; i<dofs_per_cell; ++i){
+                	  std::vector<double> distLoad = {-1, 0.0};
+          			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
+                    cell_rhs(i) += (distLoad[component_i] *
+                                   fe_face_values.shape_value(i,q_point) *
+                                    fe_face_values.JxW(q_point));
+                  }
+                	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
+
+                }
+            }
+
+          if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 64)){
+              hp_fe_face_values.reinit (cell, face_number, q_index);
+              const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+              for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
+                {
+                  for (unsigned int i=0; i<dofs_per_cell; ++i){
+                	  std::vector<double> distLoad = {1, 0.0};
           			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
                     cell_rhs(i) += (distLoad[component_i] *
                                    fe_face_values.shape_value(i,q_point) *
@@ -1139,7 +1199,7 @@ void FEM<dim>::add_boundary_constraints(){
 
 		for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
 
-			if (cell->face(f)->boundary_id() == 52){
+			if (cell->face(f)->boundary_id() == 52 || cell->face(f)->boundary_id() == 53 || cell->face(f)->boundary_id() == 54){
 				indic52 = true;
 				break;
 			}
@@ -1163,6 +1223,18 @@ void FEM<dim>::add_boundary_constraints(){
 							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
 						}
 
+					}
+					else if (boundary_indic == 53){
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
+
+						if (comp_i == 0){
+							hanging_node_constraints.add_line(local_dof_indices[i]);
+							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+						}
+					}
+					else if (boundary_indic == 54){
+							hanging_node_constraints.add_line(local_dof_indices[i]);
 					}
 				}
 			}

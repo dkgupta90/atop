@@ -45,10 +45,22 @@ unsigned int get_boundary_indicator(std::vector<double> X){
 unsigned int get_boundary_indicator_dist(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[1] - 0) < 1e-12)	//fixed Dirichlet b.c.
-		return 42;
 	if (fabs(X[1] - 1) < 1e-12)
-		return 62;	//Rolling Dirichlet b.c.
+		return 62;	//for adding distributed load
+/*	else if (fabs(X[0] - 0) < 1e-12)
+		return 63;*/
+/*	else if (fabs(X[0] - 1) < 1e-12)
+		return 64;*/
+/*	else if (fabs(X[1] - 0) < 1e-12)	//fixed Dirichlet b.c.
+		return 42;*/
+	else if (fabs(X[1] - 0) < 1e-12){
+		if (fabs(X[0] - 0) < 1e-12)
+			return 52;
+		else
+			return 52;
+	}
+/*	else if (fabs(X[0] - 0) < 1e-12)
+		return 53;*/
 	else
 		return 9999;
 
@@ -80,12 +92,12 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.25, 1.0);
+			"dp-refinement", 1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
 	penal.factmin = 1e-9;
-	penal.penal_power = 1.0;
+	penal.penal_power = 3.0;
 
 	//Define the physics of the problem
 	LinearElastic<2> material1;
@@ -97,7 +109,7 @@ int main(){
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
 	opt.problem_name = "minimum_compliance";
 	opt.problemType(material1);
-	opt.volfrac = 0.5; //Maximum permissible volume fraction
+	opt.volfrac = 0.3; //Maximum permissible volume fraction
 
 	//Parameters for defining the test cases for dp-refinement
 	std::string test_problem = "cantilever2D";
@@ -111,7 +123,7 @@ int main(){
 
 			mesh.initial_el_order = 1;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 10;
+			mesh.max_el_order = 12;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 100;
 			mesh.max_dcount_per_el = 100;
@@ -178,7 +190,7 @@ int main(){
 	clock_t begin = clock();
 	opt.start_time = double (begin)/CLOCKS_PER_SEC;
 
-	for (unsigned int i = 8; i <= 10; ++i){
+	for (unsigned int i = 12; i <= mesh.max_el_order; ++i){
 		mesh.initial_el_order = i;
 		std::cout<<"p = "<<i<<std::endl;
 		opt.optimize();

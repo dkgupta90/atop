@@ -638,6 +638,44 @@ void DensityField<dim>::update_design_vector(
 			design_vector.clear();
 			design_vector.resize(no_design_points, volfrac);
 
+			//Manually changing the design vector for first iteration
+/*			if (no_design_points % 3 != 0){
+				std::cerr<<"Wrong no. of design points \n";
+				exit(0);
+			}*/
+/*			unsigned int no_design_elem  = no_design_points / 9;
+
+			for (unsigned int i = 0; i < no_design_points; ++i){
+				if (i >= no_design_elem && i < 2*no_design_elem){
+					design_vector[i] = 0.55;
+				}
+				else{
+					design_vector[i] = 1.0;
+
+				}
+			}
+
+			for (unsigned int i = 0; i < no_design_points; ++i){
+				if (i >= 4*no_design_elem && i < 5*no_design_elem){
+					design_vector[i] = 0.3;
+				}
+				else if (i >= 0*no_design_elem && i < 1*no_design_elem){
+					design_vector[i] = 0.0;
+				}
+				else if (i >= 2*no_design_elem && i < 3*no_design_elem){
+					design_vector[i] = 0.0;
+				}
+				else if (i >= 6*no_design_elem && i < 7*no_design_elem){
+					design_vector[i] = 0.0;
+				}
+				else if (i >= 8*no_design_elem && i < 9*no_design_elem){
+					design_vector[i] = 0.0;
+				}
+				else{
+					design_vector[i] = 1.0;
+				}
+			}*/
+
 		}
 		else{
 			design_vector.clear();
@@ -704,6 +742,42 @@ void DensityField<dim>::update_design_bounds(
 		unsigned int design_count = design_vector.size();
 		lb.resize(design_count, 0.0);
 		ub.resize(design_count, 1.0);
+
+/*		unsigned int no_design_points = lb.size();
+		//Manually changing the bounds
+		if (no_design_points % 3 != 0){
+			std::cerr<<"Wrong no. of design points \n";
+			exit(0);
+		}*/
+/*		unsigned int no_design_elem  = no_design_points / 9;
+
+		for (unsigned int i = 0; i < no_design_points; ++i){
+			if (i >= 4*no_design_elem && i < 5*no_design_elem){
+
+			}
+			else if (i >= 0*no_design_elem && i < 1*no_design_elem){
+				lb[i] = 0.0;
+				ub[i] = 0.0 + 1e-12;
+			}
+			else if (i >= 2*no_design_elem && i < 3*no_design_elem){
+				lb[i] = 0.0;
+				ub[i] = 0.0 + 1e-12;
+			}
+			else if (i >= 6*no_design_elem && i < 7*no_design_elem){
+				lb[i] = 0.0;
+				ub[i] = 0.0 + 1e-12;
+			}
+			else if (i >= 8*no_design_elem && i < 9*no_design_elem){
+				lb[i] = 0.0;
+				ub[i] = 0.0 + 1e-12;
+			}
+			else{
+				lb[i] = 1.0 - 1e-12;
+				ub[i] = 1.0;
+			}
+		}*/
+
+
 	}
 
 }
