@@ -17,6 +17,8 @@
 #include <atop/optimizer/optimality_criteria.h>
 #include <atop/TopologyOptimization/adaptivity.h>
 #include <nlopt.hpp>
+#include <coin/IpIpoptApplication.hpp>
+#include <atop/optimizer/ipopt_interface.hpp>
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -25,6 +27,7 @@
 
 using namespace atop;
 using namespace dealii;
+using namespace Ipopt;
 
 
 std::string opt_algorithm;
@@ -143,10 +146,12 @@ void Optimizedesign<dim>::optimize(){
 				*projection);
 
 		//Defining the upper and lower bounds
-		std::vector<double> lb, ub;
+		//std::vector<double> lb, ub;
 		obj_fem->density_field.update_design_bounds(
 				lb, ub, *mesh, *projection,
 				design_vector);
+		design_count = no_design_count;	//assigning to member variable of the class
+		no_constraints = 1;
 
 
 		//Choosing the optimizer
@@ -172,9 +177,51 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-2;   //0.4 * pow(0.4, cycle);
+			obj_oc.min_obj_change = 1e-3;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
+		}
+		else if (opt_algorithm == "IpOpt"){
+			  // Create a new instance of your nlp
+			  //  (use a SmartPtr, not raw)
+			  SmartPtr<TNLP> mynlp = new IpOpt_IF(*this);
+
+			  // Create a new instance of IpoptApplication
+			  //  (use a SmartPtr, not raw)
+			  // We are using the factory, since this allows us to compile this
+			  // example with an Ipopt Windows DLL
+			  SmartPtr<IpoptApplication> app = IpoptApplicationFactory();
+			  app->RethrowNonIpoptException(true);
+
+			  // Change some options
+			  // Note: The following choices are only examples, they might not be
+			  //       suitable for your optimization problem.
+			  app->Options()->SetNumericValue("tol", 1e-7);
+			  app->Options()->SetStringValue("mu_strategy", "adaptive");
+			  app->Options()->SetStringValue("output_file", "ipopt.out");
+			  app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+			  // The following overwrites the default name (ipopt.opt) of the
+			  // options file
+			  // app->Options()->SetStringValue("option_file_name", "hs071.opt");
+
+			  // Initialize the IpoptApplication and process the options
+			  ApplicationReturnStatus status;
+			  status = app->Initialize();
+			  if (status != Solve_Succeeded) {
+			    std::cout << std::endl << std::endl << "*** Error during initialization in IpOpt!" << std::endl;
+			    exit(0);
+			  }
+
+			  // Ask Ipopt to solve the problem
+			  status = app->OptimizeTNLP(mynlp);
+
+			  if (status == Solve_Succeeded) {
+			    std::cout << std::endl << std::endl << "*** The problem solved!" << std::endl;
+			  }
+			  else {
+			    std::cout << std::endl << std::endl << "*** The problem FAILED!" << std::endl;
+			  }
+
 		}
 
 

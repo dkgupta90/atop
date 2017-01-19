@@ -43,6 +43,7 @@
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/suitesparse"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/include"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.933430047" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEAL_II_USE_CXX11"/>
@@ -74,6 +75,7 @@
 								<option id="gnu.both.asm.option.include.paths.579795449" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1133852548" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -117,6 +119,7 @@
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/suitesparse"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/include"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1666599761" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
@@ -144,6 +147,7 @@
 								<option id="gnu.both.asm.option.include.paths.456149970" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1703344907" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>

@@ -38,6 +38,7 @@
 
 
 #include<vector>
+#include <fstream>
 
 
 
@@ -302,9 +303,9 @@ void FEM<dim>::assemble_system(){
 			*density_cell_info_vector,
 			*mesh);
 	std::cout<<"Smoothing done"<<std::endl;
-	OutputData<dim> out_soln;
+/*	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
-			"output_design/density_1_46.dat");
+			"output_design/density_1_46.dat");*/
 
 
 
@@ -766,7 +767,15 @@ void FEM<dim>::assembly(){
 	add_point_stiffness_to_system();
 	add_point_to_l_vector();
 
-
+	bool output_FE_density_field = true;
+	std::string fe_fname = "fe_density/fe_density-";
+	std::stringstream ss;
+	ss<< cycle +1<<"_"<<itr_count+1;
+	fe_fname += ss.str();
+	fe_fname += ".dat";
+	std::ofstream fout;
+	fout.open(fe_fname, std::ios::out);
+	fout.close();
 	for (; cell != endc; ++cell){
 		//std::cout<<cell_itr<<std::endl;
 		//Getting the q_index for the cell
@@ -809,6 +818,20 @@ void FEM<dim>::assembly(){
 /*		add_source_to_rhs(fe_values.get_quadrature_points(),
 				rhs_values);*/
 
+		//Writing the quadrature points and density value for this cell into the file
+		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
+		assert(n_q_points == quad_points.size());
+		fout.open(fe_fname, std::ios::app);
+		Point<dim> em_center = cell->center();
+		for (unsigned int i = 0; i < n_q_points; ++i){
+		//if (cell_itr > 2) continue;
+			fout<<quad_points[i](0)<<"\t"<<quad_points[i](1)<<"\t"<<
+					(*cell_info_vector)[cell_itr].density[i]<<"\n";
+			//std::cout<<quad_points[i](0)<<"   "<<quad_points[i](1)<<std::endl;
+		}
+		fout.close();
+
+		//for (unsigned int i = 0; i < )
 		//Calculating the cell_matrix
 		double total_weight = 0.0; // For setting the density values at the nodes
 		unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
@@ -823,8 +846,6 @@ void FEM<dim>::assembly(){
 
 		elastic_tool.get_D_plane_stress2D(D_matrix,
 				0.3);*/
-
-		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
 
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
