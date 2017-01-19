@@ -1,13 +1,13 @@
 function dummy = plot_design_mesh(rhoX, rhoY, rhoR, rhoV)
 
-h = scatter(rhoX, rhoY, rhoR, rhoV, 'filled'); % Create a scatter plot and return a handle to the 'hggroup' object
+h = scatter(rhoX, rhoY, rhoR, rhoV, 'filled', 'MarkerEdgeColor', 'black'); % Create a scatter plot and return a handle to the 'hggroup' object
 
 %Obtain the axes size (in axpos) in Points
 
 currentunits = get(gca,'Units');
 
 set(gca, 'Units', 'Points');
-colormap('default')
+colormap('gray')
 caxis([0 1]);
 axpos = get(gca,'Position');
 
@@ -15,7 +15,7 @@ set(gca, 'Units', currentunits);
 
 markerRadius = rhoR./diff(ylim).*axpos(4); % Calculate Marker width in points
 
-set(h, 'SizeData', 2 .* markerRadius .^2);
+set(h, 'SizeData', 7 .* markerRadius .^2);
 
 end
 

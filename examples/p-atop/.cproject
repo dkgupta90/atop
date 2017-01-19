@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/include"/>
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/include"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/include"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.888522330" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
@@ -45,12 +46,14 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="deal_II"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="nlopt"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tbb"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipopt"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1176719708" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/lib"/>
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/Debug"/>
 									<listOptionValue builtIn="false" value="/usr/lib"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/lib"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2131175035" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -111,12 +114,14 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="deal_II"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="nlopt"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="tbb"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipopt"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.423916125" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/WORK/projects/atop/atop/Debug"/>
 									<listOptionValue builtIn="false" value="/usr/lib"/>
 									<listOptionValue builtIn="false" value="/home/dkgupta/bin/deal.II/lib"/>
+									<listOptionValue builtIn="false" value="/home/dkgupta/IpOpt/CoinIpopt/build/lib"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.613599099" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

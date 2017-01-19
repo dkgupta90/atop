@@ -69,6 +69,9 @@ template <int dim>
 	double objective;
 	std::vector<double> grad_vector;
 
+	std::vector<double> lb, ub;
+	unsigned int design_count, no_constraints;
+
 		Optimizedesign();
 
 		Optimizedesign(

@@ -1,12 +1,12 @@
-15:40:57 **** Clean-only build of configuration Debug for project p-atop ****
+10:44:29 **** Clean-only build of configuration Debug for project p-atop ****
 make clean 
 rm -rf  ./p-atop.o  ./p-atop.d  p-atop
  
-15:40:58 **** Build of configuration Debug for project p-atop ****
+10:44:30 **** Build of configuration Debug for project p-atop ****
 make all 
 Building file: ../p-atop.cpp
 Invoking: Cross G++ Compiler
-g++-5 -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"p-atop.d" -MT"p-atop.d" -o "p-atop.o" "../p-atop.cpp"
+g++-5 -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/IpOpt/CoinIpopt/build/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"p-atop.d" -MT"p-atop.d" -o "p-atop.o" "../p-atop.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:29:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
                  from ../p-atop.cpp:12:
@@ -150,6 +150,6 @@ Finished building: ../p-atop.cpp
  
 Building target: p-atop
 Invoking: Cross G++ Linker
-g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -o "p-atop"  ./p-atop.o   -latop -ldeal_II -lnlopt -ltbb
+g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -L/home/dkgupta/IpOpt/CoinIpopt/build/lib -o "p-atop"  ./p-atop.o   -latop -ldeal_II -lnlopt -ltbb -lipopt
 Finished building target: p-atop
  

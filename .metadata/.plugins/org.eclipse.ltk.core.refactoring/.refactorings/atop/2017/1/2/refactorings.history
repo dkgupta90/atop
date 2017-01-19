@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;atop/include/atop/optimizer/ipopt_interface.h&apos; to &apos;ipopt_interface.hpp&apos;" description="Rename resource &apos;ipopt_interface.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="include/atop/optimizer/ipopt_interface.h" name="ipopt_interface.hpp" stamp="1484054569926" updateReferences="true"/>
+</session>
