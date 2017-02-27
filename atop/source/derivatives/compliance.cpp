@@ -184,55 +184,7 @@ void Compliance<dim>::compute(
 
 			double dobj;
 
-			if (fem->mesh->coupling == false && fem->mesh->adaptivityType == "movingdesignpoints"){
-				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
-
-					unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
-					std::vector<double> dxPhys_dx(fem->mesh->design_var_per_point(), 0.0);	//vector for derivatives of xPhys w.r.t all design variables for that point
-					density_field->get_dxPhys_dx(
-							dxPhys_dx,
-							(*cell_info_vector)[cell_itr],
-							q_point,
-							qpoints[q_point],
-							(*density_cell_info_vector)[density_cell_itr2],
-							density_cell_itr2);
-
-
-
-					//Calculating all the sensitivities for the particular design point
-					for (unsigned int k = 0; k < fem->mesh->design_var_per_point(); k++){
-						if (fem->itr_count < 0){
-							if (k > 0){
-								dxPhys_dx[k] = 0.0;
-							}
-						}
-						(*density_cell_info_vector)[density_cell_itr2].dxPhys[k] += dxPhys_dx[k];
-						unsigned int design_index = (density_cell_itr2 * fem->mesh->design_var_per_point()) + k;
-						double dEfactor = dE_dxPhys * dxPhys_dx[k];
-						cell_matrix = 0;
-						cell_matrix.add(dEfactor,
-								normalized_matrix);
-
-						Vector<double> temp_array(dofs_per_cell);
-						temp_array = 0;
-						Matrix_Vector matvec;
-						matvec.vector_matrix_multiply(
-								cell_array,
-								cell_matrix,
-								temp_array,
-								dofs_per_cell,
-								dofs_per_cell);
-						dobj = matvec.vector_vector_inner_product(
-								temp_array,
-								cell_array);
-						//Adding to the grad vector
-						//std::cout<<dxPhys_dx[k]<<" ";
-						obj_grad[design_index] -= dobj;
-					}
-
-				}
-			}
-			else if (fem->mesh->coupling == true){
+			if (fem->mesh->coupling == true){
 				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
 					unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 					double dxPhys_dx = density_field->get_dxPhys_dx(

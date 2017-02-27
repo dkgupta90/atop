@@ -480,7 +480,7 @@ void DensityField<dim>::smoothing(
 		){
 	unsigned int no_cells = cell_info_vector.size();
 
-	if (mesh.coupling == true || mesh.adaptivityType == "movingdesignpoints"){
+	if (mesh.coupling == true){
 		for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
 			for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
 				double xPhys = 0.0;
@@ -561,64 +561,11 @@ void DensityField<dim>::update_design_vector(
 	//Update the design vector
 
 	/*
-	 * This is a case where the design points are decoupled and they actually do not form a mesh.
-	 * For convenience it is implemented as a separate mesh, however, there is only one point per mesh.
-	 * No quadrature sort of implementation exists for the design mesh for such a case.
-	 * In the worst implementation, q = 1 point might be assumed for quadrature, however, that should be avoided.
-	 */
-	if (mesh.coupling == false && mesh.adaptivityType == "movingdesignpoints"){
-		design_vector.clear();
-		if (cycle == 0){
-			design_vector.resize(cell_count * mesh.design_var_per_point());
-
-			typename Triangulation<dim>::active_cell_iterator cell = mesh.triangulation->begin_active(),
-						endc = mesh.triangulation->end();
-
-			for (unsigned int i = 0; i < design_vector.size();){
-				double randno = (double)(rand() % 100 + 1);
-				randno /= 1000.0;
-				design_vector[i] = volfrac - randno; //adding the density for the current design point
-				i++;
-				design_vector[i] = projection.fact; //Adding the projection radius factor
-				i++;
-				// initializing the dim no. of coordinates for the location of the design point
-				for (unsigned int j = 0; j < dim; j++){
-					design_vector[i] = cell->center()[j];
-/*					if (design_vector[i] > 1.5){
-						design_vector[i] -= 1.5;
-					}
-					if (design_vector[i] > 1.0){
-						design_vector[i] -= 1.0;
-					}
-					if (design_vector[i] > 0.5){
-						design_vector[i] -= 0.5;
-					}*/
-					i++;
-				}
-				cell++;
-
-			}
-		}
-		else{
-			design_vector.clear();
-			unsigned int k = 0; //iterate over the whole design vector
-			for (unsigned int i = 0; i < cell_count; ++i){
-				design_vector.push_back(density_cell_info_vector[i].density[0]);	//adding the density value
-				design_vector.push_back(density_cell_info_vector[i].projection_radius);		//adding rmin value for the cell
-				for(unsigned int j = 0; j < density_cell_info_vector[i].pointX.size(); ++j){
-					//adding all the components of dim coordinates for the location
-					design_vector.push_back(density_cell_info_vector[i].pointX[j]);
-				}
-			}
-
-		}
-	}
-	/*
 	 * Below is the case of a coupled mesh where the same element is used for analysis as well design.
 	 * For clarity purpose two different meshes are used. However, a one-one correlation exists between
 	 * elements of the 2 meshes.
 	 */
-	else if (mesh.coupling == true){
+	if (mesh.coupling == true){
 		design_vector.clear();
 		if (cycle == 0){
 			design_vector.resize(cell_count, volfrac);
@@ -701,35 +648,7 @@ void DensityField<dim>::update_design_bounds(
 		Projection &projection,
 		std::vector<double> &design_vector){
 
-	if (mesh.coupling == false && mesh.adaptivityType == "movingdesignpoints"){
-		unsigned int no_cells = mesh.triangulation->n_active_cells();	// No of design points in the domain
-		//This case assumes only one design points exists with respect to every finite element in the start of MTO
-		unsigned int design_count = no_cells * mesh.design_var_per_point();	//Total number of design variables for optimization
-
-		lb.resize(design_count);
-		ub.resize(design_count);	//setting the sizes of the bound vectors
-
-		unsigned int k = 0;	//iterating over all design variables
-
-		for (unsigned int i = 0; i < no_cells; ++i){
-
-			lb[k] = 0.25;	//density value
-			ub[k] = 1;	//density value
-			k++;
-			lb[k] = projection.minFact;	//minimum projection factor (elem size)
-			ub[k] = projection.maxFact;	//maximum projection factor (elem size)
-			k++;
-
-			// updating the location bounds for the dim dimensions
-			for (unsigned int j = 0; j < dim; ++j){
-				lb[k] = mesh.coordinates[j][0];
-				ub[k] = mesh.coordinates[j][1];
-				k++;
-			}
-		}
-
-	}
-	else if (mesh.coupling == true){
+	if (mesh.coupling == true){
 
 		//in this case the number of design variables is equal to the number of cells in the
 		//density_trinagulation mesh
@@ -816,55 +735,6 @@ double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 }
 
 
-//---------------------------------------------------------------------------------------------------------
-/*
- * This implementation of get_dxPhys_dx is for movingDesignPoints.
- * For every design point, it returns dim+2 values, each w.r.t 1 design variable
- * design variables: rho, rmin, x_cor, y_cor
- */
-template <int dim>
-void DensityField<dim>::get_dxPhys_dx(
-		std::vector<double> &dxPhys_dx,
-		CellInfo &cell_info,
-		unsigned int qpoint,
-		Point<dim> qX,
-		CellInfo &density_cell_info,
-		unsigned int density_cell_itr2){
-
-	//searching the design point in the neighbor list
-	unsigned int design_index;
-	for (unsigned int i = 0; i < cell_info.neighbour_cells[qpoint].size(); ++i){
-		design_index = cell_info.neighbour_cells[qpoint][i];
-		if (design_index != density_cell_itr2)	continue;
-
-		//When the design index matches, the derivatives are calculated below
-		double dxPhys_dH = (density_cell_info.density[0] - cell_info.density[qpoint])/cell_info.sum_weights[qpoint];
-
-
-		//For cubic spline
-
-		double rmin = density_cell_info.projection_fact * cell_length;		//rmin for the current design point
-		double temp1 = cell_info.neighbour_distance[qpoint][i];
-		double r = temp1/rmin;
-		double dH_dr = 0.0;
-		if (r <= 0.5)	dH_dr = -8.0*r + 12.0*r*r;
-		else if(r > 0.5 && r <= 1.0)		dH_dr = -4.0 + 8.0*r - 4.0*r*r;
-		double dr_drmin = -temp1 / (rmin * rmin);
-		double dr_dD = 1.0/rmin;
-		double dH_dD = dH_dr * dr_dD;
-		double drmin_dproj = cell_length;
-		dxPhys_dx[0] = cell_info.neighbour_weights[qpoint][i];	//w.r.t design density
-		dxPhys_dx[1] = dxPhys_dH * dH_dr * dr_drmin * drmin_dproj;	//w.r.t. projection factor
-
-		for (unsigned int k = 0; k < dim; k++){
-			double dD_ddimk = -(qX[k] - density_cell_info.pointX[k])/cell_info.neighbour_distance[qpoint][i];
-			dxPhys_dx[k+2] = dxPhys_dH * dH_dD * dD_ddimk;	//adding the sens w.r.t dim_k
-		}
-	}
-
-}
-
-//---------------------------------------------------------------------------------------------------------
 template <int dim>
 double DensityField<dim>::get_vol_fraction(
 		std::vector<CellInfo> &cell_info_vector
@@ -958,7 +828,7 @@ unsigned int DensityField<dim>::get_design_count(
 		std::vector<CellInfo> &density_cell_info_vector){
 
 	if (cycle == 0){
-		if (mesh.coupling == false && mesh.adaptivityType != "movingdesignpoints"){
+		if (mesh.coupling == false){
 			return (cell_info_vector.size() * mesh.initial_dcount_per_el);
 		}
 		else{
@@ -966,17 +836,13 @@ unsigned int DensityField<dim>::get_design_count(
 		}
 	}
 	else{
-		if (mesh.coupling == false && mesh.adaptivityType != "movingdesignpoints"){
+		if (mesh.coupling == false){
 			//Calculating the no. of design variables from cell_info_vector
 			unsigned int no_design_count = 0;
 			for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
 				no_design_count += cell_info_vector[i].design_points.no_points;
 			}
 			return no_design_count;
-		}
-
-		else{
-			return (density_cell_info_vector.size() * mesh.design_var_per_point());
 		}
 	}
 
