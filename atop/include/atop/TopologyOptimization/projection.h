@@ -21,7 +21,7 @@ namespace atop{
 	public:
 		std::string projection_type;
 		std::string adaptivityType;
-		double radius;
+		double radius, true_radius;
 		double gamma;
 		double fact, minFact, maxFact;	//factors for calculating projection radius w.r.t element size
 		unsigned int cycle;
@@ -67,6 +67,8 @@ namespace atop{
 
 		void update_projections(std::vector<CellInfo> &cell_info_vector,
 				hp::DoFHandler<2> &dof_handler);
+
+		void update_projection(std::vector<CellInfo> &cell_info_vector);
 
 		~Projection();
 

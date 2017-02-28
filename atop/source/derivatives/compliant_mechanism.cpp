@@ -139,7 +139,7 @@ void CompliantMechanism<dim>::compute(
 
 
 			if (fem->mesh->coupling == true){
-				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
+/*				for(unsigned int i = 0 ; i < (*cell_info_vector)[cell_itr].neighbour_cells[q_point].size(); ++i){
 					unsigned int density_cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_cells[q_point][i];
 					double dxPhys_dx = density_field->get_dxPhys_dx(
 							(*cell_info_vector)[cell_itr],
@@ -169,7 +169,7 @@ void CompliantMechanism<dim>::compute(
 							cell_array);
 					//Adding to the grad vector
 					obj_grad[density_cell_itr2] -= dobj;
-				}
+				}*/
 			}
 			else{
 				for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].neighbour_points[q_point].size(); ++i){

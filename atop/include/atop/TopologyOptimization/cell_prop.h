@@ -96,7 +96,12 @@ namespace atop{
 		 * Stores details of neighbour cells for projection purpose
 		 * tells which all cells from density_mesh are neighbours of every q_point of a cell in FE mesh
 		 * distance and weights are depend on the chosen projection scheme
-		 */std::vector<std::vector< unsigned int > > neighbour_cells;
+		 */
+		std::vector<unsigned int > neighbor_cells;
+		std::vector<double> neighbor_distance;
+		std::vector<double> neighbor_weights;
+
+
 		std::vector<std::vector<std::pair<unsigned int, unsigned int> > > neighbour_points;
 		std::vector< std::vector<double> > neighbour_distance;
 		std::vector< std::vector<double> > neighbour_weights;

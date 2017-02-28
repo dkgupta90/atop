@@ -68,7 +68,7 @@ Projection::Projection(
 	gamma = g;
 }
 
-void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
+/*void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
 		hp::DoFHandler<2> &dof_handler){
 
 	//Iterating over all the cells
@@ -79,15 +79,21 @@ void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
 	for (; cell != endc; ++cell){
 
 
-/*		double cell_len = sqrt(cell->measure());
+		double cell_len = sqrt(cell->measure());
 		double voxel_len = cell_len / (sqrt(cell_info_vector[cell_itr].design_points.no_points));
-		cell_info_vector[cell_itr].projection_radius = voxel_len * radius;*/
+		cell_info_vector[cell_itr].projection_radius = voxel_len * radius;
 
 
 		double d_factor = round((sqrt(cell_info_vector[cell_itr].pseudo_design_points.no_points)));
-		cell_info_vector[cell_itr].projection_radius = /*(radius/(cycle+1)) * pow(gamma, cycle);// */
+		cell_info_vector[cell_itr].projection_radius = (radius/(cycle+1)) * pow(gamma, cycle);//
 														(radius*1.2)/d_factor; //0.2667; //(radius/d_factor) * pow(gamma, d_factor-1);
 		cell_itr++;
 	}
 
+}*/
+
+void Projection::update_projection(std::vector<CellInfo> &cell_info_vector){
+
+		double d_factor = round((sqrt(cell_info_vector[0].pseudo_design_points.no_points)));
+		true_radius = (radius*1.2)/d_factor;
 }

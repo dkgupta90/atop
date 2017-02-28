@@ -151,6 +151,11 @@ unsigned int DefineMesh<dim>::design_var_per_point(){
 	return 0;
 }
 
+/**
+ * Update the iterator connections between the analysis and design triangulations
+ * For each analysis cell, iterators for all the connected design cells are stored
+ * For each design cell, the parent analysis cell iterator is saved
+ */
 template <int dim>
 void DefineMesh<dim>::update_outputDesignMesh(Triangulation<dim> &design_triangulation,
 		unsigned int design_per_dim){
@@ -184,6 +189,7 @@ void DefineMesh<dim>::update_analysis_design_connections(
 		cell_info_vector[i].connected_cell_iterators_2D.clear();
 	}
 
+
 	typename hp::DoFHandler<dim>::active_cell_iterator design_cell = design_handler.begin(),
 			design_endc = design_handler.end();
 	for(; design_cell != design_endc; ++design_cell){
@@ -198,4 +204,9 @@ void DefineMesh<dim>::update_analysis_design_connections(
 		cell_info_vector[cell->user_index()-1].connected_cell_iterators_2D.push_back(design_cell);
 	}
 
+/*	design_cell = design_handler.begin();
+		typename hp::DoFHandler<dim>::active_cell_iterator endc = design_handler.end();
+	for (; design_cell != endc; ++design_cell){
+		std::cout<<design_cell_info_vector[design_cell->user_index()-1].connected_cell_iterators_2D.size()<<std::endl;
+	}*/
 }

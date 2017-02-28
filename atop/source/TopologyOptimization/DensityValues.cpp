@@ -20,6 +20,7 @@
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/hp/dof_handler.h>
 #include <deal.II/hp/fe_values.h>
+#include <assert.h>
 
 #include <stdlib.h>
 
@@ -158,7 +159,7 @@ void DensityField<dim>::create_neighbors(
 			++cell_itr1;
 		}
 		else{
-			//Indentifying the density cell which contains the centroid of this FE cell
+/*			//Indentifying the density cell which contains the centroid of this FE cell
 			typename hp::DoFHandler<dim>::active_cell_iterator density_cell1;
 			//density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
 			density_cell1 = cell1;
@@ -221,117 +222,75 @@ void DensityField<dim>::create_neighbors(
 					cell_itr1,
 					proj_radius,
 					mesh);
-			++cell_itr1;
+			++cell_itr1;*/
 		}
 	}
 }
 
-//---------------------------------------------------------------------------------------------------------------
-/*
- * This overloaded function is implemented for decoupled mesh with moving design points
- * density_triangulation should not be used in this instance
- *
- */
+//---------------------DENSITYFIELD CLASS MODULES-------------------------------------------------------------------
+
 template <int dim>
 void DensityField<dim>::create_neighbors(
-		std::vector<CellInfo> &cell_info_vector,
-		std::vector<CellInfo> &density_cell_info_vector,
-		hp::FEValues<dim> &hp_fe_values,
-		hp::DoFHandler<dim> &dof_handler
+		std::vector<CellInfo> &design_cell_info_vector,
+		hp::DoFHandler<dim> &design_handler,
+		Projection &projection,
+		DefineMesh<dim> &mesh
 		){
-
-	projection_matrix.clear();	//This is the regularization operator
-
 	/*
-	 * Clearing the cell_info_vector and initializing it
+	 * Iterate over all the design cells to find the neighbors
 	 */
-	for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
-		unsigned int n_qpoints = cell_info_vector[i].n_q_points;
-		cell_info_vector[i].neighbour_cells.clear();
-		cell_info_vector[i].neighbour_distance.clear();
-		cell_info_vector[i].neighbour_cell_area.clear();
-		cell_info_vector[i].neighbour_cells.resize(n_qpoints);
-		cell_info_vector[i].neighbour_distance.resize(n_qpoints);
-		cell_info_vector[i].neighbour_cell_area.resize(n_qpoints);
-		cell_info_vector[i].sum_weights.resize(n_qpoints);
-	}
+	unsigned int design_itr1 = 0;
+	double rmin1 = 1.01 * projection.true_radius;	//True radius based on the resolution of design mesh
 
-	/*
-	 * Calculating the projection radius for the current design point
-	 * Here, we fix the radius w.r.t to the cell size of the initial triangulation
-	 * However, this needs to changed in future to be adapted w.r.t refinement in the triangulation
-	 */
-	typename hp::DoFHandler<dim>::active_cell_iterator cell1 = dof_handler.begin_active();
-	double cell_len = sqrt(cell1->measure());
-	this->cell_length = cell_len;	//for use in dxPhys_dx();
-	/*
-	 * Iterate over all the density points and checks the neighbor cells in triangulation
-	 * iterated over the CellInfo vector for the design points
-	 */
-	unsigned int no_design_points = density_cell_info_vector.size();
-	for (unsigned int i = 0; i < density_cell_info_vector.size(); i++){
+	typename hp::DoFHandler<dim>::active_cell_iterator design_cell1 = design_handler.begin_active(),
+				design_endc1= design_handler.end();
+	for(; design_cell1 != design_endc1; ++design_cell1){
 
-		//For storing the cell iterators for all neighbor cells in triangulation
-		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		//Stores cell iterators for all neighbors of the current cell
+		std::vector<hp::DoFHandler<dim>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
-		//Computing the projection radius of density point
-		//double rmin = density_cell_info_vector[i].projection_fact * cell_len;
-		double rmin = density_cell_info_vector[i].projection_fact * cell_len;	//scaled cut-off radius
+		//Getting the neighbors within the mentioned rmin1
+		neighbor_iterators.push_back(design_cell1);
+		neighbor_search(design_cell1, design_cell1, neighbor_iterators, rmin1);
 
-		//Identifying the cell in the triangulation around the current density point
-		Point<dim> des_pt;
-		for (unsigned int k = 0; k < dim; k++)	des_pt[k] = density_cell_info_vector[i].pointX[k];
+		assert(neighbor_iterators.size() > 0);	/*Check that atleast one neighbor exists*/
 
-		cell1 = GridTools::find_active_cell_around_point(dof_handler, des_pt);
-		double drmin = rmin + sqrt(cell1->measure());	//for making sure all the cells are covered
-
-		//Getting the neighbors of current cell within a distance of rmin
-		neighbor_iterators.push_back(cell1);
-		neighbor_search(cell1, cell1, neighbor_iterators, drmin);
-		//std::cout<<"Density point: "<<i<<"  No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
-
-		//clearing the memory for saving information of the neighbors
-		density_cell_info_vector[i].neighbour_cells.clear();
-		density_cell_info_vector[i].neighbour_distance.clear();
-		density_cell_info_vector[i].neighbour_cell_area.clear();
-
-		//initializing the size of above vectors
-		density_cell_info_vector[i].neighbour_cells.resize(1);
-		density_cell_info_vector[i].neighbour_distance.resize(1);
-		density_cell_info_vector[i].neighbour_cell_area.resize(1);	//1 since only one design point stored in one density_cell
-
-		//Iterating over all the found out neighbor cells
-		typename hp::DoFHandler<2>::active_cell_iterator cell2;
-		unsigned int cell_itr2;
+		//Check all cell iterators and save the necessary information
+		design_cell_info_vector[design_itr1].neighbor_cells.clear();
+		design_cell_info_vector[design_itr1].neighbor_distance.clear();
+		design_cell_info_vector[design_itr1].neighbor_weights.clear();
+		typename hp::DoFHandler<dim>::active_cell_iterator design_cell2;
 		for (unsigned int ng_itr = 0; ng_itr < neighbor_iterators.size(); ++ng_itr){
-			cell2 = neighbor_iterators[ng_itr];
-			cell_itr2 = cell2->user_index() - 1;
 
-			QGauss<dim> quadrature_formula1(cell_info_vector[cell_itr2].quad_rule);
-			hp_fe_values.reinit(cell2, cell_info_vector[cell_itr2].quad_rule-1);
-			const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
-			std::vector<Point<dim> > qpoints2 = fe_values.get_quadrature_points();	//Getting the quad points for the current neighbor cell
+			/*Adding the neighbor design cell iterator index*/
+			design_cell2 = neighbor_iterators[ng_itr];
+			unsigned int design_itr2 = design_cell2->user_index()-1;
+			design_cell_info_vector[design_itr1].neighbor_cells.push_back(design_itr2);
 
-			double distance;
-			//Iterating over all the Gauss points of the neighbor cell
-			for (unsigned int qpoint2 = 0; qpoint2 < qpoints2.size(); ++qpoint2){
-				distance = des_pt.distance(qpoints2[qpoint2]);	//distance of design point from the quad point
-				if (distance > rmin){
-					continue;
-				}
-				cell_info_vector[cell_itr2].neighbour_cells[qpoint2].push_back(i);
-				cell_info_vector[cell_itr2].neighbour_distance[qpoint2].push_back(distance);
-			}
+			/*Adding the center-center distance with the current neighbor design cell*/
+			double distance = (design_cell1->center()).distance(design_cell2->center());
+			design_cell_info_vector[design_itr1].neighbor_distance.push_back(distance);
+		}
+
+		++design_itr1;
 
 
+		//If the two meshes are decoupled, and design points are distributed w.r.t analysis mesh
+		if (mesh.coupling == false && mesh.adaptivityType == "adaptive_grayness"){
+
+
+
+
+
+			//computing the respective weights
+			calculate_weights(cell_info_vector,
+					cell_itr1,
+					proj_radius,
+					mesh);
+			++cell_itr1;
 		}
 	}
-
-	//Update the weights
-	calculate_weights(cell_info_vector,
-			density_cell_info_vector,
-			cell_len);
 }
 
 template <int dim>
@@ -404,69 +363,6 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 				//Corresponds to dx
 				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
 			}
-		}
-	}
-}
-
-/*
- * This implementation for calculating the weights for the 'movingDesignPoints' approach
- * Unlike the above one, here the weights w.r.t. whole triangulation is calculated at once.
- * It is NOT called again and again, but just ONCE for one iteration of optimization.
- */
-template <int dim>
-void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vector,
-		std::vector<CellInfo> &density_cell_info_vector,
-		double cell_len){
-
-	//Iterating over all the cells of the triangulation
-	for (unsigned int cell_itr = 0; cell_itr < cell_info_vector.size(); ++cell_itr){
-		unsigned int n_q_points = cell_info_vector[cell_itr].n_q_points;
-		cell_info_vector[cell_itr].neighbour_weights.resize(n_q_points);
-
-		//Iterating over all the Gauss points of the current cell
-		for (unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
-
-			//setting the size of the empty weights vector for the current Gauss point
-			cell_info_vector[cell_itr].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr].neighbour_distance[qpoint].size());
-			double sum_weights = 0.0;	//to store the total sum for using for division later
-
-			//Iterating over all the neighbor DESIGN points for the current Gauss point
-			for (unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_cells[qpoint].size(); ++i){
-				unsigned int density_itr = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];	//index of the neighbor
-/*				double gamma = (density_cell_info_vector[i].projection_fact - 2.0) / 5.0;			//equivalent to the variance in gaussian function
-				//double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
-				double temp1 = cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
-				double a = 1 / sqrt(2*3.14159*gamma);
-				double b = exp(-(temp1 * temp1)/(2 * gamma * cell_len * cell_len));
-				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = a * b;
-				sum_weights += (a * b);*/
-
-/*				//Below is the linear cone projection
-				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
-				double temp1 = rmin - cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
-				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = temp1;
-				sum_weights += temp1;*/
-
-				//Below is the cubic spline
-				double rmin = density_cell_info_vector[density_itr].projection_fact * cell_len;		//rmin for the current design point
-				double temp1 = cell_info_vector[cell_itr].neighbour_distance[qpoint][i];
-				double r = temp1/rmin;
-				double weight = 0.0;
-				if (r <= 0.5)	weight = (2.0/3.0) - 4*r*r + 4*r*r*r;
-				else if(r >0.5 && r <= 1.0)		weight = (4.0/3.0) - 4*r + 4*r*r - (4.0/3.0)*r*r*r;
-				cell_info_vector[cell_itr].neighbour_weights[qpoint][i] = weight;
-				sum_weights += weight;
-			}
-			//Normalizing the weights by the sum total of the weights for any Gauss point
-			for (unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
-				if (sum_weights == 0){
-					std::cerr<<"atop::DensityField:calculate_weights(..) : Divide by zero exception"<<std::endl;
-				}
-				else{
-					cell_info_vector[cell_itr].neighbour_weights[qpoint][i] /= sum_weights;
-				}
-			}
-			cell_info_vector[cell_itr].sum_weights[qpoint] = sum_weights;
 		}
 	}
 }
@@ -584,44 +480,6 @@ void DensityField<dim>::update_design_vector(
 
 			design_vector.clear();
 			design_vector.resize(no_design_points, volfrac);
-
-			//Manually changing the design vector for first iteration
-/*			if (no_design_points % 3 != 0){
-				std::cerr<<"Wrong no. of design points \n";
-				exit(0);
-			}*/
-/*			unsigned int no_design_elem  = no_design_points / 9;
-
-			for (unsigned int i = 0; i < no_design_points; ++i){
-				if (i >= no_design_elem && i < 2*no_design_elem){
-					design_vector[i] = 0.55;
-				}
-				else{
-					design_vector[i] = 1.0;
-
-				}
-			}
-
-			for (unsigned int i = 0; i < no_design_points; ++i){
-				if (i >= 4*no_design_elem && i < 5*no_design_elem){
-					design_vector[i] = 0.3;
-				}
-				else if (i >= 0*no_design_elem && i < 1*no_design_elem){
-					design_vector[i] = 0.0;
-				}
-				else if (i >= 2*no_design_elem && i < 3*no_design_elem){
-					design_vector[i] = 0.0;
-				}
-				else if (i >= 6*no_design_elem && i < 7*no_design_elem){
-					design_vector[i] = 0.0;
-				}
-				else if (i >= 8*no_design_elem && i < 9*no_design_elem){
-					design_vector[i] = 0.0;
-				}
-				else{
-					design_vector[i] = 1.0;
-				}
-			}*/
 
 		}
 		else{

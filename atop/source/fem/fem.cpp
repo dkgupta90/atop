@@ -579,13 +579,20 @@ void FEM<dim>::initialize_cycle(){
 	initialize_pseudo_designField();
 
 	std::cout<<"Psuedo design field initialized"<<std::endl;
-	//Updating the hp_fe_values
+
+	/*Updating the hp_fe_values*/
 	hp::FEValues<dim> hp_fe_values(fe_collection,
 				quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
 
-	//Updating the cell area and quadrature index for each cell
+	/*
+	 * Here the cell area and quadraure index for each analysis cell are updated
+	 * Since we use composite integration, the sitfness matrix for the whole cell is integrated by
+	 * assembling the stiffness matrix from each design cell. Thus, the quadrature index of the analysis cell
+	 * tells the quadrature rule used in each connected design cell (constant density) for assembling the
+	 * respective stiffness matrix.
+	 */
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
 			endc = dof_handler.end();
 	unsigned int cell_itr = 0;
@@ -595,7 +602,7 @@ void FEM<dim>::initialize_cycle(){
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
 		unsigned int p_degree = (*cell_info_vector)[cell_itr].shape_function_order;
 		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
-				(*cell_info_vector)[cell_itr].design_points.no_points,
+				1.0,	/*since the density in each connected design cell is constant*/
 				p_degree);
 		QGauss<dim> temp_quad((*cell_info_vector)[cell_itr].quad_rule);
 		(*cell_info_vector)[cell_itr].n_q_points = temp_quad.size();
@@ -605,26 +612,6 @@ void FEM<dim>::initialize_cycle(){
 	if (cycle > 0)	gauss_int.update_quadRuleVector(current_quad_rule, *cell_info_vector);
 	std::cout<<"Quadrature rule updated "<<std::endl;
 
-	/**
-	 * Link the density_cell_info_vector to the density triangulation
-	 * user index is 1, 2, 3, ...
-	 */
-	std::cout<<"reached here 01"<<std::endl;
-	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
-			density_endc = design_handler.end();
-	unsigned int density_cell_itr = 0;
-
-/*	for(; density_cell != density_endc; ++density_cell){
-		std::cout<<"reached here 03"<<std::endl;
-
-		density_cell->set_user_index(density_cell_itr + 1);
-		std::cout<<"reached here 04"<<std::endl;
-
-		(*density_cell_info_vector)[density_cell_itr].cell_area = density_cell->measure();
-		std::cout<<"reached here 05"<<std::endl;
-
-		++density_cell_itr;
-	}*/
 
 	std::cout<<"Updating the design vector here"<<std::endl;
 	density_field.update_design_vector(*cell_info_vector,
@@ -637,30 +624,20 @@ void FEM<dim>::initialize_cycle(){
 	double time1 = clock();
 
 	timer->pause();
+
+	//Update the filter radii
+	projection->cycle = cycle;
+	projection->update_projection(*cell_info_vector);
+	std::cout<<"Projection updated "<<std::endl;
+
 	std::cout<<"Looking for neighbours..."<<std::endl;
-
-	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-		density_field.create_neighbors(
-				*cell_info_vector,
-				*density_cell_info_vector,
-				hp_fe_values,
-				dof_handler);
-	}
-	else{
-
-		//Update thye filter radii
-		projection->cycle = cycle;
-		projection->update_projections(*cell_info_vector,
-				dof_handler);
-		std::cout<<"Projections updated "<<std::endl;
-		density_field.create_neighbors(
-				*cell_info_vector,
-				hp_fe_values,
-				dof_handler,
-				design_handler,
-				*projection,
-				*mesh);
-	}
+	density_field.create_neighbors(
+			*cell_info_vector,
+			hp_fe_values,
+			dof_handler,
+			design_handler,
+			*projection,
+			*mesh);
 
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
@@ -693,7 +670,6 @@ void FEM<dim>::initialize_pseudo_designField(){
 
 		}
 	}
-
 
 	//Updating the weights for projection from design mesh to pseudo-design mesh
 	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
