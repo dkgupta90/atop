@@ -323,7 +323,7 @@ void Compliance<dim>::compute(
 		}
 		wfile<<"Cycle : "<<fem->cycle+1<<"\n";
 		wfile<<"Total Dofs : "<<(*fem).dof_handler.n_dofs()<<"\n";
-		wfile<<"Constraints : "<<(*fem).hanging_node_constraints.n_constraints()<<"\n";
+		wfile<<"Constraints : "<<(*fem).dof_constraints.n_constraints()<<"\n";
 		wfile<<"Design count : "<<fem->design_vector->size()<<"\n";
 		wfile<<fem->itr_count+1<<"\t"<<objective<<"\t"<<fem->volfrac<<"\n";
 		wfile.close();

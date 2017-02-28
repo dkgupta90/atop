@@ -171,3 +171,31 @@ void DefineMesh<dim>::update_outputDesignMesh(Triangulation<dim> &design_triangu
 			false
 			);
 }
+
+template <int dim>
+void DefineMesh<dim>::update_analysis_design_connections(
+		hp::DoFHandler<dim> &dof_handler,
+		hp::DoFHandler<dim> &design_handler,
+		std::vector<CellInfo> &cell_info_vector,
+		std::vector<CellInfo> &design_cell_info_vector){
+
+	//Emptying the iterators in the analysis info vector
+	for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
+		cell_info_vector[i].connected_cell_iterators_2D.clear();
+	}
+
+	typename hp::DoFHandler<dim>::active_cell_iterator design_cell = design_handler.begin(),
+			design_endc = design_handler.end();
+	for(; design_cell != design_endc; ++design_cell){
+
+		//Find the active cell around the center of this design cell
+		typename hp::DoFHandler<dim>::active_cell_iterator cell;
+		cell = GridTools::find_active_cell_around_point(dof_handler, design_cell->center());
+
+		//Adding the iterator connections
+		design_cell_info_vector[design_cell->user_index()-1].connected_cell_iterators_2D.clear();
+		design_cell_info_vector[design_cell->user_index()-1].connected_cell_iterators_2D.push_back(cell);
+		cell_info_vector[cell->user_index()-1].connected_cell_iterators_2D.push_back(design_cell);
+	}
+
+}

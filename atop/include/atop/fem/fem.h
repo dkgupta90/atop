@@ -91,7 +91,7 @@ namespace atop{
 		//DensityField object containing all functions related to density distribution
 		DensityField<dim> density_field;
 		//Some comment to be added
-		ConstraintMatrix hanging_node_constraints;
+		ConstraintMatrix dof_constraints;
 		SparsityPattern sparsity_pattern;
 		SparseMatrix<double> system_matrix;
 		Vector<double> solution;

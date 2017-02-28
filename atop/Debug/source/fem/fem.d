@@ -94,17 +94,22 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparsity_pattern.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h \
@@ -114,11 +119,6 @@ source/fem/fem.d: ../source/fem/fem.cpp \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/vector_memory.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_control.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
@@ -380,6 +380,22 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h:
 
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:
@@ -388,19 +404,13 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparsity_pattern.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h:
 
@@ -419,16 +429,6 @@ source/fem/fem.d: ../source/fem/fem.cpp \
 /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_control.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:
-
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
-
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h:
 

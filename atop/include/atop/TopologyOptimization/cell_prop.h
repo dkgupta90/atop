@@ -117,6 +117,8 @@ namespace atop{
 		DesignField pseudo_design_points;	//The uniform mesh to avoid strange curves at the corners
 		//CellInfo();
 
+		//Vector for saving the cell iterators for coupling the analysis and design triangulations
+		std::vector<hp::DoFHandler<2>::active_cell_iterator> connected_cell_iterators_2D;
 	};
 }
 

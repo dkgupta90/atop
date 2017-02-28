@@ -19,7 +19,7 @@
 using namespace atop;
 
 
-//Empty source term in compliance minimization
+//Empty source term in compliance minimization and compliant mechanism
 std::vector<double> source_function(std::vector<double> X){
 	//This function returns the value of the source function in the whole domain
 	if (X.size() == 2){
@@ -32,8 +32,12 @@ std::vector<double> source_function(std::vector<double> X){
 	}
 }
 
+
+/**
+ * This function is implemented for simple fixed Dirichlet boundary
+ * No distributed load exists in this case
+ */
 unsigned int get_boundary_indicator(std::vector<double> X){
-	//This function defines the boundary indicators
 
 	if (fabs(X[0] - 0) < 1e-12)
 		return 42;
@@ -42,6 +46,10 @@ unsigned int get_boundary_indicator(std::vector<double> X){
 
 }
 
+/**
+ * This function is for distributed load nad fixed b.c.
+ * The numbers 60+i denote the distributed loads
+ */
 unsigned int get_boundary_indicator_dist(std::vector<double> X){
 	//This function defines the boundary indicators
 
@@ -54,6 +62,12 @@ unsigned int get_boundary_indicator_dist(std::vector<double> X){
 
 }
 
+/**
+ * This function is for compliant invertor
+ * A point load is involved
+ * The numbers 50+i denote rolling boundary condition
+ * The numbers 40+i denote the fixed boundary conditions
+ */
 //Boundary indicator function for a compliant force inverter problem
 unsigned int get_boundary_indicator_force_inv(std::vector<double> X){
 	//This function defines the boundary indicators
@@ -61,7 +75,7 @@ unsigned int get_boundary_indicator_force_inv(std::vector<double> X){
 	if (fabs(X[0] - 0) < 1e-12 && (X[1] - 0.05) < 0)
 		return 42;
 	else if (fabs(X[1] - 1) < 1e-12)
-		return 52;	//Neumann boundary for distributed load
+		return 52;	//Rolling boundary conditions
 	else
 		return 9999;
 
@@ -81,6 +95,7 @@ int main(){
 
 	Projection filter("density_filter",
 			"dp-refinement", 0.1, 1.0);
+	//3rd parameter denotes the default filter radius w.r.t analysis mesh
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -108,6 +123,7 @@ int main(){
 	//Parameters for defining the test cases for dp-refinement
 	//std::string test_problem = "compliant_mechanism2D";
 	std::string test_problem = "cantilever2D";
+	std::string loadType = "distLoad";
 	unsigned int dim = 2;
 
 	if (dim == 2){
@@ -129,7 +145,6 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "distLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
@@ -162,7 +177,7 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "pointLoad";
+			loadType = "pointLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator_force_inv;
 

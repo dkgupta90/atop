@@ -169,7 +169,7 @@ template <int dim>
 unsigned int dpAdaptivity<dim>::get_system_design_bound(
 		FEM<dim> &fem){
 	unsigned int total_dofs = fem.dof_handler.n_dofs();
-	unsigned int no_hanging_nodes = (fem.hanging_node_constraints).n_constraints();
+	unsigned int no_hanging_nodes = (fem.dof_constraints).n_constraints();
 	//std::cout<<"No. of hanging nodes : "<<no_hanging_nodes<<std::endl;
 	rigid_body_modes = 3;	//hard coded right now for 2d elastostatic problem
 	unsigned int sys_bound = total_dofs - no_hanging_nodes - rigid_body_modes;
@@ -235,7 +235,7 @@ unsigned int dpAdaptivity<dim>::get_corrected_system_design_bound(
 	fem.dof_handler.clear();
 	fem.dof_handler.distribute_dofs(fem.fe_collection);
 
-	fem.hanging_node_constraints.clear();
+	fem.dof_constraints.clear();
 
 	unsigned int cell_itr = 0;
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = fem.dof_handler.begin_active();
@@ -247,13 +247,13 @@ unsigned int dpAdaptivity<dim>::get_corrected_system_design_bound(
 
 
 	DoFTools::make_hanging_node_constraints(fem.dof_handler,
-			fem.hanging_node_constraints);
+			fem.dof_constraints);
 
 	fem.boundary_info();
 	VectorTools::interpolate_boundary_values(fem.dof_handler,
 			42,
 			ZeroFunction<2>(),
-			fem.hanging_node_constraints);
+			fem.dof_constraints);
 
 	//Applying the boundary conditions
 	BoundaryValues<dim> boundary_v;
@@ -264,9 +264,9 @@ unsigned int dpAdaptivity<dim>::get_corrected_system_design_bound(
 			fem.boundary_values);
 
 
-	fem.hanging_node_constraints.close();
+	fem.dof_constraints.close();
 	std::cout<< "No.of degrees of freedom: " << fem.dof_handler.n_dofs() << "\n";
-	std::cout<<"No. of hanging node constraints : "<<fem.hanging_node_constraints.n_constraints()<<std::endl;
+	std::cout<<"No. of hanging node constraints : "<<fem.dof_constraints.n_constraints()<<std::endl;
 
 	return 0;
 }

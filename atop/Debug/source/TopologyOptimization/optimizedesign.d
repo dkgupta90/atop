@@ -75,7 +75,13 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/array.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_faces.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_handler.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/block_info.h \
@@ -85,29 +91,28 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/constraint_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_system.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_product_polynomials.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/polynomial.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_poly.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
  /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_system.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h \
  /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparsity_pattern.h \
- /home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/dynamic_sparsity_pattern.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_cg.h \
@@ -117,11 +122,6 @@ source/TopologyOptimization/optimizedesign.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/vector_memory.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_control.h \
  /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
- /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
- /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h \
  /home/dkgupta/bin/deal.II/include/deal.II/hp/q_collection.h \
@@ -315,7 +315,19 @@ source/TopologyOptimization/optimizedesign.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/hp/dof_level.h:
 
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.h:
 
@@ -335,16 +347,6 @@ source/TopologyOptimization/optimizedesign.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/vector.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_system.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h:
-
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_product_polynomials.h:
@@ -355,9 +357,17 @@ source/TopologyOptimization/optimizedesign.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_poly.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/thread_management.h:
 
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h:
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/thread.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/mutex.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/std_cxx11/condition_variable.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:
 
@@ -367,19 +377,19 @@ source/TopologyOptimization/optimizedesign.d: \
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
 
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_system.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_dgq.h:
+
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_tools.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparsity_pattern.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/hp/mapping_collection.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q1.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/qprojector.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/base/quadrature_lib.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/sparse_matrix.h:
 
@@ -398,16 +408,6 @@ source/TopologyOptimization/optimizedesign.d: \
 /home/dkgupta/bin/deal.II/include/deal.II/lac/solver_control.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:
-
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
-
-/home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
-
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h:
 

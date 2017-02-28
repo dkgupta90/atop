@@ -13,6 +13,7 @@
 #include <string>
 #include <deal.II/grid/tria.h>
 #include <deal.II/hp/dof_handler.h>
+#include <atop/TopologyOptimization/cell_prop.h>
 
 using namespace dealii;
 
@@ -96,6 +97,11 @@ namespace atop{
 
 		void update_outputDesignMesh(Triangulation<dim> &design_triangulation,
 				unsigned int);
+
+		void update_analysis_design_connections(hp::DoFHandler<dim>&,
+				hp::DoFHandler<dim>&,
+				std::vector<CellInfo>&,
+				std::vector<CellInfo>&);
 
 	};
 	template class DefineMesh<2>;

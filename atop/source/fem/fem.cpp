@@ -63,7 +63,14 @@ FEM<dim>::FEM(
 	this->mesh = &obj_mesh;
 	this->timer = &obj_timer;
 
-	//Create the mesh
+	/**
+	 * Below, the function from mesh is called to create the different triangulations
+	 * analysis_density_triangulation has same resolution as the analysis triangulation and is
+	 * only used to create an elementwise constant density field. It can be avoided when not needed.
+	 * design_triangulation is used to represent the finer level density field.
+	 * In the new formulation, the pseudo-design mesh and the design_triangulation are supposed to overlap.
+	 * Filtering will directly be performed on the design_triangulation and a composite integration scheme will be used.
+	 */
 	this->mesh->createMesh(
 			triangulation,
 			analysis_density_triangulation,
@@ -84,8 +91,12 @@ FEM<dim>::FEM(
 		}
 	}
 
-	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+15; ++qrule){
+	/**
+	 * Quadrature collection for FE
+	 * We use composite integration and in every design cell the density is constant
+	 * As we know, pmax <= 2qmax-1 => qmax = pmax/2 + 1
+	 */
+	for (unsigned int qrule = 1; qrule <= ceil(((double)(mesh->max_el_order+1))/2.0); ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -98,7 +109,6 @@ FEM<dim>::FEM(
 		}
 	}
 
-
 	this->design_vector = &obj_design_vector;
 
 	unsigned int cell_itr = 0;
@@ -107,10 +117,6 @@ FEM<dim>::FEM(
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell =dof_handler.begin_active();
 			cell != dof_handler.end(); ++cell){
 		cell->set_active_fe_index(p_index);
-/*		if (cell_itr == 5){
-			cell->set_active_fe_index(p_index + 2);
-		}*/
-
 		cell_itr++;
 
 	}
@@ -140,13 +146,9 @@ void FEM<dim>::analyze(){
 	//std::cout<<"Entered FEM::analyze()"<<std::endl;
 	//Setting up and assembling the Fe system
 
-
-
 	itr_count++;	//Iterating the counter for the no. of iterations
 	clean_trash();
-	//boundary_info();
 	std::cout<<"Entering FEM::setup_system()"<<std::endl;
-
 	setup_system();
 	assemble_system();
 	//std::cout<<"System assembled"<<std::endl;
@@ -164,54 +166,47 @@ void FEM<dim>::setup_system(){
 	//FE mesh
 	dof_handler.distribute_dofs(fe_collection);
 
+	dof_constraints.clear();
 
-	hanging_node_constraints.clear();
+	//Adding the constraints related to hanging nodes in the list of constraints
 	DoFTools::make_hanging_node_constraints(dof_handler,
-			hanging_node_constraints);
+			dof_constraints);
 
-	//Applying the boundary conditions
+	//Applying the boundary ids to identify the boundary conditions
 	boundary_info();
 
-	add_boundary_constraints();	//For adding complex boudnary related constraints
-	BoundaryValues<dim> boundary_v;
+	//Adding constraints related to rolling b.c.(s), if any
+	add_boundary_constraints();
 
+	//Getting the values are the Dirichlet boundary dofs
+	BoundaryValues<dim> boundary_v;
 	VectorTools::interpolate_boundary_values(dof_handler,
 			42,
 			/*ZeroFunction<dim>(),*/boundary_v,
 			boundary_values);
 
-	hanging_node_constraints.close();
-	  std::cout<< "No.of degrees of freedom: " << dof_handler.n_dofs() << "\n";
-	std::cout<<"No. of hanging node constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
+	dof_constraints.close();
+	std::cout<< "No.of degrees of freedom : " << dof_handler.n_dofs() << "\n";
+	std::cout<<"total no. of constraints : "<<dof_constraints.n_constraints()<<std::endl;
 
-	//solution.reinit(dof_handler.n_dofs());
-	//system_rhs.reinit(dof_handler.n_dofs());
 	analysis_density_handler.distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
 
 	//Density mesh or design mesh
 	design_handler.distribute_dofs(fe_design_collection);
-
-/* 	sparsity_pattern.reinit(dof_handler->n_dofs(),
- 			dof_handler->n_dofs(),
- 			dof_handler->max_couplings_between_dofs());
- 	DoFTools::make_sparsity_pattern(*dof_handler,
- 			sparsity_pattern);
- 	hanging_node_constraints.condense(sparsity_pattern);
- 	sparsity_pattern.compress();*/
 	DynamicSparsityPattern dsp (dof_handler.n_dofs());
 	DoFTools::make_sparsity_pattern (dof_handler,
 	                                 dsp,
-	                                 hanging_node_constraints,
+	                                 dof_constraints,
 	                                 false);
 	sparsity_pattern.copy_from(dsp);
 	system_matrix.reinit(sparsity_pattern);
 
 	solution.reinit(dof_handler.n_dofs());
 	system_rhs.reinit(dof_handler.n_dofs());
-	lambda_solution.reinit(dof_handler.n_dofs());
+	lambda_solution.reinit(dof_handler.n_dofs());	//Lagrange multiplier for adjoint
 	l_vector.reinit(dof_handler.n_dofs());
 
-	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for the output
+	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for elementwise constant density field
 	nodal_p_order.reinit(analysis_density_handler.n_dofs());
 	cells_adjacent_per_node.reinit(analysis_density_handler.n_dofs());	//for normalizing the nodal density value
 	nodal_d_count.reinit(analysis_density_handler.n_dofs());
@@ -258,21 +253,6 @@ void FEM<dim>::assemble_system(){
 	//Initialize the components of every cycle
 	if (itr_count == 0){
 		initialize_cycle();
-	}
-	else{
-		//For approaches, where neighbors need to be computed at every iteration
-		if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-			std::cout<<"Updating neighbors"<<std::endl;
-			hp::FEValues<dim> hp_fe_values(fe_collection,
-						quadrature_collection,
-						update_values | update_gradients |
-						update_quadrature_points | update_JxW_values);
-			density_field.create_neighbors(
-					*cell_info_vector,
-					*density_cell_info_vector,
-					hp_fe_values,
-					dof_handler);
-		}
 	}
 
 	//update the pseudo-design field
@@ -360,8 +340,8 @@ void FEM<dim>::solve(){
 		A_direct.vmult(lambda_solution, l_vector);
 		lambda_solution *= -1;
 	}
-	hanging_node_constraints.distribute(solution);
-	hanging_node_constraints.distribute(lambda_solution);
+	dof_constraints.distribute(solution);
+	dof_constraints.distribute(lambda_solution);
 
 /*	for (unsigned int i = 0; i < solution.size(); ++i){
 		std::cout<<solution[i]<<std::endl;
@@ -582,6 +562,17 @@ void FEM<dim>::initialize_cycle(){
 	 */
 
 	std::cout<<"Initializing the cycle "<<std::endl;
+
+	/**
+	 * Update the iterator connections between the analysis and design triangulations
+	 * For each analysis cell, iterators for all the connected design cells are stored
+	 * For each design cell, the parent analysis cell iterator is saved
+	 */
+	this->mesh->update_analysis_design_connections(
+			dof_handler,
+			design_handler,
+			*cell_info_vector,
+			*density_cell_info_vector);
 
 	//Initializing the pseudo-design field parameters
 	std::cout<<"Initializing the peudo-design field"<<std::endl;
@@ -954,7 +945,7 @@ void FEM<dim>::assembly(){
 
         }
 		cell->get_dof_indices(local_dof_indices);
-		 hanging_node_constraints.distribute_local_to_global (cell_matrix,
+		 dof_constraints.distribute_local_to_global (cell_matrix,
 		                                          cell_rhs,
 		                                          local_dof_indices,
 		                                          system_matrix,
@@ -1021,8 +1012,8 @@ void FEM<dim>::assembly(){
 
 
 	//Constraining the hanging nodes
-	//hanging_node_constraints.condense(system_matrix);
-	//hanging_node_constraints.condense(system_rhs);
+	//dof_constraints.condense(system_matrix);
+	//dof_constraints.condense(system_rhs);
 
 	MatrixTools::apply_boundary_values(boundary_values,
 			system_matrix,
@@ -1240,8 +1231,8 @@ void FEM<dim>::add_boundary_constraints(){
 						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
 
 						if (comp_i == 1){
-							hanging_node_constraints.add_line(local_dof_indices[i]);
-							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							dof_constraints.add_line(local_dof_indices[i]);
+							std::cout<<dof_constraints.n_constraints()<<std::endl;
 						}
 
 					}
@@ -1250,12 +1241,12 @@ void FEM<dim>::add_boundary_constraints(){
 						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
 
 						if (comp_i == 0){
-							hanging_node_constraints.add_line(local_dof_indices[i]);
-							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							dof_constraints.add_line(local_dof_indices[i]);
+							std::cout<<dof_constraints.n_constraints()<<std::endl;
 						}
 					}
 					else if (boundary_indic == 54){
-							hanging_node_constraints.add_line(local_dof_indices[i]);
+							dof_constraints.add_line(local_dof_indices[i]);
 					}
 				}
 			}
@@ -1297,7 +1288,7 @@ void FEM<dim>::clean_trash(){
 	l_vector = 0;
 	lambda_solution = 0;
 
-	if (mesh->coupling == true || mesh->adaptivityType == "movingdesignpoints"){
+	if (mesh->coupling == true){
 		unsigned int no_des_per_point = mesh->design_var_per_point();
 		//cleaning contents of the storage vectors
 		for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
