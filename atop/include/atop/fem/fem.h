@@ -129,6 +129,7 @@ namespace atop{
 
 		void initialize_pseudo_designField();
 		void update_pseudo_designField();
+		void add_density_to_design_cell_info_vector();
 		void assemble_design();	//Design densities allocated based on the design point that lies inside the element.
 
 

@@ -116,7 +116,7 @@ namespace atop{
 		double cell_area;
 		double cell_area_fraction;
 
-		double cell_density;	//To be used for computing material volume fraction
+		double cell_density, filtered_density;	//To be used for computing material volume fraction
 
 		DesignField design_points;
 		DesignField pseudo_design_points;	//The uniform mesh to avoid strange curves at the corners

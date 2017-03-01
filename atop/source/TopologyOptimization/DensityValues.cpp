@@ -233,8 +233,7 @@ template <int dim>
 void DensityField<dim>::create_neighbors(
 		std::vector<CellInfo> &design_cell_info_vector,
 		hp::DoFHandler<dim> &design_handler,
-		Projection &projection,
-		DefineMesh<dim> &mesh
+		Projection &projection
 		){
 	/*
 	 * Iterate over all the design cells to find the neighbors
@@ -247,7 +246,7 @@ void DensityField<dim>::create_neighbors(
 	for(; design_cell1 != design_endc1; ++design_cell1){
 
 		//Stores cell iterators for all neighbors of the current cell
-		std::vector<hp::DoFHandler<dim>::active_cell_iterator> neighbor_iterators;
+		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
 		//Getting the neighbors within the mentioned rmin1
@@ -273,23 +272,17 @@ void DensityField<dim>::create_neighbors(
 			design_cell_info_vector[design_itr1].neighbor_distance.push_back(distance);
 		}
 
+		/*computing the respective weights for smoothing*/
+		calculate_weights(design_cell_info_vector,
+				design_itr1,
+				projection.true_radius);
+
 		++design_itr1;
 
 
-		//If the two meshes are decoupled, and design points are distributed w.r.t analysis mesh
-		if (mesh.coupling == false && mesh.adaptivityType == "adaptive_grayness"){
 
 
 
-
-
-			//computing the respective weights
-			calculate_weights(cell_info_vector,
-					cell_itr1,
-					proj_radius,
-					mesh);
-			++cell_itr1;
-		}
 	}
 }
 
@@ -367,6 +360,29 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 	}
 }
 
+template <int dim>
+void DensityField<dim>::calculate_weights(std::vector<CellInfo> &design_cell_info_vector,
+		unsigned int design_itr1,
+		double rmin){
+
+	unsigned int no_neighbors = design_cell_info_vector[design_itr1].neighbor_cells.size();
+
+	/*Calculating the weights*/
+	double sum_weights = 0.0;
+	for(unsigned int i = 0; i < no_neighbors; ++i){
+		double temp1 = rmin - design_cell_info_vector[design_itr1].neighbor_distance[i];
+		design_cell_info_vector[design_itr1].neighbor_weights[i] = temp1;
+		sum_weights += temp1;
+	}
+
+	/*Normalizing the weights*/
+	for (unsigned int i = 0; i < no_neighbors; ++i){
+		assert(sum_weights > 0.0);	//total sum of weights should be none zero
+		design_cell_info_vector[design_itr1].neighbor_weights[i] /= sum_weights;
+	}
+}
+
+
 //--------------------------------------------------------------------------------------------------------------
 template <int dim>
 void DensityField<dim>::smoothing(
@@ -414,7 +430,25 @@ void DensityField<dim>::smoothing(
 	}
 }
 
-//----------------------------------------------------------------
+template <int dim>
+void DensityField<dim>::smoothing(
+		std::vector<CellInfo> &design_cell_info_vector){
+	unsigned int no_design_cells = design_cell_info_vector.size();
+
+	for(unsigned int design_itr = 0 ; design_itr < no_design_cells; ++design_itr){
+		double xPhys = 0.0;
+		unsigned int design_cell_itr2;
+		for(unsigned int i = 0; i < design_cell_info_vector[design_itr].neighbour_weights.size(); ++i){
+			design_cell_itr2 = design_cell_info_vector[design_itr].neighbor_cells[i];
+			xPhys += design_cell_info_vector[design_itr].neighbour_weights[i]
+					  * design_cell_info_vector[design_cell_itr2].cell_density;
+
+		}
+		design_cell_info_vector[design_itr].filtered_density = xPhys;
+	}
+}
+
+/*//----------------------------------------------------------------
 //Only for the output design mesh...used in create_design.cpp
 template <int dim>
 void DensityField<dim>::smoothing(
@@ -434,7 +468,7 @@ void DensityField<dim>::smoothing(
 			design_info_vector[cell_itr].density[qpoint] = xPhys;
 		}
 	}
-}
+}*/
 
 //--------------------------------------------------------------------------------------------------------------------
 /**

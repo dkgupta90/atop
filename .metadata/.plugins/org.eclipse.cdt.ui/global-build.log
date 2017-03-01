@@ -1,4 +1,4 @@
-18:17:26 **** Incremental Build of configuration Debug for project atop ****
+10:05:15 **** Incremental Build of configuration Debug for project atop ****
 make all 
 Building file: ../source/optimizer/ipopt_interface.cpp
 Invoking: Cross G++ Compiler
@@ -1013,16 +1013,16 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
 ../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::reset() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:174:17:   required from here
-../source/fem/fem.cpp:484:16: warning: unused variable ‘design_len’ [-Wunused-variable]
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:175:17:   required from here
+../source/fem/fem.cpp:488:16: warning: unused variable ‘design_len’ [-Wunused-variable]
    unsigned int design_len = (*design_vector).size(); //size of design vector
                 ^
 ../source/fem/fem.cpp: In instantiation of ‘void atop::FEM<dim>::assembly() [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:174:17:   required from here
-../source/fem/fem.cpp:792:14: warning: variable ‘em_center’ set but not used [-Wunused-but-set-variable]
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:175:17:   required from here
+../source/fem/fem.cpp:815:14: warning: variable ‘em_center’ set but not used [-Wunused-but-set-variable]
    Point<dim> em_center = cell->center();
               ^
-../source/fem/fem.cpp:737:7: warning: unused variable ‘output_FE_density_field’ [-Wunused-variable]
+../source/fem/fem.cpp:760:7: warning: unused variable ‘output_FE_density_field’ [-Wunused-variable]
   bool output_FE_density_field = true;
        ^
 Finished building: ../source/fem/fem.cpp
@@ -1993,45 +1993,393 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4691:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-../source/TopologyOptimization/DensityValues.cpp: At global scope:
-../source/TopologyOptimization/DensityValues.cpp:233:6: error: prototype for ‘void atop::DensityField<dim>::create_neighbors(std::vector<atop::CellInfo>&, dealii::hp::DoFHandler<dim>&, atop::Projection&, atop::DefineMesh<dim>&)’ does not match any in class ‘atop::DensityField<dim>’
- void DensityField<dim>::create_neighbors(
-      ^
-In file included from ../source/TopologyOptimization/DensityValues.cpp:8:0:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:48:8: error: candidates are: void atop::DensityField<dim>::create_neighbors(std::vector<atop::CellInfo>&, std::vector<atop::CellInfo>&, dealii::hp::FEValues<dim>&, dealii::hp::DoFHandler<dim>&)
-   void create_neighbors(
-        ^
-../source/TopologyOptimization/DensityValues.cpp:35:6: error:                 void atop::DensityField<dim>::create_neighbors(std::vector<atop::CellInfo>&, dealii::hp::FEValues<dim>&, dealii::hp::DoFHandler<dim>&, dealii::hp::DoFHandler<dim>&, atop::Projection&, atop::DefineMesh<dim>&)
- void DensityField<dim>::create_neighbors(
-      ^
 ../source/TopologyOptimization/DensityValues.cpp: In member function ‘void atop::DensityField<dim>::smoothing(std::vector<atop::CellInfo>&, std::vector<atop::CellInfo>&, atop::DefineMesh<dim>&)’:
-../source/TopologyOptimization/DensityValues.cpp:381:70: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
+../source/TopologyOptimization/DensityValues.cpp:397:70: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
     for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
                                                                       ^
-../source/TopologyOptimization/DensityValues.cpp:386:53: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
+../source/TopologyOptimization/DensityValues.cpp:402:53: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
       density_cell_itr2 = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];
                                                      ^
 ../source/TopologyOptimization/DensityValues.cpp: In member function ‘void atop::DensityField<dim>::smoothing(std::vector<atop::CellInfo>&)’:
-../source/TopologyOptimization/DensityValues.cpp:425:71: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
-   for(unsigned int qpoint = 0 ; qpoint < design_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
-                                                                       ^
-../source/TopologyOptimization/DensityValues.cpp:429:54: error: ‘__gnu_cxx::__alloc_traits<std::allocator<atop::CellInfo> >::value_type {aka class atop::CellInfo}’ has no member named ‘neighbour_cells’
-     density_cell_itr2 = design_info_vector[cell_itr].neighbour_cells[qpoint][i];
-                                                      ^
+../source/TopologyOptimization/DensityValues.cpp:444:8: error: no match for ‘operator*’ (operand types are ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ and ‘double’)
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+        ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:21:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_accessors.h:20,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:22,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:39:1: note: candidate: template<class T, class U> typename dealii::ProductType<std::complex<_Tp>, std::complex<_Up> >::type dealii::operator*(const std::complex<_Tp>&, const std::complex<_Up>&)
+ operator*(const std::complex<T> &left, const std::complex<U> &right)
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:39:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::complex<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:21:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_accessors.h:20,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:22,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:57:1: note: candidate: template<class T, class U> typename dealii::ProductType<std::complex<_Tp>, typename dealii::EnableIfScalar<U>::type>::type dealii::operator*(const std::complex<_Tp>&, const U&)
+ operator*(const std::complex<T> &left, const U &right)
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:57:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::complex<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/template_constraints.h:21:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor_accessors.h:20,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:22,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:75:1: note: candidate: template<class T, class U> typename dealii::ProductType<typename dealii::EnableIfScalar<T>::type, std::complex<_Up> >::type dealii::operator*(const T&, const std::complex<_Up>&)
+ operator*(const T &left, const std::complex<U> &right)
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/complex_overloads.h:75:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const std::complex<_Up>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1232:1: note: candidate: template<int dim, class Number, class Other> typename dealii::ProductType<Other, Number>::type dealii::operator*(Other, const dealii::Tensor<0, dim, Number>&)
+ operator * (const Other                 object,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1232:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const dealii::Tensor<0, dim, Number>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1250:1: note: candidate: template<int dim, class Number, class Other> typename dealii::ProductType<Number, Other>::type dealii::operator*(const dealii::Tensor<0, dim, Number>&, Other)
+ operator * (const Tensor<0,dim,Number> &t,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1250:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::Tensor<0, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1269:1: note: candidate: template<int dim, class Number, class OtherNumber> typename dealii::ProductType<Number, Other>::type dealii::operator*(const dealii::Tensor<0, dim, Number>&, const dealii::Tensor<0, dim, OtherNumber>&)
+ operator * (const Tensor<0, dim, Number>      &src1,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1269:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::Tensor<0, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1335:1: note: candidate: template<int rank, int dim, class Number, class OtherNumber> dealii::Tensor<rank, dim, typename dealii::ProductType<Number, typename dealii::EnableIfScalar<OtherNumber>::type>::type> dealii::operator*(const dealii::Tensor<rank, dim, Number>&, OtherNumber)
+ operator * (const Tensor<rank,dim,Number> &t,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1335:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::Tensor<rank, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1361:1: note: candidate: template<int rank, int dim, class Number, class OtherNumber> dealii::Tensor<rank, dim, typename dealii::ProductType<typename dealii::EnableIfScalar<OtherNumber>::type, OtherNumber>::type> dealii::operator*(Number, const dealii::Tensor<rank, dim, OtherNumber>&)
+ operator * (const Number                        factor,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1361:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const dealii::Tensor<rank, dim, OtherNumber>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:22:0,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1468:1: note: candidate: template<int rank_1, int rank_2, int dim, class Number, class OtherNumber> typename dealii::Tensor<((rank_1 + rank_2) - 2), dim, typename dealii::ProductType<Number, OtherNumber>::type>::tensor_type dealii::operator*(const dealii::Tensor<rank_1, dim, Number>&, const dealii::Tensor<rank_2, dim, OtherNumber>&)
+ operator * (const Tensor<rank_1, dim, Number> &src1,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/tensor.h:1468:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::Tensor<rank_1, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11:0,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/point.h:482:1: note: candidate: template<int dim, class Number, class OtherNumber> dealii::Point<dim, typename dealii::ProductType<Number, typename dealii::EnableIfScalar<OtherNumber>::type>::type> dealii::operator*(OtherNumber, const dealii::Point<dim, Number>&)
+ operator * (const OtherNumber        factor,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/point.h:482:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const dealii::Point<dim, Number>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2635:1: note: candidate: template<int rank, int dim, class Number> dealii::SymmetricTensor<rank, dim, Number> dealii::operator*(const dealii::SymmetricTensor<rank, dim, Number>&, Number)
+ operator * (const SymmetricTensor<rank,dim,Number> &t,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2635:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::SymmetricTensor<rank, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2655:1: note: candidate: template<int rank, int dim, class Number> dealii::SymmetricTensor<rank, dim, Number> dealii::operator*(Number, const dealii::SymmetricTensor<rank, dim, Number>&)
+ operator * (const Number                            factor,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2655:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const dealii::SymmetricTensor<rank, dim, Number>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2709:1: note: candidate: template<int rank, int dim, class Number, class OtherNumber> dealii::SymmetricTensor<rank, dim, typename dealii::ProductType<Number, typename dealii::EnableIfScalar<OtherNumber>::type>::type> dealii::operator*(const dealii::SymmetricTensor<rank, dim, Number>&, OtherNumber)
+ operator * (const SymmetricTensor<rank,dim,Number> &t,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2709:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::SymmetricTensor<rank, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2736:1: note: candidate: template<int rank, int dim, class Number, class OtherNumber> dealii::SymmetricTensor<rank, dim, typename dealii::ProductType<Number, typename dealii::EnableIfScalar<OtherNumber>::type>::type> dealii::operator*(Number, const dealii::SymmetricTensor<rank, dim, Number>&)
+ operator * (const Number                     factor,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2736:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const dealii::SymmetricTensor<rank, dim, Number>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2772:1: note: candidate: template<int rank, int dim> dealii::SymmetricTensor<rank, dim> dealii::operator*(const dealii::SymmetricTensor<rank, dim>&, double)
+ operator * (const SymmetricTensor<rank,dim> &t,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2772:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::SymmetricTensor<rank, dim>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2791:1: note: candidate: template<int rank, int dim> dealii::SymmetricTensor<rank, dim> dealii::operator*(double, const dealii::SymmetricTensor<rank, dim>&)
+ operator * (const double                     factor,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:2791:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   cannot convert ‘design_cell_info_vector[design_itr].neighbour_weights[i]’ (type ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’) to type ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/function.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:21,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:14,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:3086:1: note: candidate: template<int dim, class Number> dealii::Tensor<1, dim, Number> dealii::operator*(const dealii::SymmetricTensor<2, dim, Number>&, const dealii::Tensor<1, dim, Number>&)
+ operator * (const SymmetricTensor<2,dim,Number> &src1,
+ ^
+/home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:3086:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const dealii::SymmetricTensor<2, dim, Number>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/boost/serialization/detail/get_data.hpp:23:0,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/valarray:1169:1: note: candidate: template<class _Tp> std::_Expr<std::_BinClos<std::__multiplies, std::_Constant, std::_ValArray, _Tp, _Tp>, typename std::__fun<std::__multiplies, _Tp>::result_type> std::operator*(const _Tp&, const std::valarray<_Tp>&)
+ _DEFINE_BINARY_OPERATOR(*, __multiplies)
+ ^
+/usr/include/c++/5/valarray:1169:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const std::valarray<_Tp>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/boost/serialization/detail/get_data.hpp:23:0,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/valarray:1169:1: note: candidate: template<class _Tp> std::_Expr<std::_BinClos<std::__multiplies, std::_ValArray, std::_Constant, _Tp, _Tp>, typename std::__fun<std::__multiplies, _Tp>::result_type> std::operator*(const std::valarray<_Tp>&, const _Tp&)
+ _DEFINE_BINARY_OPERATOR(*, __multiplies)
+ ^
+/usr/include/c++/5/valarray:1169:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::valarray<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/boost/serialization/detail/get_data.hpp:23:0,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/valarray:1169:1: note: candidate: template<class _Tp> std::_Expr<std::_BinClos<std::__multiplies, std::_ValArray, std::_ValArray, _Tp, _Tp>, typename std::__fun<std::__multiplies, _Tp>::result_type> std::operator*(const std::valarray<_Tp>&, const std::valarray<_Tp>&)
+ _DEFINE_BINARY_OPERATOR(*, __multiplies)
+ ^
+/usr/include/c++/5/valarray:1169:1: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::valarray<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/c++/5/valarray:587:0,
+                 from /usr/include/boost/serialization/detail/get_data.hpp:23,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/bits/valarray_after.h:404:5: note: candidate: template<class _Dom> std::_Expr<std::_BinClos<std::__multiplies, std::_ValArray, std::_Expr, typename _Dom::value_type, _Dom>, typename std::__fun<std::__multiplies, typename _Dom1::value_type>::result_type> std::operator*(const std::valarray<typename _Dom::value_type>&, const std::_Expr<_Dom1, typename _Dom1::value_type>&)
+     _DEFINE_EXPR_BINARY_OPERATOR(*, __multiplies)
+     ^
+/usr/include/c++/5/bits/valarray_after.h:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const std::_Expr<_Dom1, typename _Dom1::value_type>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/c++/5/valarray:587:0,
+                 from /usr/include/boost/serialization/detail/get_data.hpp:23,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/bits/valarray_after.h:404:5: note: candidate: template<class _Dom> std::_Expr<std::_BinClos<std::__multiplies, std::_Expr, std::_ValArray, _Dom, typename _Dom::value_type>, typename std::__fun<std::__multiplies, typename _Dom1::value_type>::result_type> std::operator*(const std::_Expr<_Dom1, typename _Dom1::value_type>&, const std::valarray<typename _Dom::value_type>&)
+     _DEFINE_EXPR_BINARY_OPERATOR(*, __multiplies)
+     ^
+/usr/include/c++/5/bits/valarray_after.h:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::_Expr<_Dom1, typename _Dom1::value_type>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/c++/5/valarray:587:0,
+                 from /usr/include/boost/serialization/detail/get_data.hpp:23,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/bits/valarray_after.h:404:5: note: candidate: template<class _Dom> std::_Expr<std::_BinClos<std::__multiplies, std::_Constant, std::_Expr, typename _Dom::value_type, _Dom>, typename std::__fun<std::__multiplies, typename _Dom1::value_type>::result_type> std::operator*(const typename _Dom::value_type&, const std::_Expr<_Dom1, typename _Dom1::value_type>&)
+     _DEFINE_EXPR_BINARY_OPERATOR(*, __multiplies)
+     ^
+/usr/include/c++/5/bits/valarray_after.h:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const std::_Expr<_Dom1, typename _Dom1::value_type>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/c++/5/valarray:587:0,
+                 from /usr/include/boost/serialization/detail/get_data.hpp:23,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/bits/valarray_after.h:404:5: note: candidate: template<class _Dom> std::_Expr<std::_BinClos<std::__multiplies, std::_Expr, std::_Constant, _Dom, typename _Dom::value_type>, typename std::__fun<std::__multiplies, typename _Dom1::value_type>::result_type> std::operator*(const std::_Expr<_Dom1, typename _Dom1::value_type>&, const typename _Dom::value_type&)
+     _DEFINE_EXPR_BINARY_OPERATOR(*, __multiplies)
+     ^
+/usr/include/c++/5/bits/valarray_after.h:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::_Expr<_Dom1, typename _Dom1::value_type>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /usr/include/c++/5/valarray:587:0,
+                 from /usr/include/boost/serialization/detail/get_data.hpp:23,
+                 from /usr/include/boost/serialization/vector.hpp:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h:34,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.templates.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/grid/tria_iterator.h:1234,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q_generic.h:25,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:21,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:13,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/bits/valarray_after.h:404:5: note: candidate: template<class _Dom1, class _Dom2> std::_Expr<std::_BinClos<std::__multiplies, std::_Expr, std::_Expr, _Dom1, _Dom2>, typename std::__fun<std::__multiplies, typename _Dom1::value_type>::result_type> std::operator*(const std::_Expr<_Dom1, typename _Dom1::value_type>&, const std::_Expr<_Dom2, typename _Dom2::value_type>&)
+     _DEFINE_EXPR_BINARY_OPERATOR(*, __multiplies)
+     ^
+/usr/include/c++/5/bits/valarray_after.h:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::_Expr<_Dom1, typename _Dom1::value_type>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/numbers.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/config.h:330,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:20,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/complex:404:5: note: candidate: template<class _Tp> std::complex<_Tp> std::operator*(const _Tp&, const std::complex<_Tp>&)
+     operator*(const _Tp& __x, const complex<_Tp>& __y)
+     ^
+/usr/include/c++/5/complex:404:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   mismatched types ‘const std::complex<_Tp>’ and ‘double’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/numbers.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/config.h:330,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:20,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/complex:395:5: note: candidate: template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const _Tp&)
+     operator*(const complex<_Tp>& __x, const _Tp& __y)
+     ^
+/usr/include/c++/5/complex:395:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::complex<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
+In file included from /home/dkgupta/bin/deal.II/include/deal.II/base/numbers.h:25:0,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/config.h:330,
+                 from /home/dkgupta/bin/deal.II/include/deal.II/base/point.h:20,
+                 from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:11,
+                 from ../source/TopologyOptimization/DensityValues.cpp:8:
+/usr/include/c++/5/complex:386:5: note: candidate: template<class _Tp> std::complex<_Tp> std::operator*(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     operator*(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^
+/usr/include/c++/5/complex:386:5: note:   template argument deduction/substitution failed:
+../source/TopologyOptimization/DensityValues.cpp:444:52: note:   ‘__gnu_cxx::__alloc_traits<std::allocator<std::vector<double> > >::value_type {aka std::vector<double>}’ is not derived from ‘const std::complex<_Tp>’
+        * design_cell_info_vector[design_cell_itr2].cell_density;
+                                                    ^
 ../source/TopologyOptimization/DensityValues.cpp: In member function ‘double atop::DensityField<dim>::get_dxPhys_dx(atop::CellInfo&, unsigned int, unsigned int)’:
-../source/TopologyOptimization/DensityValues.cpp:568:41: error: ‘class atop::CellInfo’ has no member named ‘neighbour_cells’
+../source/TopologyOptimization/DensityValues.cpp:602:41: error: ‘class atop::CellInfo’ has no member named ‘neighbour_cells’
   for(unsigned int i = 0 ; i < cell_info.neighbour_cells[q_point].size(); ++i){
                                          ^
-../source/TopologyOptimization/DensityValues.cpp:569:22: error: ‘class atop::CellInfo’ has no member named ‘neighbour_cells’
+../source/TopologyOptimization/DensityValues.cpp:603:22: error: ‘class atop::CellInfo’ has no member named ‘neighbour_cells’
    n_cell = cell_info.neighbour_cells[q_point][i];
                       ^
 ../source/TopologyOptimization/DensityValues.cpp: In instantiation of ‘void atop::DensityField<dim>::smoothing(std::vector<atop::CellInfo>&, std::vector<atop::CellInfo>&, atop::DefineMesh<dim>&) [with int dim = 2]’:
-/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:167:17:   required from here
-../source/TopologyOptimization/DensityValues.cpp:385:13: warning: unused variable ‘tempi’ [-Wunused-variable]
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h:166:17:   required from here
+../source/TopologyOptimization/DensityValues.cpp:401:13: warning: unused variable ‘tempi’ [-Wunused-variable]
       double tempi = density_cell_info_vector[density_cell_itr2].density[0];
              ^
 ../source/TopologyOptimization/DensityValues.cpp: In member function ‘double atop::DensityField<dim>::get_dxPhys_dx(atop::CellInfo&, unsigned int, unsigned int, unsigned int) [with int dim = 2]’:
-../source/TopologyOptimization/DensityValues.cpp:593:1: warning: control reaches end of non-void function [-Wreturn-type]
+../source/TopologyOptimization/DensityValues.cpp:627:1: warning: control reaches end of non-void function [-Wreturn-type]
  }
  ^
 make: *** [source/TopologyOptimization/DensityValues.o] Error 1

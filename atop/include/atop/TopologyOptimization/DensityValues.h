@@ -46,10 +46,9 @@ namespace atop{
 				);
 
 		void create_neighbors(
-				std::vector<CellInfo> &cell_info_vector,
-				std::vector<CellInfo> &density_cell_info_vector,
-				hp::FEValues<dim> &hp_fe_values,
-				hp::DoFHandler<dim> &dof_handler
+				std::vector<CellInfo> &design_cell_info_vector,
+				hp::DoFHandler<dim> &design_handler,
+				Projection &projection
 				);
 
 		/**
@@ -156,8 +155,8 @@ namespace atop{
 				double rmin,
 				DefineMesh<dim> &mesh);
 		void calculate_weights(
-						std::vector<CellInfo>  &cell_info_vector,
-						std::vector<CellInfo> &density_cell_info_vector,
+						std::vector<CellInfo>  &design_cell_info_vector,
+						unsigned int,
 						double);
 
 

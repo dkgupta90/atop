@@ -434,6 +434,55 @@ void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
 	}
 }
 
+void ElasticData::update_K_matrices(hp::FECollection<2> &temp_fe_coll,
+		hp::QCollection<2> &temp_q_coll,
+		hp::DoFHandler<2> &dof_handler
+		){
+	this->fe_collection = &temp_fe_coll;
+	this->quadrature_collection = &temp_q_coll;
+
+	ElasticTools elastic_tool; //object for getting the B and D matrices
+
+	/*Calculating the isotropic constitutive matrix D */
+	D_matrix = FullMatrix<double>(3, 3);
+	elastic_tool.get_D_plane_stress2D(D_matrix,
+			nu);
+
+	unsigned int max_p_degree = running_quadRuleVector->size();
+	//std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
+	elem_stiffness_array.resize(max_p_degree);
+	B_matrix_list.resize(max_p_degree);
+	JxW.resize(max_p_degree);
+
+	for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
+		//Updating the sizes based on the new current quad rules
+		unsigned int p_index = degree - 1;
+
+		if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
+			continue;
+		B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
+		JxW[p_index].resize((*current_quadRuleVector)[p_index]);
+		elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
+		for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
+			unsigned int q_index = i - 1;
+			B_matrix_list[p_index][q_index].clear();
+			JxW[p_index][q_index].clear();
+			elastic_tool.get_B_matrix_2D(B_matrix_list[p_index][q_index],  JxW[p_index][q_index],
+					p_index, q_index,
+					*fe_collection, *quadrature_collection, dofhandler);
+
+			elastic_tool.get_normalized_matrix(D_matrix,
+					B_matrix_list[p_index][q_index],
+					JxW[p_index][q_index],
+					elem_stiffness_array[p_index][q_index]
+					);
+
+			//if (degree == 3 && q_index == 3) std::cout<<elem_stiffness_array[p_index][q_index].size()<<std::endl;
+
+		}
+		(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
+	}
+}
 
 void ElasticData::update_face_B_matrices(hp::FECollection<2> &temp_fe_coll,
 		hp::QCollection<1> &temp_face_q_coll,

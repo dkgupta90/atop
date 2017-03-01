@@ -258,6 +258,10 @@ void FEM<dim>::assemble_system(){
 	//update the pseudo-design field
     update_pseudo_designField();
 
+    /*Adding the pseudo densities into the design_cell_info_vector*/
+    add_density_to_design_cell_info_vector();
+
+
     //Manually updating the pseudo_densities
 /*    if (itr_count == 0){
         for (unsigned int cell_itr = 0; cell_itr < (*cell_info_vector).size(); ++cell_itr){
@@ -632,12 +636,16 @@ void FEM<dim>::initialize_cycle(){
 
 	std::cout<<"Looking for neighbours..."<<std::endl;
 	density_field.create_neighbors(
+			*density_cell_info_vector,
+			design_handler,
+			*projection);
+/*	density_field.create_neighbors(
 			*cell_info_vector,
 			hp_fe_values,
 			dof_handler,
 			design_handler,
 			*projection,
-			*mesh);
+			*mesh);*/
 
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
@@ -684,6 +692,21 @@ void FEM<dim>::update_pseudo_designField(){
 	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designField(
 				(*cell_info_vector)[i].design_points.rho);
+	}
+}
+
+template <int dim>
+void FEM<dim>::add_density_to_design_cell_info_vector(){
+
+	unsigned int no_analysis_cells = (*cell_info_vector).size();
+
+	for (unsigned int cell_itr = 0; cell_itr < no_analysis_cells; ++cell_itr){
+
+		unsigned int no_design_cells = (*cell_info_vector)[cell_itr].connected_cell_iterators_2D.size();
+		for (unsigned int i = 0; i < no_design_cells; ++i){
+			unsigned int design_itr = (*cell_info_vector)[cell_itr].connected_cell_iterators_2D[i]->user_index() - 1;
+			(*density_cell_info_vector)[design_itr].cell_density = (*cell_info_vector)[cell_itr].design_points.rho[i];
+		}
 	}
 }
 
