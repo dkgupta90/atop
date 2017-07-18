@@ -103,7 +103,7 @@ void OutputData<dim>::write_density(std::vector<CellInfo> &design_info_vector,
 
 	//Writing the densities iteratively
 	for (unsigned int cell_itr = 0; cell_itr < design_info_vector.size(); ++cell_itr){
-		wfile<<design_info_vector[cell_itr].density[0]<<"\n";
+		wfile<<design_info_vector[cell_itr].filtered_density<<"\n";
 	}
 	wfile.close();
 }
@@ -134,4 +134,5 @@ void OutputData<dim>::read_xPhys_from_file(std::vector<CellInfo> & cell_info_vec
 		}
 	}
 }
+
 

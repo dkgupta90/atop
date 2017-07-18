@@ -33,6 +33,7 @@ void DesignField::initialize_field(
 
 	//assigning the no. of points for the density and point vectors
 	rho.resize(no_points, volfrac);
+
 	dxPhys_drho.resize(no_points);
 	pointX.resize(no_points);
 	for(unsigned int i = 0; i < pointX.size(); ++i){
@@ -42,6 +43,20 @@ void DesignField::initialize_field(
 	//for manually assigning the points
 	if (design_rule == 1){
 		update_field_manual(0);
+	}
+
+	for (unsigned int i = 0; i < pointX.size(); ++i){
+/*		if (pointX[i][1] <= 0.5){
+			rho[i] = 1.0;
+		}*/
+/*		else if (pointX[i][0] <= 0.2)
+			rho[i] = 1.0;*/
+/*		if (pointX[i][0] > 0.9 && pointX[i][1] > 0.9){
+			rho[i] *= 1.5;
+		}
+		else if (pointX[i][0] < 0.1 && pointX[i][1] > 0.9){
+			rho[i] *= 1.5;
+		}*/
 	}
 }
 
@@ -125,7 +140,7 @@ void DesignField::update_pseudo_designWeights(unsigned int max_design_points_per
 
 		//Below, 2.0 is used as the length of the cell, since all the design points defined within the cell
 		//assume that the cell is 2X2 in length and are relative to it with center at 0,0.
-		double rmin = (((double)2.0)/(d_factor*sqrt(2.0))) * 1.05;	//5% tolerance added
+		double rmin = 0.01;//(((double)2.0)/(d_factor*sqrt(2.0))) * 1.05;	//5% tolerance added
 		/*
 		 * This is a 2 dimensional vector with the first dimension iterating over the number of pseudo-design points
 		 * and the second dimension iterating over the number of actual non-uniformly distributed design points
@@ -179,6 +194,7 @@ void DesignField::update_pseudo_designField(
 		for (unsigned int k = 0; k < dp_rho.size(); ++k){
 			rho[j] += (dx_drho[j][k] * dp_rho[k]);
 		}
+		//std::cout<<rho[j]<<std::endl;
 	}
 }
 

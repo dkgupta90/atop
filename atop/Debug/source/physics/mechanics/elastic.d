@@ -103,7 +103,14 @@ source/physics/mechanics/elastic.d: \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_q_base.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_poly.h \
  /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h \
- /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h
+ /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/function.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/physics/mechanics/elastic.h:
 
@@ -312,3 +319,17 @@ source/physics/mechanics/elastic.d: \
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:
 
 /home/dkgupta/bin/deal.II/include/deal.II/base/symmetric_tensor.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/fe/mapping_q.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/matrix_tools.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/function.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/function_time.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/designField.h:

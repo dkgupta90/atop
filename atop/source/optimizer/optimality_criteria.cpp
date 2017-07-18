@@ -51,6 +51,10 @@ void OC::optimize(
 				obj_data);
 		double current_volfrac = 0.0;
 
+/*		for (unsigned int i = 0; i < obj_grad.size(); ++i){
+			std::cout<<obj_grad[i]<<std::endl;
+		}*/
+
 
 		//Calculating volume derivatives
 		std::vector<double> vol_grad(obj_grad.size(), 0.0);
@@ -66,12 +70,49 @@ void OC::optimize(
 
 
 		double l1 = 1e-5, l2 = 100000000, move = 0.08;
-		//l1 = l2;
+
+/*		if (opt_design2d->obj_fem->itr_count == 0){
+			l1 = l2;
+
+			//updating the density_cell_info_vector
+			if (opt_design2d->mesh->coupling == false){
+				opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
+						opt_design2d->cell_info_vector,
+						opt_design2d->density_cell_info_vector,
+						*design_vector);
+			}
+			else{
+				opt_design2d->obj_fem->density_field.update_density_cell_info_vector(
+						opt_design2d->density_cell_info_vector,
+						*design_vector);
+			}
+
+			//update the pseudo-design field
+			opt_design2d->obj_fem->update_pseudo_designField();
+			opt_design2d->obj_fem->add_density_to_design_cell_info_vector();
+
+			//Applying smoothing
+			opt_design2d->obj_fem->density_field.smoothing(
+					opt_design2d->cell_info_vector,
+					opt_design2d->density_cell_info_vector,
+					*(opt_design2d->mesh));
+			opt_design2d->obj_fem->density_field.smoothing(
+					opt_design2d->cell_info_vector,
+					opt_design2d->density_cell_info_vector);
+
+			//Computing current volume fraction
+			//Note that the elastic_data object makes it hardcoded, it needs to be removed
+			current_volfrac = opt_design2d->obj_fem->density_field.get_vol_fraction(
+					opt_design2d->density_cell_info_vector);
+		}*/
+
 
 
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
+
+				//std::cout<<obj_grad[i]<<"   "<<vol_grad[i]<<std::endl;
 				double octemp1;
 				double old_density = old_design_vector[i];
 				if (obj_grad[i] > 0){
@@ -122,17 +163,21 @@ void OC::optimize(
 
 			//update the pseudo-design field
 			opt_design2d->obj_fem->update_pseudo_designField();
+			opt_design2d->obj_fem->add_density_to_design_cell_info_vector();
 
 			//Applying smoothing
-			opt_design2d->obj_fem->density_field.smoothing(
+/*			opt_design2d->obj_fem->density_field.smoothing(
 					opt_design2d->cell_info_vector,
 					opt_design2d->density_cell_info_vector,
-					*(opt_design2d->mesh));
+					*(opt_design2d->mesh));*/
+			opt_design2d->obj_fem->density_field.smoothing(
+					opt_design2d->cell_info_vector,
+					opt_design2d->density_cell_info_vector);
 
 			//Computing current volume fraction
 			//Note that the elastic_data object makes it hardcoded, it needs to be removed
 			current_volfrac = opt_design2d->obj_fem->density_field.get_vol_fraction(
-					opt_design2d->cell_info_vector);
+					opt_design2d->density_cell_info_vector);
 
 			//std::cout<<(density_sum/(x_count*y_count))<<std::endl;
 			if (current_volfrac < 0 || current_volfrac > 1){
@@ -149,7 +194,8 @@ void OC::optimize(
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
-	}while(fabs(old_objective - objective) > min_obj_change);// || opt_design2d->obj_fem->itr_count < 10);
+		//exit(0);
+	}while(fabs(old_objective - objective) > min_obj_change);
 
 
 }

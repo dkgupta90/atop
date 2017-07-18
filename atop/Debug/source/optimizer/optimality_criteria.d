@@ -136,7 +136,13 @@ source/optimizer/optimality_criteria.d: \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/additional_tools/timer.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h \
- /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h \
+ /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out_dof_data.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/base/data_out_base.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h \
+ /home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h:
 
@@ -411,3 +417,15 @@ source/optimizer/optimality_criteria.d: \
 /home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/sensitivity.h:
 
 /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/constraints/general.h:
+
+/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_out_dof_data.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/base/data_out_base.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_postprocessor.h:
+
+/home/dkgupta/bin/deal.II/include/deal.II/numerics/data_component_interpretation.h:

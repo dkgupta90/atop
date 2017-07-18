@@ -36,10 +36,10 @@ template <int dim>
 void StressJumpIndicator<dim>::estimate(){
 
 	//Updating face_B matrices
-	fem->elastic_data.update_face_B_matrices(
+/*	fem->elastic_data.update_face_B_matrices(
 			fem->fe_collection,
 			fem->face_quadrature_collection,
-			fem->dof_handler);
+			fem->dof_handler);*/
 
 	//Getting the D-matrix
 	ElasticTools elastic_tool;

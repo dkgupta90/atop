@@ -202,6 +202,7 @@ void DefineMesh<dim>::update_analysis_design_connections(
 		design_cell_info_vector[design_cell->user_index()-1].connected_cell_iterators_2D.clear();
 		design_cell_info_vector[design_cell->user_index()-1].connected_cell_iterators_2D.push_back(cell);
 		cell_info_vector[cell->user_index()-1].connected_cell_iterators_2D.push_back(design_cell);
+		//std::cout<<design_cell->user_index()-1<<"    "<<cell->user_index()-1<<std::endl;
 	}
 
 /*	design_cell = design_handler.begin();

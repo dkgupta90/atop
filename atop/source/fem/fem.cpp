@@ -78,7 +78,7 @@ FEM<dim>::FEM(
 
 	//For Lagrange element
 	if (mesh->elementType == "FE_Q"){
-		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+		for (unsigned int degree = mesh->initial_el_order; degree <= mesh->initial_el_order; ++degree){
 			fe_collection.push_back(FESystem<dim>(FE_Q<dim>(degree), dim));
 		}
 
@@ -96,7 +96,9 @@ FEM<dim>::FEM(
 	 * We use composite integration and in every design cell the density is constant
 	 * As we know, pmax <= 2qmax-1 => qmax = pmax/2 + 1
 	 */
-	for (unsigned int qrule = 1; qrule <= ceil(((double)(mesh->max_el_order+1))/2.0); ++qrule){
+
+	unsigned int qrule_active = ceil(((double)(mesh->initial_el_order+1))/2.0) + 1;
+	for (unsigned int qrule = qrule_active; qrule <= qrule_active; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -112,7 +114,8 @@ FEM<dim>::FEM(
 	this->design_vector = &obj_design_vector;
 
 	unsigned int cell_itr = 0;
-	unsigned int p_index = elastic_data.get_p_index(mesh->initial_el_order);
+	//unsigned int p_index = elastic_data.get_p_index(mesh->initial_el_order);
+	unsigned int p_index = 0;	//since only one p order is being saved now
 	//intializing the type of element for each cell of analysis mesh
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell =dof_handler.begin_active();
 			cell != dof_handler.end(); ++cell){
@@ -179,11 +182,16 @@ void FEM<dim>::setup_system(){
 	add_boundary_constraints();
 
 	//Getting the values are the Dirichlet boundary dofs
-	BoundaryValues<dim> boundary_v;
+/*	BoundaryValues<dim> boundary_v;
 	VectorTools::interpolate_boundary_values(dof_handler,
 			42,
-			/*ZeroFunction<dim>(),*/boundary_v,
-			boundary_values);
+			ZeroFunction<dim>(),boundary_v,
+			boundary_values);*/
+
+	VectorTools::interpolate_boundary_values(dof_handler,
+				42,
+				ZeroFunction<dim>(),
+				dof_constraints);
 
 	dof_constraints.close();
 	std::cout<< "No.of degrees of freedom : " << dof_handler.n_dofs() << "\n";
@@ -206,12 +214,13 @@ void FEM<dim>::setup_system(){
 	lambda_solution.reinit(dof_handler.n_dofs());	//Lagrange multiplier for adjoint
 	l_vector.reinit(dof_handler.n_dofs());
 
-	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for elementwise constant density field
-	nodal_p_order.reinit(analysis_density_handler.n_dofs());
-	cells_adjacent_per_node.reinit(analysis_density_handler.n_dofs());	//for normalizing the nodal density value
-	nodal_d_count.reinit(analysis_density_handler.n_dofs());
+	nodal_density.reinit(design_handler.n_dofs());	//filtered densities for elementwise constant density field
+	nodal_p_order.reinit(design_handler.n_dofs());
+	cells_adjacent_per_node.reinit(design_handler.n_dofs());	//for normalizing the nodal density value
+	nodal_d_count.reinit(design_handler.n_dofs());
 
-
+	smooth_x.reinit(design_handler.n_dofs());	//for warping in paraview
+	smooth_y.reinit(design_handler.n_dofs());	//for warping in paraview
 
 }
 
@@ -228,6 +237,16 @@ void FEM<dim>::assemble_system(){
 		reset();	//Initializes the variables and vectors
 	}
 
+	/**
+	 * Update the iterator connections between the analysis and design triangulations
+	 * For each analysis cell, iterators for all the connected design cells are stored
+	 * For each design cell, the parent analysis cell iterator is saved
+	 */
+	this->mesh->update_analysis_design_connections(
+			dof_handler,
+			design_handler,
+			*cell_info_vector,
+			*density_cell_info_vector);
 
 /*
  * At every iteration, the content of design_vector needs to be copied into the
@@ -283,13 +302,14 @@ void FEM<dim>::assemble_system(){
 
 
 	//Apply smoothing operation on the density values
-	density_field.smoothing(*cell_info_vector,
+/*	density_field.smoothing(*cell_info_vector,
 			*density_cell_info_vector,
-			*mesh);
+			*mesh);*/
+    density_field.smoothing(*cell_info_vector, *density_cell_info_vector);
 	std::cout<<"Smoothing done"<<std::endl;
-/*	OutputData<dim> out_soln;
+	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
-			"output_design/density_1_46.dat");*/
+			"output_design/density_1_170.dat");
 
 
 
@@ -347,13 +367,157 @@ void FEM<dim>::solve(){
 	dof_constraints.distribute(solution);
 	dof_constraints.distribute(lambda_solution);
 
-/*	for (unsigned int i = 0; i < solution.size(); ++i){
-		std::cout<<solution[i]<<std::endl;
+/*	for (unsigned int i = 0; i < system_rhs.size(); ++i){
+		std::cout<<solution(i)<<std::endl;
 	}*/
 	//std::cout<<"Printing rhs vector"<<std::endl;
 	// (unsigned int i = 0; i < system_rhs.size(); ++i)	std::cout<<system_rhs(i)<<std::endl;
 
+/*	//Getting solution at certain points
+	std::vector<Point<dim> > upoints;
+	upoints.clear();
 
+	for(double udel = 0.0; udel <= 1.00001; udel+=0.01){
+		Point<dim> temp_point;
+		temp_point(0) = 0.0;
+		temp_point(1) = udel;
+		upoints.push_back(temp_point);
+	}
+
+	std::cout<<upoints.size()<<std::endl;
+	std::vector<Vector<double> > ufield;
+	ufield.resize(upoints.size());
+	std::cout<<"reached here "<<std::endl;
+
+
+	hp::FEValues<dim> hp_fe_values(fe_collection,
+				quadrature_collection,
+				update_values | update_gradients |
+				update_quadrature_points | update_JxW_values);
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
+
+	for (; cell != endc(); ++cell){
+		hp_fe_values.reinit(cell, 0);
+		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
+	}
+
+
+	//fe_values.get_function_values(solution, ufield);
+
+	for (unsigned int i = 0; i < ufield.size(); ++i){
+		VectorTools::point_value(dof_handler, solution, upoints[i], ufield[i]);
+		std::cout<<upoints[i](1)<<"\t"<<ufield[i](1)<<std::endl;
+	}
+	exit(0);
+
+
+	//Saving smooth density fields for paraview
+	hp::FEValues<dim> hp_design_values(fe_design_collection,
+				quadrature_collection,
+				update_values | update_gradients |
+				update_quadrature_points | update_JxW_values);*/
+
+	//Iterators for the FE mesh
+/*
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
+*/
+
+
+/*	//Iterators for the density mesh
+	typename hp::DoFHandler<dim>::active_cell_iterator design_cell = design_handler.begin_active(),
+			design_endc = design_handler.end();
+
+	for (; design_cell != design_endc; ++design_cell){
+		hp_design_values.reinit(design_cell, 0);
+		const FEValues<dim> &design_values = hp_design_values.get_present_fe_values();
+
+		const unsigned int design_per_cell = design_cell->get_fe().dofs_per_cell;
+
+		FullMatrix<double> cellx_vector(design_per_cell, design_per_cell);
+		FullMatrix<double> celly_vector(design_per_cell, design_per_cell);
+		cellx_vector = 0;
+		celly_vector = 0;
+
+		std::vector<types::global_dof_index> local_design_indices(design_per_cell);
+		std::vector<Point<dim> > quad_points = design_values.get_quadrature_points();
+
+		std::cout<<quad_points.size()<<"  "<<design_per_cell<<std::endl;
+
+		//Adding the x and y values to the local cell vectors
+		for (unsigned int i = 0; i < design_per_cell; ++i){
+			std::cout<<i<<std::endl;
+			//Iterating over the the quad points
+			for (unsigned int qpoint = 0; qpoint < quad_points.size(); ++qpoint){
+				Vector<double> xy_values;
+				VectorTools::point_value(dof_handler, solution, quad_points[qpoint], xy_values);
+				std::cout<<qpoint<<"  reached here"<<std::endl;
+				std::cout<<xy_values(1)<<std::endl;
+				cellx_vector(i) += design_values.shape_value(i, qpoint) *
+									xy_values(0) *
+									design_values.JxW(qpoint);
+				celly_vector(i) += design_values.shape_value(i, qpoint) *
+									xy_values(1) *
+									design_values.JxW(qpoint);
+			}
+		}
+
+		//Adding to the global vectors
+		design_cell->get_dof_indices(local_design_indices);
+
+		for(unsigned int i = 0; i < design_per_cell; ++i){
+
+			smooth_x(local_design_indices[i]) += cellx_vector(i);
+			smooth_y(local_design_indices[i]) += celly_vector(i);
+		}
+
+	}*/
+
+/*	//Open the file to write
+	std::string	filename = "deform_data-";
+	std::stringstream ss;
+	ss<< cycle +1<<"_"<<itr_count+1;
+	filename += ss.str();
+	filename += ".dat";
+	std::ofstream wfile;
+	wfile.open("output_design/" + filename, std::ios::out);
+
+	//Define the sampling points
+	for (double i = 0; i <=1.00001; i+=0.005){
+		for (double j= 0; j <= 1.00001; j+=0.005){
+			//std::cout<<i<<"    "<<j<<std::endl;
+			wfile<<i<<"\t"<<j<<"\t";	//Writing the coordinates
+			Point<dim> u_point(i, j);
+			Vector<double> u_soln;
+			VectorTools::point_value(dof_handler, solution, u_point, u_soln);
+			wfile<<u_soln(0)<<"\t"<<u_soln(1)<<"\t";
+			double rho_point = VectorTools::point_value(design_handler, nodal_density, u_point);
+			wfile<<rho_point<<"\n";
+		}
+	}
+	wfile.close();
+
+	//Writing the outline file
+	filename = "outline_data-";
+	filename += ss.str();
+	filename += ".dat";
+	wfile.open("output_design/" + filename, std::ios::out);
+
+	//Define the sampling points
+	for (double i = 0; i <=1000; i+=5){
+		for (double j= 0; j <= 1000; j+=5){
+
+			if (((unsigned int)round(i)) % 125 != 0 && ((unsigned int)round(j)) % 125 != 0)	continue;
+			//std::cout<<i<<"    "<<j<<std::endl;
+			wfile<<i/1000<<"\t"<<j/1000<<"\t";	//Writing the coordinates
+			Point<dim> u_point(i/1000, j/1000);
+			Vector<double> u_soln;
+			VectorTools::point_value(dof_handler, solution, u_point, u_soln);
+			wfile<<u_soln(0)<<"\t"<<u_soln(1)<<"\n";
+		}
+	}
+	wfile.close();*/
 
 }
 
@@ -395,18 +559,18 @@ void FEM<dim>::output_results(){
 	std::vector<std::string> density_names;
 	density_names.clear();
 	density_names.push_back("density");
-	out_soln.write_fe_solution(filename, analysis_density_handler,
+	out_soln.write_fe_solution(filename, design_handler,
 			nodal_density, density_names);
 
 	//Writing the shape order
-	if (itr_count == 1){
+	if (itr_count == 0){
 		filename = "shape-";
 		filename += ss.str();
 		filename += ".vtk";
 		std::vector<std::string> density_names;
 		density_names.clear();
 		density_names.push_back("p-order");
-		out_soln.write_fe_solution(filename, analysis_density_handler,
+		out_soln.write_fe_solution(filename, design_handler,
 				nodal_p_order, density_names);
 
 		filename = "d_count-";
@@ -414,7 +578,7 @@ void FEM<dim>::output_results(){
 		filename += ".vtk";
 		density_names.clear();
 		density_names.push_back("d-count");
-		out_soln.write_fe_solution(filename, analysis_density_handler,
+		out_soln.write_fe_solution(filename, design_handler,
 				nodal_d_count, density_names);
 	}
 
@@ -439,17 +603,8 @@ void FEM<dim>::output_results(){
 }
 template <int dim>
 void FEM<dim>::reset(){
-	//initializing the sizes of current and running quad rule
-	gauss_int.initialize_quadRuleVector(current_quad_rule,
-			mesh->max_el_order, mesh->initial_dcount_per_el);
 
-	running_quad_rule.clear();
-	running_quad_rule.resize(mesh->max_el_order, 1);
-
-	elastic_data.initialize_quadRuleVectors(current_quad_rule,
-			running_quad_rule);
-	//current_quad_rule  will be updated on adaptivity in quadrature
-
+	//std::cout<<"Entered the reset function "<<std::endl;
 	elastic_data.nu = linear_elastic->poisson;
 
 	/**
@@ -460,13 +615,10 @@ void FEM<dim>::reset(){
 			cell_info_itr != cell_info_vector->end();
 			++cell_info_itr){
 		(*cell_info_itr).dim = dim;
-		(*cell_info_itr).shape_function_order = cell->active_fe_index() + 1;
-		unsigned int q_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
-		(*cell_info_itr).quad_rule = current_quad_rule[q_index];
-		QGauss<dim> temp_quad(current_quad_rule[q_index]);
-		(*cell_info_itr).n_q_points = temp_quad.size();
-		(*cell_info_itr).cell_area = 0.00001;
-		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, 0.01);
+		(*cell_info_itr).shape_function_order = mesh->initial_el_order;
+		(*cell_info_itr).quad_rule = ceil(((double)(mesh->initial_el_order+1))/2.0) + 1;
+
+		(*cell_info_itr).density.resize(mesh->initial_dcount_per_el, 0.01);
 
 		// Initialize the designField for uncoupled meshes
 		if(mesh->coupling == false && mesh->adaptivityType == "adaptive_grayness"){
@@ -485,30 +637,7 @@ void FEM<dim>::reset(){
 
 	//Initialize the density cell parameters for all the density cells
 	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-		unsigned int design_len = (*design_vector).size();	//size of design vector
-		unsigned int k = 0;	//for iterating over all the design variables
 
-		//Iterating over the number of design points
-		for(std::vector<CellInfo>::iterator design_point_info_itr = density_cell_info_vector->begin();
-				design_point_info_itr != density_cell_info_vector->end();
-				++design_point_info_itr){
-
-			//Setting the density quad rule to 1
-			(*design_point_info_itr).density.resize(1);
-			(*design_point_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
-
-
-
-			(*design_point_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
-
-			//Adding the position of the design point
-			(*design_point_info_itr).pointX.resize(dim);
-			for (unsigned int j = 0; j < dim; j++){
-				(*design_point_info_itr).pointX[j] = (*design_vector)[k];	k++;
-			}
-
-			(*design_point_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
-		}
 	}
 	else{
 		for(std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector->begin();
@@ -584,6 +713,13 @@ void FEM<dim>::initialize_cycle(){
 
 	std::cout<<"Psuedo design field initialized"<<std::endl;
 
+/*	for (unsigned int cell_itr = 0; cell_itr < (*cell_info_vector).size(); ++cell_itr){
+		for (unsigned int design_pt = 0; design_pt < (*cell_info_vector)[cell_itr].pseudo_design_points.no_points; ++design_pt){
+			std::cout<<(*cell_info_vector)[cell_itr].pseudo_design_points.rho[design_pt]<<"  ";
+		}
+		std::cout<<std::endl;
+	}*/
+
 	/*Updating the hp_fe_values*/
 	hp::FEValues<dim> hp_fe_values(fe_collection,
 				quadrature_collection,
@@ -605,17 +741,12 @@ void FEM<dim>::initialize_cycle(){
 		cell->set_user_index(cell_itr + 1);
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
 		unsigned int p_degree = (*cell_info_vector)[cell_itr].shape_function_order;
-		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
-				1.0,	/*since the density in each connected design cell is constant*/
-				p_degree);
+		(*cell_info_vector)[cell_itr].quad_rule = ceil(((double)(mesh->initial_el_order+1))/2.0) + 1;
 		QGauss<dim> temp_quad((*cell_info_vector)[cell_itr].quad_rule);
 		(*cell_info_vector)[cell_itr].n_q_points = temp_quad.size();
 
 		++cell_itr;
 	}
-	if (cycle > 0)	gauss_int.update_quadRuleVector(current_quad_rule, *cell_info_vector);
-	std::cout<<"Quadrature rule updated "<<std::endl;
-
 
 	std::cout<<"Updating the design vector here"<<std::endl;
 	density_field.update_design_vector(*cell_info_vector,
@@ -705,7 +836,8 @@ void FEM<dim>::add_density_to_design_cell_info_vector(){
 		unsigned int no_design_cells = (*cell_info_vector)[cell_itr].connected_cell_iterators_2D.size();
 		for (unsigned int i = 0; i < no_design_cells; ++i){
 			unsigned int design_itr = (*cell_info_vector)[cell_itr].connected_cell_iterators_2D[i]->user_index() - 1;
-			(*density_cell_info_vector)[design_itr].cell_density = (*cell_info_vector)[cell_itr].design_points.rho[i];
+			(*density_cell_info_vector)[design_itr].cell_density = (*cell_info_vector)[cell_itr].pseudo_design_points.rho[i];
+			//std::cout<<(*density_cell_info_vector)[design_itr].cell_density<<std::endl;
 		}
 	}
 }
@@ -715,9 +847,15 @@ void FEM<dim>::update_physics(){
 
 	//update the B and d matrices for linear elastic problem
 	if(linear_elastic){
+		std::cout<<"Initial p order : "<<mesh->initial_el_order<<std::endl;
 		elastic_data.update_elastic_matrices(fe_collection,
 				quadrature_collection,
-				dof_handler);
+				dof_handler,
+				design_handler,
+				*cell_info_vector,
+				*density_cell_info_vector,
+				mesh->initial_el_order
+				);
 	}
 }
 
@@ -734,7 +872,7 @@ void FEM<dim>::assembly(){
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
 
-	hp::FEValues<dim> hp_fe_analysis_density_values(fe_analysis_density_collection,
+	hp::FEValues<dim> hp_design_values(fe_design_collection,
 				quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
@@ -744,18 +882,19 @@ void FEM<dim>::assembly(){
 			endc = dof_handler.end();
 	unsigned int cell_itr = 0;
 
-	//Iterator for density points on the FE mesh
+/*	//Iterator for density points on the FE mesh
 	typename hp::DoFHandler<dim>::active_cell_iterator fe_den_cell = analysis_density_handler.begin_active(),
-			fe_den_endc = analysis_density_handler.end();
+			fe_den_endc = analysis_density_handler.end();*/
 
 	//Iterators for the density mesh
-	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
-			density_endc = design_handler.end();
+	typename hp::DoFHandler<dim>::active_cell_iterator design_cell = design_handler.begin_active(),
+			design_endc = design_handler.end();
 
 
 	add_point_source_to_rhs();
 	add_point_stiffness_to_system();
 	add_point_to_l_vector();
+
 
 	bool output_FE_density_field = true;
 	std::string fe_fname = "fe_density/fe_density-";
@@ -766,12 +905,14 @@ void FEM<dim>::assembly(){
 	std::ofstream fout;
 	fout.open(fe_fname, std::ios::out);
 	fout.close();
+
 	for (; cell != endc; ++cell){
+
 		//std::cout<<cell_itr<<std::endl;
 		//Getting the q_index for the cell
-		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
+		unsigned int q_index = 0; //elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
-		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
+		//const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 		//hp_fe_analysis_density_values.reinit(fe_den_cell, 0);
 		//const FEValues<dim> &fe_analysis_density_values = hp_fe_analysis_density_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
@@ -780,51 +921,42 @@ void FEM<dim>::assembly(){
 		//		std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<dofs_per_cell<<std::endl;
 
 
-		const unsigned int density_per_fe_cell = fe_den_cell->get_fe().dofs_per_cell;
+		const unsigned int design_per_cell = design_cell->get_fe().dofs_per_cell;
 
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
 		normalized_matrix = 0;
 
 		Vector<double> cell_rhs(dofs_per_cell);
-		Vector<double> cell_density(density_per_fe_cell);
+		Vector<double> cell_density(design_per_cell);
 
 		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-		std::vector<types::global_dof_index> local_density_indices(density_per_fe_cell);
+		std::vector<types::global_dof_index> local_design_indices(design_per_cell);
 
 		cell_matrix = 0;
 		cell_rhs = 0;
-		cell_density = 0;
+		//cell_density = 0;
 		//QGauss<dim> quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
 		//unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
-		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
+		//unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
+		unsigned int design_count = (*cell_info_vector)[cell_itr].pseudo_design_points.no_points;
 		//std::cout<<"NO. of q points : "<<n_q_points<<std::endl;
 		QGauss<dim-1> face_quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
 		unsigned int n_face_q_points = face_quadrature_formula.size();
 
 		//Add source function to the right hand side
-		std::vector<Vector<double>> rhs_values(n_q_points,
-				Vector<double>(dim));
+/*		std::vector<Vector<double>> rhs_values(n_q_points,
+				Vector<double>(dim));*/
 /*		add_source_to_rhs(fe_values.get_quadrature_points(),
 				rhs_values);*/
 
 		//Writing the quadrature points and density value for this cell into the file
-		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
-		assert(n_q_points == quad_points.size());
-		fout.open(fe_fname, std::ios::app);
-		Point<dim> em_center = cell->center();
-		for (unsigned int i = 0; i < n_q_points; ++i){
-		//if (cell_itr > 2) continue;
-			fout<<quad_points[i](0)<<"\t"<<quad_points[i](1)<<"\t"<<
-					(*cell_info_vector)[cell_itr].density[i]<<"\n";
-			//std::cout<<quad_points[i](0)<<"   "<<quad_points[i](1)<<std::endl;
-		}
-		fout.close();
+		//std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
+		//assert(n_q_points == quad_points.size());
 
-		//for (unsigned int i = 0; i < )
 		//Calculating the cell_matrix
-		double total_weight = 0.0; // For setting the density values at the nodes
-		unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		//double total_weight = 0.0; // For setting the density values at the nodes
+		//unsigned int p_index = 0;//elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
 
 
 		//std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<n_q_points<<std::endl;
@@ -837,14 +969,21 @@ void FEM<dim>::assembly(){
 		elastic_tool.get_D_plane_stress2D(D_matrix,
 				0.3);*/
 
-		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+		//std::cout<<"No of design points : "<<design_count<<std::endl;
 
+/*		for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].connected_cell_iterators_2D.size(); ++i){
+			if ((*cell_info_vector)[cell_itr].connected_cell_iterators_2D[i]->center()(1) <= 0.9)
+				(*cell_info_vector)[cell_itr].E_values[i] = 1.0;
+			else
+				(*cell_info_vector)[cell_itr].E_values[i] = 1e-9;
+		}*/
+		for(unsigned int design_itr = 0; design_itr < design_count; ++design_itr){
 			normalized_matrix = 0;
 
 /*			elastic_tool.get_point_B_matrix_2D(B_matrix,  JxW,
 					cell, hp_fe_values, q_index, q_point);*/
 
-			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+			normalized_matrix = elastic_data.K_matrix_list[0][0][design_itr];
 /*			normalized_matrix.triple_product(D_matrix,
 					B_matrix,
 					B_matrix,
@@ -852,42 +991,38 @@ void FEM<dim>::assembly(){
 					false,dis
 					JxW);*/
 
-/*
- * The code below is only used to assign E_values at the Gauss points for test purpose.
- * For most of the cases, it should be commented out.
- */
-
-/*
-			if (quad_points[q_point](1) < 0.5)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-1;
-			else if (quad_points[q_point](1) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else if (quad_points[q_point](0) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else if (quad_points[q_point](0) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else								(*cell_info_vector)[cell_itr].E_values[q_point] = 1;
-			//std::cout<<q_point<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
-*/
-
 			//NaN condition check ----------------------------------------------------------------------------------
-			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
-				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
+			if ((*cell_info_vector)[cell_itr].E_values[design_itr] != (*cell_info_vector)[cell_itr].E_values[design_itr])
+				std::cout<<design_itr<<(*cell_info_vector)[cell_itr].E_values[design_itr]<<std::endl;
 			//------------------------------------------------------------------------------------------------------
 
-			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
+			/*Below we do not scale the matrix using the no. of design points, since that effect is alredy included
+			 * when JxW for each design cell are looked at individually.
+			 */
+			double scale_factor = (*cell_info_vector)[cell_itr].E_values[design_itr];// * elastic_data.JxW[0][0][design_itr];
+			//std::cout<<cell_itr<<"  "<<design_itr<<"  "<<(*cell_info_vector)[cell_itr].E_values[design_itr]<<std::endl;
+			cell_matrix.add(scale_factor,
 					normalized_matrix);
-			total_weight += fe_values.JxW(q_point);
+
+			//total_weight += elastic_data.JxW[0][0][design_itr];
 			//std::cout<<fe_values.JxW(q_point)<<std::endl;
+
 		}
+
+		//std::cout<<cell_itr<<std::endl;
+		//cell_matrix.print(std::cout);
 
 		//std::cout<<total_weight<<std::endl;
 
 		//Calculating cell_rhs
-		for(unsigned int i = 0; i < dofs_per_cell; ++i){
+/*		for(unsigned int i = 0; i < dofs_per_cell; ++i){
 			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
 			for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 				cell_rhs(i) += fe_values.shape_value(i, q_point) *
 						rhs_values[q_point](component_i) *
 						fe_values.JxW(q_point);
 			}
-		}
+		}*/
 
 		//Adding distributed load on the edge
         for (unsigned int face_number=0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
@@ -962,28 +1097,36 @@ void FEM<dim>::assembly(){
 			system_rhs(local_dof_indices[i]) += cell_rhs(i);
 		}*/
 
-		fe_den_cell->get_dof_indices(local_density_indices);
-		for(unsigned int i = 0; i < density_per_fe_cell; ++i){
-			for(unsigned int q_point = 0 ; q_point < n_q_points; ++q_point){
-				cell_density(i) += 	(*cell_info_vector)[cell_itr].density[q_point] *
-						(fe_values.JxW(q_point)/total_weight);
-			}
-			nodal_density(local_density_indices[i]) += cell_density(i);
-			nodal_p_order(local_density_indices[i]) += (*cell_info_vector)[cell_itr].shape_function_order;
-			nodal_d_count(local_density_indices[i]) += (*cell_info_vector)[cell_itr].design_points.no_points;
+		 //Iterating over all the connected design cells
+		 for (unsigned int design_itr = 0; design_itr < (*cell_info_vector)[cell_itr].connected_cell_iterators_2D.size(); ++design_itr){
 
-			cells_adjacent_per_node(local_density_indices[i]) += 1;
-		}
+			 cell_density = 0;
+			 design_cell = (*cell_info_vector)[cell_itr].connected_cell_iterators_2D[design_itr];
+			 hp_design_values.reinit(design_cell, 0);
+
+				design_cell->get_dof_indices(local_design_indices);
+				for(unsigned int i = 0; i < design_per_cell; ++i){
+					for(unsigned int q_point = 0 ; q_point < 1; ++q_point){
+						cell_density(i) += 	(*density_cell_info_vector)[(design_cell->user_index()-1)].filtered_density;
+					}
+					nodal_density(local_design_indices[i]) += cell_density(i);
+					nodal_p_order(local_design_indices[i]) += (*cell_info_vector)[cell_itr].shape_function_order;
+					nodal_d_count(local_design_indices[i]) += (*cell_info_vector)[cell_itr].design_points.no_points;
+
+					cells_adjacent_per_node(local_design_indices[i]) += 1;
+				}
+		 }
 
 
-		//Adding the density weights to the cell_info_vector
+
+/*		//Adding the density weights to the cell_info_vector
 		(*cell_info_vector)[cell_itr].density_weights.clear();
-		for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
-			(*cell_info_vector)[cell_itr].density_weights.push_back(fe_values.JxW(qpoint)/total_weight);
+		for(unsigned int qpoint = 0; qpoint < design_count; ++qpoint){
+			(*cell_info_vector)[cell_itr].density_weights.push_back(elastic_data.JxW[0][0][qpoint]/total_weight);
 		}
 
 		++fe_den_cell;
-		++density_cell;
+		++density_cell;*/
 		++cell_itr;
 	}
 
@@ -991,10 +1134,10 @@ void FEM<dim>::assembly(){
 	//add_point_source_to_rhs();
 
 
-	double volfrac = density_field.get_vol_fraction(*cell_info_vector);
+	double volfrac = density_field.get_vol_fraction(*density_cell_info_vector);
 	std::cout<<"Volfrac : "<<volfrac<<std::endl;
 
-
+	//exit(0);
 	//Normalizing the nodal density vector
 	for(unsigned int i = 0; i < nodal_density.size(); ++i){
 		unsigned int denom = cells_adjacent_per_node(i);
@@ -1050,7 +1193,6 @@ template <int dim>
 void FEM<dim>::add_point_source_to_rhs(){
 		deallog.depth_console (2);
 
-    std::cout<<"Entered here"<<std::endl;
 	unsigned int no_sources = (mesh->point_source_vector).size();
 	for(unsigned int s = 0; s < no_sources; ++s){
 		std::vector<double> load_point = mesh->point_source_vector[s].first;
@@ -1231,7 +1373,7 @@ void FEM<dim>::add_boundary_constraints(){
 
 						if (comp_i == 1){
 							dof_constraints.add_line(local_dof_indices[i]);
-							std::cout<<dof_constraints.n_constraints()<<std::endl;
+							//std::cout<<dof_constraints.n_constraints()<<std::endl;
 						}
 
 					}
@@ -1241,7 +1383,7 @@ void FEM<dim>::add_boundary_constraints(){
 
 						if (comp_i == 0){
 							dof_constraints.add_line(local_dof_indices[i]);
-							std::cout<<dof_constraints.n_constraints()<<std::endl;
+							//std::cout<<dof_constraints.n_constraints()<<std::endl;
 						}
 					}
 					else if (boundary_indic == 54){
@@ -1250,7 +1392,40 @@ void FEM<dim>::add_boundary_constraints(){
 				}
 			}
 		}
+
+		//Manually constraining certain vertices of this cell
+/*		std::vector<std::pair<Point<dim>, unsigned int > > manual_pts;
+		manual_pts.clear();
+		manual_pts.push_back(std::make_pair(Point<dim>(0, 1), 0));
+		manual_pts.push_back(std::make_pair(Point<dim>(1, 1), 0));
+
+		for (unsigned int mi = 0; mi < manual_pts.size(); ++mi){
+			//Iterate over all the support points and check
+			for (unsigned int i = 0; i < dofs_per_cell; ++i){
+				if (dim == 2){
+					//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+					Point<dim> temp_points = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+
+					double distance = temp_points.distance(manual_pts[mi].first);
+
+					if (distance < 1e-12){
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
+
+						if (comp_i == manual_pts[mi].second){
+							dof_constraints.add_line(local_dof_indices[i]);
+							//std::cout<<dof_constraints.n_constraints()<<std::endl;
+						}
+
+					}
+				}
+			}
+		}*/
 	}
+
+
+
+
 }
 
 //Function for setting boundary indicators for the domain
@@ -1283,6 +1458,9 @@ void FEM<dim>::clean_trash(){
 	nodal_d_count = 0;
 	cells_adjacent_per_node = 0;
 	solution = 0;
+	smooth_x = 0;
+	smooth_y = 0;
+
 
 	l_vector = 0;
 	lambda_solution = 0;
@@ -1306,6 +1484,11 @@ void FEM<dim>::clean_trash(){
 			}
 
 			(*cell_info_vector)[i].refine_coarsen_flag = 0;
+		}
+
+		for(unsigned int i = 0 ; i < density_cell_info_vector->size(); ++i){
+			(*density_cell_info_vector)[i].dxPhys.clear();
+			(*density_cell_info_vector)[i].dxPhys.resize(1, 0.0);
 		}
 	}
 

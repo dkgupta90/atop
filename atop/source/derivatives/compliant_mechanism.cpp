@@ -175,11 +175,12 @@ void CompliantMechanism<dim>::compute(
 				for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].neighbour_points[q_point].size(); ++i){
 					unsigned int cell_itr2 = (*cell_info_vector)[cell_itr].neighbour_points[q_point][i].first;	//index of neighbor cell
 					unsigned int ngpt_itr = (*cell_info_vector)[cell_itr].neighbour_points[q_point][i].second;	//neighbor point index
-					double dxPhys_dx = density_field->get_dxPhys_dx(
+/*					double dxPhys_dx = density_field->get_dxPhys_dx(
 							(*cell_info_vector)[cell_itr],
 							q_point,
 							cell_itr2,
-							ngpt_itr);
+							ngpt_itr);*/
+					double dxPhys_dx = 0;
 
 					//Adding the dxPhys_dx information into the cell containing this pseudo-design point
 					//(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);

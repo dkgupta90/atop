@@ -24,10 +24,8 @@ double GeneralConstraints<dim>::volumeConstraint(
 	double volume = density_field.get_vol_fraction(cell_info_vector);
 
 	if (mesh.coupling == false && mesh.adaptivityType != "movingdesignpoints"){
-		for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
-			for (unsigned int j = 0; j < cell_info_vector[i].design_points.no_points; ++j){
-				volume_grad_vector.push_back(cell_info_vector[i].design_points.dxPhys_drho[j] / cell_info_vector.size());
-			}
+		for(unsigned int i = 0; i < density_cell_info_vector.size(); ++i){
+				volume_grad_vector.push_back(density_cell_info_vector[i].dxPhys[0] / density_cell_info_vector.size());
 		}
 	}
 	else{

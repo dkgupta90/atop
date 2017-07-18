@@ -48,11 +48,11 @@ void Penalize::update_param(
 
 	//Iterating over every cell
 	for(unsigned int i = 0; i < no_cells; ++i){
-		unsigned int n_qpoints =cell_info_vector[i].density.size();
-		cell_info_vector[i].E_values.resize(n_qpoints);
-		cell_info_vector[i].dE_values.resize(n_qpoints);
+		unsigned int design_count =cell_info_vector[i].density.size();
+		cell_info_vector[i].E_values.resize(design_count);
+		cell_info_vector[i].dE_values.resize(design_count);
 
-		for(unsigned int q_point = 0; q_point < n_qpoints; ++q_point){
+		for(unsigned int q_point = 0; q_point < design_count; ++q_point){
 			double density = cell_info_vector[i].density[q_point];
 			double Evalue, dEvalue;
 			if (scheme == "SIMP"){

@@ -238,8 +238,9 @@ void DensityField<dim>::create_neighbors(
 	/*
 	 * Iterate over all the design cells to find the neighbors
 	 */
+
 	unsigned int design_itr1 = 0;
-	double rmin1 = 1.01 * projection.true_radius;	//True radius based on the resolution of design mesh
+	double rmin1 = 1.00000001 * projection.true_radius;	//True radius based on the resolution of design mesh
 
 	typename hp::DoFHandler<dim>::active_cell_iterator design_cell1 = design_handler.begin_active(),
 				design_endc1= design_handler.end();
@@ -278,11 +279,6 @@ void DensityField<dim>::create_neighbors(
 				projection.true_radius);
 
 		++design_itr1;
-
-
-
-
-
 	}
 }
 
@@ -366,11 +362,13 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &design_cell_inf
 		double rmin){
 
 	unsigned int no_neighbors = design_cell_info_vector[design_itr1].neighbor_cells.size();
+	design_cell_info_vector[design_itr1].neighbor_weights.resize(no_neighbors);
 
 	/*Calculating the weights*/
 	double sum_weights = 0.0;
 	for(unsigned int i = 0; i < no_neighbors; ++i){
 		double temp1 = rmin - design_cell_info_vector[design_itr1].neighbor_distance[i];
+
 		design_cell_info_vector[design_itr1].neighbor_weights[i] = temp1;
 		sum_weights += temp1;
 	}
@@ -383,7 +381,7 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &design_cell_inf
 }
 
 
-//--------------------------------------------------------------------------------------------------------------
+/*//--------------------------------------------------------------------------------------------------------------
 template <int dim>
 void DensityField<dim>::smoothing(
 		std::vector<CellInfo> &cell_info_vector,
@@ -428,23 +426,33 @@ void DensityField<dim>::smoothing(
 			}
 		}
 	}
-}
+}*/
 
 template <int dim>
 void DensityField<dim>::smoothing(
+		std::vector<CellInfo> &cell_info_vector,
 		std::vector<CellInfo> &design_cell_info_vector){
 	unsigned int no_design_cells = design_cell_info_vector.size();
+
+	for (unsigned int cell_itr = 0; cell_itr < cell_info_vector.size(); ++cell_itr){
+		cell_info_vector[cell_itr].density.clear();
+	}
+
 
 	for(unsigned int design_itr = 0 ; design_itr < no_design_cells; ++design_itr){
 		double xPhys = 0.0;
 		unsigned int design_cell_itr2;
-		for(unsigned int i = 0; i < design_cell_info_vector[design_itr].neighbour_weights.size(); ++i){
+		//std::cout<<design_cell_info_vector[design_itr].neighbour_weights.size()<<std::endl;
+		for(unsigned int i = 0; i < design_cell_info_vector[design_itr].neighbor_weights.size(); ++i){
 			design_cell_itr2 = design_cell_info_vector[design_itr].neighbor_cells[i];
-			xPhys += design_cell_info_vector[design_itr].neighbour_weights[i]
+			xPhys += design_cell_info_vector[design_itr].neighbor_weights[i]
 					  * design_cell_info_vector[design_cell_itr2].cell_density;
 
 		}
 		design_cell_info_vector[design_itr].filtered_density = xPhys;
+		//std::cout<<"filtered density "<<xPhys<<std::endl;
+		unsigned int cell_itr = design_cell_info_vector[design_itr].connected_cell_iterators_2D[0]->user_index() - 1;
+		cell_info_vector[cell_itr].density.push_back(xPhys);
 	}
 }
 
@@ -499,6 +507,9 @@ void DensityField<dim>::update_design_vector(
 		design_vector.clear();
 		if (cycle == 0){
 			design_vector.resize(cell_count, volfrac);
+
+
+
 		}
 		else{
 			for(unsigned int i = 0; i < cell_count; ++i){
@@ -514,13 +525,23 @@ void DensityField<dim>::update_design_vector(
 
 			design_vector.clear();
 			design_vector.resize(no_design_points, volfrac);
+/*
+			for (unsigned int i = 0; i < design_vector.size(); ++i){
+				if ((i < 32)){
+					design_vector[i] = 1.0;
+				}
+			}*/
+/*			design_vector[63]*=1.5;
+			design_vector[56]*=1.5;*/
 
 		}
 		else{
 			design_vector.clear();
+			design_vector.resize(density_cell_info_vector.size());
 			for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
 				for (unsigned int j = 0; j < cell_info_vector[i].design_points.no_points; j++){
-					design_vector.push_back(cell_info_vector[i].design_points.rho[j]);
+					unsigned int design_itr = (cell_info_vector[i].connected_cell_iterators_2D[j])->user_index() - 1;
+					design_vector[design_itr] = cell_info_vector[i].design_points.rho[j];
 				}
 			}
 		}
@@ -554,39 +575,15 @@ void DensityField<dim>::update_design_bounds(
 		lb.resize(design_count, 0.0);
 		ub.resize(design_count, 1.0);
 
-/*		unsigned int no_design_points = lb.size();
-		//Manually changing the bounds
-		if (no_design_points % 3 != 0){
-			std::cerr<<"Wrong no. of design points \n";
-			exit(0);
-		}*/
-/*		unsigned int no_design_elem  = no_design_points / 9;
 
-		for (unsigned int i = 0; i < no_design_points; ++i){
-			if (i >= 4*no_design_elem && i < 5*no_design_elem){
-
-			}
-			else if (i >= 0*no_design_elem && i < 1*no_design_elem){
-				lb[i] = 0.0;
-				ub[i] = 0.0 + 1e-12;
-			}
-			else if (i >= 2*no_design_elem && i < 3*no_design_elem){
-				lb[i] = 0.0;
-				ub[i] = 0.0 + 1e-12;
-			}
-			else if (i >= 6*no_design_elem && i < 7*no_design_elem){
-				lb[i] = 0.0;
-				ub[i] = 0.0 + 1e-12;
-			}
-			else if (i >= 8*no_design_elem && i < 9*no_design_elem){
-				lb[i] = 0.0;
-				ub[i] = 0.0 + 1e-12;
-			}
-			else{
-				lb[i] = 1.0 - 1e-12;
+/*		for (unsigned int i = 0; i < lb.size(); ++i){
+			if ((i%24 <= 7) || (i%24 >=16)){
+				lb[i] = 1.0 - 1e-6;
 				ub[i] = 1.0;
 			}
 		}*/
+
+
 
 
 	}
@@ -594,7 +591,7 @@ void DensityField<dim>::update_design_bounds(
 }
 
 //------------------------------------------------------------------------------------------------------
-template <int dim>
+/*template <int dim>
 double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 		unsigned int q_point,
 		unsigned int density_cell_itr2){
@@ -607,9 +604,9 @@ double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 		}
 	}
 	return 0;
-}
+}*/
 
-template <int dim>
+/*template <int dim>
 double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 		unsigned int q_point,
 		unsigned int cell_itr2,
@@ -624,27 +621,19 @@ double DensityField<dim>::get_dxPhys_dx(CellInfo &cell_info,
 		}
 
 	}
-}
+}*/
 
 
 template <int dim>
 double DensityField<dim>::get_vol_fraction(
-		std::vector<CellInfo> &cell_info_vector
+		std::vector<CellInfo> &design_cell_info_vector
 		){
 	double volume = 0.0;
-	for(unsigned int i = 0; i < cell_info_vector.size(); ++i){
+	for(unsigned int i = 0; i < design_cell_info_vector.size(); ++i){
 
-		cell_info_vector[i].cell_density = 0.0;
-		if(cell_info_vector[i].density_weights.size() == 0)
-			std::cout<<"ERRORRRRRRRR! no quad point here "<<std::endl;
-		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
-			//std::cout<<"Q"<<qpoint+1<<" : "<<cell_info_vector[i].density_weights[qpoint]<<std::endl;
-			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
-		}
-		double area_fraction = cell_info_vector[i].cell_area / max_cell_area;
-		volume += (cell_info_vector[i].cell_density * area_fraction);
+		volume += (design_cell_info_vector[i].filtered_density);
 	}
-	volume /= initial_no_cells;
+	volume /= design_cell_info_vector.size();
 	return volume;
 }
 
@@ -701,12 +690,17 @@ void DensityField<dim>::update_density_cell_info_vector(
 
 	//This is the case where the meshes are decoupled, but excludes the case of 'movingdesignpoints'
 
-	unsigned int k = 0;	//iterator over the design points
+	//std::cout<<"Size of the design vector = "<<design_vector.size()<<std::endl;
 	for (unsigned int i = 0; i < cell_info_vector.size(); ++i){
-		for (unsigned int j = 0; j < cell_info_vector[i].design_points.no_points; ++j){
-			cell_info_vector[i].design_points.rho[j] = design_vector[k];
-			k++;
-		}
+		cell_info_vector[i].design_points.rho.clear();
+	}
+
+	//Iterating over the design vector
+	for (unsigned int design_itr = 0; design_itr < design_vector.size(); ++design_itr){
+		unsigned int cell_itr = density_cell_info_vector[design_itr].connected_cell_iterators_2D[0]->user_index()-1;
+
+		cell_info_vector[cell_itr].design_points.rho.push_back(design_vector[design_itr]);
+
 	}
 }
 

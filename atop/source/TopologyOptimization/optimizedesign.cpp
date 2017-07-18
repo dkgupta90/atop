@@ -132,6 +132,25 @@ void Optimizedesign<dim>::optimize(){
 											density_cell_info_vector);
 		std::cout<<"Number of design variables : "<<no_design_count<<std::endl;
 
+		if (cycle == 0){
+			for (unsigned int cell_itr = 0; cell_itr < cell_info_vector.size(); ++cell_itr){
+				cell_info_vector[cell_itr].design_points.rho.resize(no_design_count);
+				for (unsigned int design_itr = 0; design_itr < no_design_count; ++design_itr){
+					cell_info_vector[cell_itr].design_points.rho[design_itr] = volfrac;
+
+/*					if ( design_itr == 56 || design_itr == 63)
+						cell_info_vector[cell_itr].design_points.rho[design_itr] *= 1.5;*/
+/*					if (cell_itr < 32){
+						cell_info_vector[cell_itr].design_points.rho[design_itr] = 1;
+
+					}*/
+/*					else{
+						cell_info_vector[cell_itr].design_points.rho[design_itr] = 1.0;
+					}*/
+				}
+			}
+		}
+
 		design_vector.clear();
 		design_vector.resize(no_design_count); //Holds true for coupled as well as decoupled meshes
 
@@ -177,7 +196,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-3;   //0.4 * pow(0.4, cycle);
+			obj_oc.min_obj_change = 1e-4;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
@@ -228,8 +247,16 @@ void Optimizedesign<dim>::optimize(){
 
 		timer.pause();
 		//Creating the final design mesh for the cycle
-		CreateDesign<dim> create_design;
-		create_design.assemble_design(*obj_fem);
+/*		CreateDesign<dim> create_design;
+		create_design.assemble_design(*obj_fem);*/
+
+		//writing as .dat for post-evalatuation
+		OutputData<dim> out_soln;
+		out_soln.write_density(density_cell_info_vector, obj_fem->cycle, obj_fem->itr_count);
+
+		std::cout << "Design field created and saved.." << std::endl;
+
+
 		timer.resume();
 
 		//No refinement in the last cycle, since it is not used further

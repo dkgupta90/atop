@@ -19,6 +19,8 @@
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/derivatives/sensitivity.h>
 #include <atop/TopologyOptimization/constraints/general.h>
+#include <atop/fem/output.h>
+
 #include <iostream>
 #include <vector>
 #include <deal.II/hp/dof_handler.h>

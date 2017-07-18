@@ -201,7 +201,8 @@ void CreateDesign<dim>::assemble_design(FEM<dim> &obj_fem) {
 	std::cout << "DONE" << std::endl;
 
 	std::cout << "Smoothing the design densities.....";
-	design_values.smoothing(design_info_vector);
+	design_values.smoothing(design_info_vector,
+			design_info_vector);
 	std::cout << "DONE" << std::endl;
 
 	cells_adjacent_per_node = 0;

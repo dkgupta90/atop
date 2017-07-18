@@ -101,6 +101,8 @@ namespace atop{
 		Vector<double> nodal_density;
 		Vector<double> nodal_p_order;	//to save the poylnomial order in each element
 		Vector<double> nodal_d_count;	//to save the design distribution
+		Vector<double> smooth_x;
+		Vector<double> smooth_y;
 
 
 		std::map<types::global_dof_index, double> boundary_values;
@@ -114,6 +116,12 @@ namespace atop{
 		std::vector<unsigned int> current_quad_rule; //For integrating over an element
 		std::vector<unsigned int> running_quad_rule; //Used for quad related adaptivity
 
+		/*
+		 * current_dFactor_vector explains the rule dfactor associated with the current no. of design cells
+		 *  in the pseudo analysis mesh for each of the polynomial orders
+		 * max_dFactor tells the maximum dFactor achieved till now for any of the cycles of refinement
+		 */
+		unsigned int current_dFactor, max_dFactor;
 		double volfrac;	//maximum permissible volume fraction
 
 		//Constructor for initializing the dof_handlers
