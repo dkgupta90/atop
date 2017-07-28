@@ -107,7 +107,8 @@ namespace atop{
 
 		std::map<types::global_dof_index, double> boundary_values;
 
-
+		bool fileReadFlag;
+		std::string filefname;
 
 		unsigned int cycle, itr_count;
 

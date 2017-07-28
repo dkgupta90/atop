@@ -117,6 +117,7 @@ void OC::optimize(
 				double old_density = old_design_vector[i];
 				if (obj_grad[i] > 0){
 					std::cout<<"Error located "<<obj_grad[i]<<std::endl;
+					obj_grad[i] = 0.0;
 				}
 
 				//For compliant mechanism
@@ -195,7 +196,7 @@ void OC::optimize(
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
 		//exit(0);
-	}while(fabs(old_objective - objective) > min_obj_change);
+	}while(fabs(old_objective - objective) > min_obj_change && opt_design2d->obj_fem->itr_count < 1500);
 
 
 }

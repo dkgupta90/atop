@@ -308,8 +308,12 @@ void FEM<dim>::assemble_system(){
     density_field.smoothing(*cell_info_vector, *density_cell_info_vector);
 	std::cout<<"Smoothing done"<<std::endl;
 	OutputData<dim> out_soln;
-	out_soln.read_xPhys_from_file(*cell_info_vector,
-			"output_design/density_1_170.dat");
+	if (fileReadFlag == true){
+		out_soln.read_xPhys_from_file(*cell_info_vector,
+					filefname);
+	}
+/*	out_soln.read_xPhys_from_file(*cell_info_vector,
+			"output_design/density_1_6_8.dat");*/
 
 
 
@@ -550,7 +554,11 @@ void FEM<dim>::output_results(){
 	}
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			solution, solution_names);
+			system_rhs, solution_names);
+
+/*	for (unsigned int i = 0; i < system_rhs.size(); ++i){
+		std::cout<<system_rhs[i]<<"   "<<system_rhs[i]<<std::endl;
+	}*/
 
 	//Writing the density solution
 	filename = "density-";
@@ -1032,7 +1040,7 @@ void FEM<dim>::assembly(){
               for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
                 {
                   for (unsigned int i=0; i<dofs_per_cell; ++i){
-                	  std::vector<double> distLoad = {0.0, 0.5};
+                	  std::vector<double> distLoad = {0.0, 1};
           			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
                     cell_rhs(i) += (distLoad[component_i] *
                                    fe_face_values.shape_value(i,q_point) *

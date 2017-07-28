@@ -1,15 +1,15 @@
-15:43:15 **** Clean-only build of configuration Debug for project p-atop ****
+18:19:07 **** Clean-only build of configuration Debug for project p-atop ****
 make clean 
-rm -rf  ./p-atop.o  ./p-atop.d  p-atop
+rm -rf  ./simple_check.o  ./simple_check.d  p-atop
  
-15:43:16 **** Build of configuration Debug for project p-atop ****
+18:19:08 **** Build of configuration Debug for project p-atop ****
 make all 
-Building file: ../p-atop.cpp
+Building file: ../simple_check.cpp
 Invoking: Cross G++ Compiler
-g++-5 -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/IpOpt/CoinIpopt/build/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"p-atop.d" -MT"p-atop.d" -o "p-atop.o" "../p-atop.cpp"
+g++-5 -D__GXX_EXPERIMENTAL_CXX0X__ -I/home/dkgupta/bin/deal.II/include -I/usr/local/include -I/home/dkgupta/WORK/projects/atop/atop/include -I/home/dkgupta/IpOpt/CoinIpopt/build/include -O0 -g3 -Wall -c -fmessage-length=0 -std=c++0x -MMD -MP -MF"simple_check.d" -MT"simple_check.d" -o "simple_check.o" "../simple_check.cpp"
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/fem.h:29:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h:12,
-                 from ../p-atop.cpp:12:
+                 from ../simple_check.cpp:12:
 /home/dkgupta/bin/deal.II/include/deal.II/lac/precondition.h:1630:0: warning: ignoring #pragma omp simd [-Wunknown-pragmas]
                DEAL_II_OPENMP_SIMD_PRAGMA
  ^
@@ -25,7 +25,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h:16,
-                 from ../p-atop.cpp:8:
+                 from ../simple_check.cpp:8:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::set_active_fe_index(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, unsigned int)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2832:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -48,7 +48,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                  from /home/dkgupta/bin/deal.II/include/deal.II/numerics/vector_tools.h:25,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:13,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h:16,
-                 from ../p-atop.cpp:8:
+                 from ../simple_check.cpp:8:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h: In static member function ‘static void dealii::internal::DoFCellAccessor::Implementation::distribute_local_to_global(const dealii::DoFCellAccessor<dealii::DoFHandler<dim, spacedim>, level_dof_access>&, const dealii::ConstraintMatrix&, ForwardIterator, ForwardIterator, OutputVector&)’:
 /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accessor.templates.h:2928:85: warning: typedef ‘BaseClass’ locally defined but not used [-Wunused-local-typedefs]
          typedef dealii::DoFAccessor<dim,DoFHandler<dim,spacedim>, level_dof_access> BaseClass;
@@ -75,7 +75,7 @@ In file included from /home/dkgupta/bin/deal.II/include/deal.II/dofs/dof_accesso
                                                                                      ^
 In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/cell_prop.h:17:0,
                  from /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h:16,
-                 from ../p-atop.cpp:8:
+                 from ../simple_check.cpp:8:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h: In member function ‘dealii::FEValuesViews::Scalar<dim, spacedim>::value_type dealii::FEValuesViews::Scalar<dim, spacedim>::value(unsigned int, unsigned int) const’:
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:3211:40: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
      typedef FEValuesBase<dim,spacedim> FVB;
@@ -144,14 +144,21 @@ In file included from /home/dkgupta/WORK/projects/atop/atop/include/atop/Topolog
 /home/dkgupta/bin/deal.II/include/deal.II/fe/fe_values.h:4691:38: warning: typedef ‘FVB’ locally defined but not used [-Wunused-local-typedefs]
    typedef FEValuesBase<dim,spacedim> FVB;
                                       ^
-../p-atop.cpp: In function ‘std::vector<double> source_function(std::vector<double>)’:
-../p-atop.cpp:33:1: warning: control reaches end of non-void function [-Wreturn-type]
+../simple_check.cpp: In function ‘int main()’:
+../simple_check.cpp:290:10: warning: unused variable ‘temp’ [-Wunused-variable]
+     char temp;
+          ^
+../simple_check.cpp:241:11: warning: unused variable ‘rmin’ [-Wunused-variable]
+    double rmin = 1.0/d;
+           ^
+../simple_check.cpp: In function ‘std::vector<double> source_function(std::vector<double>)’:
+../simple_check.cpp:34:1: warning: control reaches end of non-void function [-Wreturn-type]
  }
  ^
-Finished building: ../p-atop.cpp
+Finished building: ../simple_check.cpp
  
 Building target: p-atop
 Invoking: Cross G++ Linker
-g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -L/home/dkgupta/IpOpt/CoinIpopt/build/lib -o "p-atop"  ./p-atop.o   -latop -ldeal_II -lnlopt -ltbb -lipopt
+g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -L/home/dkgupta/IpOpt/CoinIpopt/build/lib -o "p-atop"  ./simple_check.o   -latop -ldeal_II -lnlopt -ltbb -lipopt
 Finished building target: p-atop
  
