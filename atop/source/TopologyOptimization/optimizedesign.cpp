@@ -177,7 +177,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-3;   //0.4 * pow(0.4, cycle);
+			obj_oc.min_obj_change = 1e-4;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
