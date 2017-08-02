@@ -352,6 +352,12 @@ void Adaptivity<dim>::update_element_design_bound(){
 		unsigned int cell_itr = 0;	//Iterator for the triangulation vector
 		typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin_active(),
 				endc = fem->dof_handler.end();
+		/*
+		 * Iterating over all the cells to check the element level bound for each of them.
+		 * For cells, whose neighbors have a lower or higher p-order, the lower p-order will decide
+		 * the element level bound for the current cell. Accordingly, adjustments are needed in the value of
+		 * the element level bound.
+		 */
 		for (; cell != endc; ++cell){
 			unsigned int design_bound = (*cell_info_vector)[cell_itr].dofs_per_cell - rigid_body_modes;
 

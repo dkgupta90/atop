@@ -35,13 +35,8 @@
 #include <deal.II/fe/mapping_q.h>
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/lac/full_matrix.h>
-
-
 #include<vector>
 #include <fstream>
-
-
-
 
 using namespace atop;
 using namespace dealii;

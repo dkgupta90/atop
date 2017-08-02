@@ -95,5 +95,5 @@ Projection::Projection(
 void Projection::update_projection(std::vector<CellInfo> &cell_info_vector){
 
 		double d_factor = round((sqrt(cell_info_vector[0].pseudo_design_points.no_points)));
-		true_radius = (radius*0.5)/d_factor;
+		true_radius = (radius*1.5)/d_factor;
 }

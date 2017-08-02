@@ -1,8 +1,8 @@
-08:16:20 **** Clean-only build of configuration Debug for project p-atop ****
+15:53:31 **** Clean-only build of configuration Debug for project p-atop ****
 make clean 
 rm -rf  ./p-atop.o  ./p-atop.d  p-atop
  
-08:16:23 **** Build of configuration Debug for project p-atop ****
+15:53:32 **** Build of configuration Debug for project p-atop ****
 make all 
 Building file: ../p-atop.cpp
 Invoking: Cross G++ Compiler
@@ -155,9 +155,3 @@ Invoking: Cross G++ Linker
 g++ -L/home/dkgupta/bin/deal.II/lib -L/usr/local/lib -L/home/dkgupta/WORK/projects/atop/atop/Debug -L/usr/lib -L/home/dkgupta/IpOpt/CoinIpopt/build/lib -o "p-atop"  ./p-atop.o   -latop -ldeal_II -lnlopt -ltbb -lipopt
 Finished building target: p-atop
  
-08:19:43 **** Incremental Build of configuration Debug for project p-atop ****
-make all 
-make: Nothing to be done for 'all'.
-08:25:45 **** Incremental Build of configuration Debug for project p-atop ****
-make all 
-make: Nothing to be done for 'all'.

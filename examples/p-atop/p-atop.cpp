@@ -109,7 +109,7 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
@@ -204,7 +204,6 @@ int main(){
 				   //empty dist load
 			}
 			else if (loadType == "distLoad"){
-
 				mesh.boundary_indicator = get_boundary_indicator_force_inv;
 				mesh.point_source_vector.clear();	//no point load
 			}
@@ -219,8 +218,10 @@ int main(){
 	opt.optimize();
 	clock_t end = clock();
 	double elapsed_secs = double (end - begin)/CLOCKS_PER_SEC;
+	double obj = opt.objective;
 	std::cout<<"Optimization completed......Computing time : "<<elapsed_secs<<std::endl;
 
+	std::cout<<"Computing the reference solution"<<std::endl;
 	opt.temp1 = true;
 	std::string filename = "output_design/density_1_";
 	std::stringstream ss;
@@ -228,11 +229,13 @@ int main(){
 	filename += ss.str();
 	filename += ".dat";
 	opt.tempfname = filename;
-	mesh.initial_el_order = 5;
+	mesh.initial_el_order = 3;
 	unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 	mesh.subdivisions = {d_per_line * 20, d_per_line * 10};
 	mesh.initial_dcount_per_el = 1;
 	mesh.density_subdivisions = {mesh.initial_dcount_per_el*mesh.subdivisions[0], mesh.initial_dcount_per_el*mesh.subdivisions[1]};
 	opt.optimize();
+	double obj_ref = opt.objective;
+	std::cout<<"Solution accuracy : "<<(obj/obj_ref)<<std::endl;
 	std::cout<<"SUCCESS.... : "<<std::endl;
 }
