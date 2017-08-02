@@ -556,9 +556,9 @@ void FEM<dim>::output_results(){
 	out_soln.write_fe_solution(filename, dof_handler,
 			system_rhs, solution_names);
 
-	for (unsigned int i = 0; i < system_rhs.size(); ++i){
-		std::cout<<system_rhs[i][0]<<"   "<<system_rhs[i][1]<<std::endl;
-	}
+/*	for (unsigned int i = 0; i < system_rhs.size(); ++i){
+		std::cout<<system_rhs[i]<<"   "<<system_rhs[i]<<std::endl;
+	}*/
 
 	//Writing the density solution
 	filename = "density-";

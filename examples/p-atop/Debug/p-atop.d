@@ -1,4 +1,4 @@
-simple_check.d: ../simple_check.cpp \
+p-atop.d: ../p-atop.cpp \
  /home/dkgupta/WORK/projects/atop/atop/include/atop/fem/define_mesh.h \
  /home/dkgupta/bin/deal.II/include/deal.II/grid/tria.h \
  /home/dkgupta/bin/deal.II/include/deal.II/base/config.h \

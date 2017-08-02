@@ -1040,7 +1040,7 @@ void FEM<dim>::assembly(){
               for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
                 {
                   for (unsigned int i=0; i<dofs_per_cell; ++i){
-                	  std::vector<double> distLoad = {0.0, 1};
+                	  std::vector<double> distLoad = {0.0, 0.5};
           			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
                     cell_rhs(i) += (distLoad[component_i] *
                                    fe_face_values.shape_value(i,q_point) *

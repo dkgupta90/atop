@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../simple_check.cpp 
+../p-atop.cpp 
 
 OBJS += \
-./simple_check.o 
+./p-atop.o 
 
 CPP_DEPS += \
-./simple_check.d 
+./p-atop.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
