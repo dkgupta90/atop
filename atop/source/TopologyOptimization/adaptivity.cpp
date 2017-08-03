@@ -372,6 +372,12 @@ void Adaptivity<dim>::update_element_design_bound(){
 
 				//Checking the hanging support point for the current cell
 				//This needs to be updated for 3D, currently not right for 3D
+
+				/*
+				 * Below, the shape function order between two different types of elements is checked,
+				 * and is the adjacent element has a lower p-value, then the design bound has to be reduced
+				 * by the difference.
+				 */
 				unsigned int shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
 				if (shape_fn_order <= ng_shape_fn_order)	continue;
 				design_bound = design_bound - ((pow(shape_fn_order, dim-1) - pow(ng_shape_fn_order, dim-1))*dim);
@@ -667,13 +673,14 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 
 		if (cell->refine_flag_set()){
 			//std::cout<<cell_itr<<"    Entered here "<<std::endl;
+			(*cell_info_vector)[cell_itr].old_shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
 			(*cell_info_vector)[cell_itr].shape_function_order++;
-			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
+			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;	// the p-order has been increased, else it would be -1
 		}
 		if (cell->coarsen_flag_set()){
 			if ((*cell_info_vector)[cell_itr].shape_function_order > 1){
 				(*cell_info_vector)[cell_itr].shape_function_order--;
-				(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
+				(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;	// the p-order has been decreased, else it would be +1
 			}
 		}
 
@@ -692,6 +699,7 @@ void Adaptivity<dim>::run_dp_analysis_based_refinement(){
 				estimated_error_per_cell,
 				*cell_info_vector);
 
+		// Here stress jump based indicator is used to choose the cells for refinement/coarsening
 		modKellyObj.estimate();
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workbench progressCount="24" version="2.0">
+<workbench progressCount="27" version="2.0">
 <workbenchAdvisor/>
 <window height="1055" maximized="true" width="922" x="1001" y="24">
 <fastViewData fastViewLocation="1024"/>
@@ -59,23 +59,6 @@
 <part id="22"/>
 <part id="23"/>
 <part id="24"/>
-<part id="25"/>
-<part id="26"/>
-<part id="27"/>
-<part id="28"/>
-<part id="29"/>
-<part id="30"/>
-<part id="31"/>
-<part id="32"/>
-<part id="33"/>
-<part id="34"/>
-<part id="35"/>
-<part id="36"/>
-<part id="37"/>
-<part id="38"/>
-<part id="39"/>
-<part id="40"/>
-<part id="41"/>
 </presentation>
 </folder>
 </info>
@@ -94,7 +77,7 @@
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="adaptivity.cpp" partName="adaptivity.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/adaptivity.cpp" title="adaptivity.cpp" tooltip="atop/source/TopologyOptimization/adaptivity.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/adaptivity.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="18555" selectionTopPixel="7063"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="24755" selectionTopPixel="9128"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="adaptivity.h" partName="adaptivity.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/adaptivity.h" title="adaptivity.h" tooltip="atop/include/atop/TopologyOptimization/adaptivity.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/adaptivity.h"/>
@@ -118,7 +101,7 @@
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.cpp" partName="optimizedesign.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/optimizedesign.cpp" title="optimizedesign.cpp" tooltip="atop/source/TopologyOptimization/optimizedesign.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/optimizedesign.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2141" selectionTopPixel="1034"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="8310" selectionTopPixel="3456"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.cpp" partName="DensityValues.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/DensityValues.cpp" title="DensityValues.cpp" tooltip="atop/source/TopologyOptimization/DensityValues.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/DensityValues.cpp"/>
@@ -136,9 +119,9 @@
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/create_design.cpp"/>
 <editorState selectionHorizontalPixel="0" selectionLength="15" selectionOffset="683" selectionTopPixel="0"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="stressJumpIndicator.cpp" partName="stressJumpIndicator.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp" title="stressJumpIndicator.cpp" tooltip="atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp" workbook="DefaultEditorWorkbook">
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="stressJumpIndicator.cpp" partName="stressJumpIndicator.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp" title="stressJumpIndicator.cpp" tooltip="atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="6018" selectionTopPixel="741"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="991" selectionTopPixel="1842"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimality_criteria.cpp" partName="optimality_criteria.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/optimizer/optimality_criteria.cpp" title="optimality_criteria.cpp" tooltip="atop/source/optimizer/optimality_criteria.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/optimizer/optimality_criteria.cpp"/>
@@ -160,10 +143,6 @@
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/fem.h"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1437" selectionTopPixel="529"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="projection.h" partName="projection.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/projection.h" title="projection.h" tooltip="atop/include/atop/TopologyOptimization/projection.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/projection.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="807" selectionTopPixel="0"/>
-</editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="projection.cpp" partName="projection.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/projection.cpp" title="projection.cpp" tooltip="atop/source/TopologyOptimization/projection.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/projection.cpp"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="2284" selectionTopPixel="386"/>
@@ -172,81 +151,17 @@
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/ErrorIndicator/stressJumpIndicator.h"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1008" selectionTopPixel="0"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="general.cpp" partName="general.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/constraints/general.cpp" title="general.cpp" tooltip="atop/source/TopologyOptimization/constraints/general.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/constraints/general.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="943" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="create_design.h" partName="create_design.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/create_design.h" title="create_design.h" tooltip="atop/include/atop/fem/create_design.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/create_design.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="13" selectionOffset="492" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="penalization.h" partName="penalization.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/penalization.h" title="penalization.h" tooltip="atop/include/atop/TopologyOptimization/penalization.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/penalization.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="904" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="output.h" partName="output.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/fem/output.h" title="output.h" tooltip="atop/include/atop/fem/output.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/fem/output.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1894" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="output.cpp" partName="output.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/output.cpp" title="output.cpp" tooltip="atop/source/fem/output.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/output.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="20" selectionOffset="3063" selectionTopPixel="924"/>
-</editor>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="elastic.cpp" partName="elastic.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/physics/mechanics/elastic.cpp" title="elastic.cpp" tooltip="atop/source/physics/mechanics/elastic.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/physics/mechanics/elastic.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="17" selectionOffset="13570" selectionTopPixel="4396"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="timer.h" partName="timer.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/additional_tools/timer.h" title="timer.h" tooltip="atop/include/atop/additional_tools/timer.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/additional_tools/timer.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="433" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="timer.cpp" partName="timer.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/additional_tools/timer.cpp" title="timer.cpp" tooltip="atop/source/additional_tools/timer.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/additional_tools/timer.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="667" selectionTopPixel="0"/>
-</editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="compliance.cpp" partName="compliance.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/derivatives/compliance.cpp" title="compliance.cpp" tooltip="atop/source/derivatives/compliance.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/derivatives/compliance.cpp"/>
 <editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="11445" selectionTopPixel="3738"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="boundary_values.cpp" partName="boundary_values.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/fem/boundary_values.cpp" title="boundary_values.cpp" tooltip="atop/source/fem/boundary_values.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/fem/boundary_values.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="12" selectionOffset="234" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimizedesign.h" partName="optimizedesign.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/optimizedesign.h" title="optimizedesign.h" tooltip="atop/include/atop/TopologyOptimization/optimizedesign.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/optimizedesign.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1951" selectionTopPixel="400"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="sensitivity.cpp" partName="sensitivity.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/derivatives/sensitivity.cpp" title="sensitivity.cpp" tooltip="atop/source/derivatives/sensitivity.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/derivatives/sensitivity.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="398" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="compliant_mechanism.h" partName="compliant_mechanism.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/derivatives/compliant_mechanism.h" title="compliant_mechanism.h" tooltip="atop/include/atop/derivatives/compliant_mechanism.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/derivatives/compliant_mechanism.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1022" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="compliant_mechanism.cpp" partName="compliant_mechanism.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/derivatives/compliant_mechanism.cpp" title="compliant_mechanism.cpp" tooltip="atop/source/derivatives/compliant_mechanism.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/derivatives/compliant_mechanism.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="8851" selectionTopPixel="2828"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="MatrixVector.cpp" partName="MatrixVector.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/math_tools/algebra/MatrixVector.cpp" title="MatrixVector.cpp" tooltip="atop/source/math_tools/algebra/MatrixVector.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/math_tools/algebra/MatrixVector.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="22" selectionOffset="1244" selectionTopPixel="148"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="optimality_criteria.h" partName="optimality_criteria.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/optimizer/optimality_criteria.h" title="optimality_criteria.h" tooltip="atop/include/atop/optimizer/optimality_criteria.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/optimizer/optimality_criteria.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="692" selectionTopPixel="0"/>
-</editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="DensityValues.h" partName="DensityValues.h" path="/home/dkgupta/WORK/projects/atop/atop/include/atop/TopologyOptimization/DensityValues.h" title="DensityValues.h" tooltip="atop/include/atop/TopologyOptimization/DensityValues.h" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/include/atop/TopologyOptimization/DensityValues.h"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1079" selectionTopPixel="0"/>
-</editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="penalization.cpp" partName="penalization.cpp" path="/home/dkgupta/WORK/projects/atop/atop/source/TopologyOptimization/penalization.cpp" title="penalization.cpp" tooltip="atop/source/TopologyOptimization/penalization.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/atop/source/TopologyOptimization/penalization.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="12" selectionOffset="1098" selectionTopPixel="0"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="351" selectionTopPixel="0"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="p-atop.cpp" partName="p-atop.cpp" path="/home/dkgupta/WORK/projects/atop/examples/p-atop/p-atop.cpp" title="p-atop.cpp" tooltip="p-atop/p-atop.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/p-atop/p-atop.cpp"/>
-<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="3666" selectionTopPixel="1538"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="4452" selectionTopPixel="1470"/>
 </editor>
 </editors>
 <views>
@@ -460,7 +375,6 @@
 <navigationHistory>
 <editors>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/fem.cpp"/>
-<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/TopologyOptimization/cell_prop.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/fem/define_mesh.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/define_mesh.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/DensityValues.cpp"/>
@@ -470,156 +384,167 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/fem.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/projection.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/physics/mechanics/elastic.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/TopologyOptimization/DensityValues.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/optimizer/optimality_criteria.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/p-atop/p-atop.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/math_tools/algebra/MatrixVector.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/include/atop/derivatives/compliant_mechanism.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/derivatives/compliant_mechanism.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/penalization.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/boundary_values.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/optimizedesign.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/TopologyOptimization/adaptivity.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/atop/source/fem/ErrorIndicator/stressJumpIndicator.cpp"/>
 </editors>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="4">
-<position info="not_deleted" x="6132" y="12"/>
-</item>
 <item historyLabel="fem.cpp" index="0">
 <position info="not_deleted" x="43035" y="13"/>
 </item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="4">
-<position info="not_deleted" x="6132" y="12"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="fem.cpp" index="0">
-<position info="not_deleted" x="43035" y="13"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="4">
-<position info="not_deleted" x="6132" y="12"/>
-</item>
-<item historyLabel="define_mesh.h" index="2">
-<position info="not_deleted" x="295" y="0"/>
-</item>
-<item historyLabel="cell_prop.h" index="1">
-<position info="not_deleted" x="4240" y="0"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="4">
-<position info="not_deleted" x="6132" y="12"/>
-</item>
-<item historyLabel="fem.cpp" index="0">
-<position info="not_deleted" x="43035" y="13"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5624" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5718" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5810" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5783" y="27"/>
-</item>
-<item historyLabel="DensityValues.cpp" index="4">
-<position info="not_deleted" x="7653" y="10"/>
-</item>
-<item historyLabel="fem.cpp" index="0">
-<position info="not_deleted" x="17172" y="8"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5783" y="27"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5949" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5896" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5947" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5417" y="0"/>
-</item>
-<item historyLabel="fem.cpp" index="0">
-<position info="not_deleted" x="43035" y="13"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
+<item historyLabel="define_mesh.cpp" index="2">
 <position info="not_deleted" x="5859" y="0"/>
 </item>
 <item historyLabel="fem.cpp" index="0">
 <position info="not_deleted" x="43035" y="13"/>
 </item>
-<item historyLabel="define_mesh.cpp" index="3">
+<item historyLabel="define_mesh.cpp" index="2">
 <position info="not_deleted" x="5859" y="0"/>
 </item>
 <item historyLabel="fem.cpp" index="0">
 <position info="not_deleted" x="43035" y="13"/>
 </item>
-<item historyLabel="DensityValues.cpp" index="4">
+<item historyLabel="DensityValues.cpp" index="3">
 <position info="not_deleted" x="7653" y="10"/>
 </item>
-<item historyLabel="fem.h" index="5">
+<item historyLabel="fem.h" index="4">
 <position info="not_deleted" x="1437" y="0"/>
 </item>
-<item historyLabel="define_mesh.h" index="2">
+<item historyLabel="define_mesh.h" index="1">
 <position info="not_deleted" x="2905" y="0"/>
 </item>
-<item historyLabel="define_mesh.cpp" index="3">
+<item historyLabel="define_mesh.cpp" index="2">
 <position info="not_deleted" x="5859" y="0"/>
 </item>
-<item historyLabel="define_mesh.cpp" index="3">
+<item historyLabel="define_mesh.cpp" index="2">
 <position info="not_deleted" x="5602" y="0"/>
 </item>
 <item historyLabel="fem.cpp" index="0">
 <position info="not_deleted" x="18456" y="0"/>
 </item>
-<item historyLabel="define_mesh.cpp" index="3">
+<item historyLabel="define_mesh.cpp" index="2">
+<position info="not_deleted" x="5602" y="0"/>
+</item>
+<item historyLabel="p-atop.cpp" index="5">
+<position info="not_deleted" x="3870" y="0"/>
+</item>
+<item historyLabel="define_mesh.cpp" index="2">
 <position info="not_deleted" x="5602" y="0"/>
 </item>
 <item historyLabel="p-atop.cpp" index="6">
-<position info="not_deleted" x="3870" y="0"/>
-</item>
-<item historyLabel="define_mesh.cpp" index="3">
-<position info="not_deleted" x="5602" y="0"/>
-</item>
-<item historyLabel="p-atop.cpp" index="7">
 <position info="not_deleted" x="0" y="0"/>
 </item>
-<item historyLabel="fem.cpp" index="8">
+<item historyLabel="fem.cpp" index="7">
 <position info="not_deleted" x="18456" y="0"/>
 </item>
-<item historyLabel="p-atop.cpp" index="7">
+<item historyLabel="p-atop.cpp" index="6">
 <position info="not_deleted" x="6" y="0"/>
 </item>
-<item historyLabel="projection.cpp" index="9">
+<item historyLabel="projection.cpp" index="8">
 <position info="not_deleted" x="2284" y="0"/>
 </item>
-<item historyLabel="p-atop.cpp" index="7">
+<item historyLabel="p-atop.cpp" index="6">
 <position info="not_deleted" x="3666" y="0"/>
 </item>
-<item historyLabel="elastic.cpp" index="10">
+<item historyLabel="elastic.cpp" index="9">
 <position info="not_deleted" x="6218" y="0"/>
 </item>
-<item historyLabel="elastic.cpp" index="10">
+<item historyLabel="elastic.cpp" index="9">
 <position info="not_deleted" x="13693" y="2"/>
 </item>
-<item historyLabel="elastic.cpp" index="10">
+<item historyLabel="elastic.cpp" index="9">
 <position info="not_deleted" x="13987" y="0"/>
 </item>
-<item historyLabel="elastic.cpp" index="10">
+<item historyLabel="elastic.cpp" index="9">
 <position info="not_deleted" x="13693" y="2"/>
 </item>
-<item active="true" historyLabel="elastic.cpp" index="10">
-<position info="not_deleted" x="13578" y="0"/>
+<item historyLabel="elastic.cpp" index="9">
+<position info="not_deleted" x="13570" y="17"/>
+</item>
+<item historyLabel="DensityValues.h" index="10">
+<position info="not_deleted" x="1079" y="0"/>
+</item>
+<item historyLabel="elastic.cpp" index="9">
+<position info="not_deleted" x="13570" y="17"/>
+</item>
+<item historyLabel="optimality_criteria.h" index="11">
+<position info="not_deleted" x="692" y="0"/>
+</item>
+<item historyLabel="elastic.cpp" index="9">
+<position info="not_deleted" x="13570" y="17"/>
+</item>
+<item historyLabel="p-atop.cpp" index="12">
+<position info="not_deleted" x="3666" y="0"/>
+</item>
+<item historyLabel="MatrixVector.cpp" index="13">
+<position info="not_deleted" x="1244" y="22"/>
+</item>
+<item historyLabel="p-atop.cpp" index="12">
+<position info="not_deleted" x="4452" y="0"/>
+</item>
+<item historyLabel="compliant_mechanism.h" index="14">
+<position info="not_deleted" x="1022" y="0"/>
+</item>
+<item historyLabel="p-atop.cpp" index="12">
+<position info="not_deleted" x="4452" y="0"/>
+</item>
+<item historyLabel="compliant_mechanism.cpp" index="15">
+<position info="not_deleted" x="8851" y="0"/>
+</item>
+<item historyLabel="penalization.cpp" index="16">
+<position info="not_deleted" x="1098" y="12"/>
+</item>
+<item historyLabel="boundary_values.cpp" index="17">
+<position info="not_deleted" x="234" y="12"/>
+</item>
+<item historyLabel="penalization.cpp" index="16">
+<position info="not_deleted" x="1098" y="12"/>
+</item>
+<item historyLabel="optimizedesign.cpp" index="18">
+<position info="not_deleted" x="2141" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="18784" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="9047" y="22"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="9625" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="12269" y="0"/>
+</item>
+<item historyLabel="optimizedesign.cpp" index="18">
+<position info="not_deleted" x="8310" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="9047" y="22"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="9721" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="17863" y="33"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="17951" y="0"/>
+</item>
+<item historyLabel="adaptivity.cpp" index="19">
+<position info="not_deleted" x="24278" y="32"/>
+</item>
+<item historyLabel="stressJumpIndicator.cpp" index="20">
+<position info="not_deleted" x="6018" y="0"/>
+</item>
+<item active="true" historyLabel="stressJumpIndicator.cpp" index="20">
+<position info="not_deleted" x="883" y="8"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>

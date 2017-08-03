@@ -53,6 +53,7 @@ namespace atop{
 
 		unsigned int dim;	//dimension of the problem
 		unsigned int quad_rule; //Should match with the current quad rule
+		unsigned int old_shape_fn_order;	// to store for multiple refinement indicator use
 		unsigned int shape_function_order;
 		unsigned int n_q_points;	//No. of quadrature points
 
