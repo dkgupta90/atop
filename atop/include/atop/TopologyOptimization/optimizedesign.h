@@ -61,6 +61,9 @@ template <int dim>
 	//Object of general constraints class
 	GeneralConstraints<dim> vol_constraint;
 
+	bool temp1;
+	std::string tempfname;	// this are temporarhy for qr-test
+	unsigned int final_dcount_per_el;
 	//Object of Timer class for performance evlation
 	Timer timer;
 

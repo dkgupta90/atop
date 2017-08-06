@@ -80,7 +80,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.025, 1.0);
+			"dp-refinement", 0.1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -94,7 +94,7 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 3);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
@@ -116,9 +116,9 @@ int main(){
 			mesh.subdivisions = {20, 10};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 2;
+			mesh.initial_el_order = 1;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 2;
+			mesh.max_el_order = 9;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 4;
 			mesh.max_dcount_per_el = 64;
@@ -198,8 +198,31 @@ int main(){
 
 	clock_t begin = clock();
 	opt.start_time = double (begin)/CLOCKS_PER_SEC;
+	opt.temp1 = false;
+	opt.tempfname = "";
+
 	opt.optimize();
 	clock_t end = clock();
 	double elapsed_secs = double (end - begin)/CLOCKS_PER_SEC;
-	std::cout<<"SUCCESS......Computing time : "<<elapsed_secs<<std::endl;
+	std::cout<<"Optimization completed......Computing time : "<<elapsed_secs<<std::endl;
+	double objMTO = opt.objective;
+	opt.temp1 = true;
+	std::string filename = "output_design/density_3_";
+	std::stringstream ss;
+	ss<<opt.obj_fem->itr_count+1;
+	filename += ss.str();
+	filename += ".dat";
+	opt.tempfname = filename;
+	mesh.initial_el_order = 3;
+	unsigned int d_per_line = round(sqrt(opt.final_dcount_per_el));
+	std::cout<<d_per_line<<std::endl;
+	mesh.subdivisions = {d_per_line * 20, d_per_line * 10};
+	filter.radius /= d_per_line;
+	mesh.initial_dcount_per_el = 1;
+	mesh.density_subdivisions = {mesh.initial_dcount_per_el*mesh.subdivisions[0], mesh.initial_dcount_per_el*mesh.subdivisions[1]};
+	opt.no_cycles = 1;
+	opt.optimize();
+	double objTO = opt.objective;
+	std::cout<<"Solution accuracy : "<<objMTO/objTO<<std::endl;
+	std::cout<<"SUCCESS.... : "<<std::endl;
 }

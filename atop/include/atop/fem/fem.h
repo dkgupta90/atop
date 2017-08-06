@@ -108,7 +108,8 @@ namespace atop{
 
 
 		unsigned int cycle, itr_count;
-
+		bool fileReadFlag;
+		std::string filefname;
 		bool self_adjoint;
 
 		std::vector<unsigned int> current_quad_rule; //For integrating over an element

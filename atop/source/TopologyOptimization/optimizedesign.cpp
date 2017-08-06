@@ -93,6 +93,10 @@ void Optimizedesign<dim>::optimize(){
 			*mesh,
 			design_vector,
 			timer);
+
+	obj_fem->fileReadFlag = temp1;
+	obj_fem->filefname = tempfname;
+
 	//Passing the problem type to the FEM class
 	obj_fem->problemType(*linear_elastic);
 
@@ -177,7 +181,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-4;   //0.4 * pow(0.4, cycle);
+			obj_oc.min_obj_change = 1e-3;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}
@@ -232,6 +236,8 @@ void Optimizedesign<dim>::optimize(){
 		create_design.assemble_design(*obj_fem);
 		timer.resume();
 
+		final_dcount_per_el = cell_info_vector[0].pseudo_design_points.no_points;
+
 		//No refinement in the last cycle, since it is not used further
 		if (cycle == no_cycles - 1)
 			continue;
@@ -259,6 +265,7 @@ void Optimizedesign<dim>::optimize(){
 				obj_fem->triangulation);
 	}
 
+	//updating the parameter for final evaluation
 	timer.stop();
 
 

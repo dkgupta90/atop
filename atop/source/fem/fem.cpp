@@ -160,10 +160,10 @@ void FEM<dim>::analyze(){
 template <int dim>
 void FEM<dim>::setup_system(){
 
+	std::cout<<"Started setting up the FEM system ...."<<std::endl;
 	boundary_values.clear();
 	//FE mesh
 	dof_handler.distribute_dofs(fe_collection);
-
 
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(dof_handler,
@@ -303,6 +303,11 @@ void FEM<dim>::assemble_system(){
 			*density_cell_info_vector,
 			*mesh);
 	std::cout<<"Smoothing done"<<std::endl;
+	OutputData<dim> out_soln;
+	if (fileReadFlag == true){
+		out_soln.read_xPhys_from_file(*cell_info_vector,
+					filefname);
+	}
 /*	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
 			"output_design/density_1_46.dat");*/
