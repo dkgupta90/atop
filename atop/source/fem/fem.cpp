@@ -472,6 +472,7 @@ void FEM<dim>::reset(){
 		(*cell_info_itr).shape_function_order = cell->active_fe_index() + 1;
 		unsigned int q_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
 		(*cell_info_itr).quad_rule = current_quad_rule[q_index];
+		std::cout<<(*cell_info_itr).quad_rule<<"  "<<q_index<<std::endl;
 		QGauss<dim> temp_quad(current_quad_rule[q_index]);
 		(*cell_info_itr).n_q_points = temp_quad.size();
 		(*cell_info_itr).cell_area = 0.00001;

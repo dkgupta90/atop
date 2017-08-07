@@ -611,15 +611,6 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 	std::cout<<"Polishing the p-distribution for 1-level hanging "<<std::endl;
 	dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
 
-	cell_itr = 0;
-	cell = fem->dof_handler.begin_active(),
-			endc = fem->dof_handler.end();
-	for (; cell != endc; ++cell){
-		//std::cout<<"Updated p order : "<<(*cell_info_vector)[cell_itr].shape_function_order<<std::endl;
-		unsigned int p_index = ((fem->elastic_data)).get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
-		cell->set_active_fe_index(p_index);
-		cell_itr++;
-	}
 
 	//Update the design field to allow maximum number of permissible design variables as per element-bound in each element.
 	dp_adap.update_design_for_elem_bound_only(
@@ -634,6 +625,16 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
 	// Update the p-order to reduce the qr-patterns based on solution of previous cycle
 	run_qr_based_refinement();
+
+	cell_itr = 0;
+	cell = fem->dof_handler.begin_active(),
+			endc = fem->dof_handler.end();
+	for (; cell != endc; ++cell){
+		//std::cout<<"Updated p order : "<<(*cell_info_vector)[cell_itr].shape_function_order<<std::endl;
+		unsigned int p_index = ((fem->elastic_data)).get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		cell->set_active_fe_index(p_index);
+		cell_itr++;
+	}
 
 }
 

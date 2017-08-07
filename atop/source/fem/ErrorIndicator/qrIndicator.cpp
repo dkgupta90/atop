@@ -17,6 +17,8 @@
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/tria.h>
 #include <atop/physics/mechanics/elastic.h>
+#include <atop/math_tools/algebra/MatrixVector.h>
+
 
 using namespace dealii;
 using namespace atop;
@@ -41,10 +43,10 @@ QRIndicator<dim>::QRIndicator(
 template <int dim>
 void QRIndicator<dim>::estimate(){
 
-	// Getting the 1-time D-matrix
+/*	// Getting the 1-time D-matrix
 	ElasticTools elastic_tool;
 	FullMatrix<double> D_matrix (3, 3);
-	elastic_tool.get_D_plane_stress2D(D_matrix, 0.3);
+	elastic_tool.get_D_plane_stress2D(D_matrix, 0.3);*/
 
 	/*
 	 * Below, an iteration over all the cells is performed.
@@ -61,9 +63,10 @@ void QRIndicator<dim>::estimate(){
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin_active(),
 			endc = fem->dof_handler.end();
 	unsigned int cell_itr;
+	double sum_obj = 0;
 	for (; cell != endc; ++cell){
 		cell_itr = cell->user_index() - 1;
-		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].old_shape_fn_order);
 		unsigned int q_index = fem->elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
@@ -74,26 +77,48 @@ void QRIndicator<dim>::estimate(){
 		cell->get_dof_indices(local_dof_indices);
 		for (unsigned int i = 0; i < dofs_per_cell; ++i){
 			u_solution(i) = fem->solution(local_dof_indices[i]);
+			std::cout<<u_solution(i)<<std::endl;
 		}
 
 		// Get the stiffness matrix for this cell for the current p-value
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
 		normalized_matrix = 0;
+		cell_matrix = 0;
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 			normalized_matrix = 0;
-			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
-
+			normalized_matrix = (*fem).elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+			//normalized_matrix.print(std::cout);
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
 				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
 			//------------------------------------------------------------------------------------------------------
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
+			//std::cout<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
 		}
 
+		//cell_matrix.print(std::cout);
+
+		// Computing J value for the current cell
+		Vector<double> temp_array(dofs_per_cell);
+		temp_array = 0;
+		Matrix_Vector matvec;
+		matvec.vector_matrix_multiply(
+				u_solution,
+				cell_matrix,
+				temp_array,
+				dofs_per_cell,
+				dofs_per_cell);
+		double Jvalue = matvec.vector_vector_inner_product(
+				temp_array,
+				u_solution);
+		sum_obj += Jvalue;
+		std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<"   "<<sum_obj<<std::endl;
 
 	}
+	exit(0);
 }
 
 

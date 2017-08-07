@@ -25,7 +25,7 @@ unsigned int GaussIntegration<dim>::get_quadRule(
 	unsigned int p_design = ceil((double)(-3.0 + sqrt(1.0 + 8 * no_design))/2.0);
 	unsigned int p_total = p_design + 2 * p_degree;
 	unsigned int qrule = ceil((double)((p_total + 1)/2.0))+0;
-	qrule = 10;
+	//qrule = 10;
 	return qrule;
 }
 

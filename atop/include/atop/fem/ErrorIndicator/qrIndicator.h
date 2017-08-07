@@ -41,6 +41,8 @@ namespace atop{
 		void estimate();
 
 	};
+	template class  QRIndicator<2>;
+
 }
 
 #endif /* INCLUDE_ATOP_FEM_ERRORINDICATOR_QRINDICATOR_H_ */
