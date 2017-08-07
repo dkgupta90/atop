@@ -11,6 +11,7 @@
 #include <atop/fem/define_mesh.h>
 #include <atop/TopologyOptimization/adaptivity/dp_adaptivity.h>
 #include <atop/fem/ErrorIndicator/stressJumpIndicator.h>
+#include <atop/fem/ErrorIndicator/qrIndicator.h>
 
 #include <deal.II/grid/grid_generator.h>
 #include <deal.II/grid/tria_accessor.h>

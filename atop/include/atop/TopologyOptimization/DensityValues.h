@@ -45,13 +45,6 @@ namespace atop{
 				DefineMesh<dim> &mesh
 				);
 
-		void create_neighbors(
-				std::vector<CellInfo> &cell_info_vector,
-				std::vector<CellInfo> &density_cell_info_vector,
-				hp::FEValues<dim> &hp_fe_values,
-				hp::DoFHandler<dim> &dof_handler
-				);
-
 		/**
 		 * Function for applying projection/filter operation on density values
 		 */
@@ -155,10 +148,6 @@ namespace atop{
 				unsigned int cell_itr1,
 				double rmin,
 				DefineMesh<dim> &mesh);
-		void calculate_weights(
-						std::vector<CellInfo>  &cell_info_vector,
-						std::vector<CellInfo> &density_cell_info_vector,
-						double);
 
 
 

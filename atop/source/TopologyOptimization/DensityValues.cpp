@@ -309,40 +309,21 @@ void DensityField<dim>::smoothing(
 		){
 	unsigned int no_cells = cell_info_vector.size();
 
-	if (mesh.coupling == true || mesh.adaptivityType == "movingdesignpoints"){
-		for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
-			for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_cells.size(); ++qpoint){
-				double xPhys = 0.0;
-				unsigned int density_cell_itr2;
-				for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
-					double tempi = density_cell_info_vector[density_cell_itr2].density[0];
-					density_cell_itr2 = cell_info_vector[cell_itr].neighbour_cells[qpoint][i];
-					xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
-							  * density_cell_info_vector[density_cell_itr2].density[0];
+	for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
 
-				}
-				cell_info_vector[cell_itr].density[qpoint] = xPhys;
+		cell_info_vector[cell_itr].density.clear();
+		cell_info_vector[cell_itr].density.resize(cell_info_vector[cell_itr].n_q_points);
+		for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
+			double xPhys = 0.0;
+			unsigned int cell_itr2, ng_pt_itr;
+			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
+				cell_itr2 = cell_info_vector[cell_itr].neighbour_points[qpoint][i].first;
+				ng_pt_itr = cell_info_vector[cell_itr].neighbour_points[qpoint][i].second;
+				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
+						  * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
 			}
-		}
-	}
-	else{
-
-		for(unsigned int cell_itr = 0 ; cell_itr < no_cells; ++cell_itr){
-
-			cell_info_vector[cell_itr].density.clear();
-			cell_info_vector[cell_itr].density.resize(cell_info_vector[cell_itr].n_q_points);
-			for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
-				double xPhys = 0.0;
-				unsigned int cell_itr2, ng_pt_itr;
-				for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
-					cell_itr2 = cell_info_vector[cell_itr].neighbour_points[qpoint][i].first;
-					ng_pt_itr = cell_info_vector[cell_itr].neighbour_points[qpoint][i].second;
-					xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
-					          * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
-				}
-				cell_info_vector[cell_itr].density[qpoint] = xPhys;
-				//std::cout<<"xPhys : "<<xPhys<<std::endl;
-			}
+			cell_info_vector[cell_itr].density[qpoint] = xPhys;
+			//std::cout<<"xPhys : "<<xPhys<<std::endl;
 		}
 	}
 }

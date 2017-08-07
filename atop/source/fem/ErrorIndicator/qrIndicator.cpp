@@ -77,7 +77,20 @@ void QRIndicator<dim>::estimate(){
 		}
 
 		// Get the stiffness matrix for this cell for the current p-value
+		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+		normalized_matrix = 0;
+		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+			normalized_matrix = 0;
+			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
 
+			//NaN condition check ----------------------------------------------------------------------------------
+			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
+				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
+			//------------------------------------------------------------------------------------------------------
+			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
+					normalized_matrix);
+		}
 
 
 	}

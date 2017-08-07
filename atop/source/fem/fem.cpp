@@ -260,19 +260,7 @@ void FEM<dim>::assemble_system(){
 		initialize_cycle();
 	}
 	else{
-		//For approaches, where neighbors need to be computed at every iteration
-		if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-			std::cout<<"Updating neighbors"<<std::endl;
-			hp::FEValues<dim> hp_fe_values(fe_collection,
-						quadrature_collection,
-						update_values | update_gradients |
-						update_quadrature_points | update_JxW_values);
-			density_field.create_neighbors(
-					*cell_info_vector,
-					*density_cell_info_vector,
-					hp_fe_values,
-					dof_handler);
-		}
+
 	}
 
 	//update the pseudo-design field
@@ -642,28 +630,18 @@ void FEM<dim>::initialize_cycle(){
 	timer->pause();
 	std::cout<<"Looking for neighbours..."<<std::endl;
 
-	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-		density_field.create_neighbors(
-				*cell_info_vector,
-				*density_cell_info_vector,
-				hp_fe_values,
-				dof_handler);
-	}
-	else{
-
-		//Update thye filter radii
-		projection->cycle = cycle;
-		projection->update_projections(*cell_info_vector,
-				dof_handler);
-		std::cout<<"Projections updated "<<std::endl;
-		density_field.create_neighbors(
-				*cell_info_vector,
-				hp_fe_values,
-				dof_handler,
-				design_handler,
-				*projection,
-				*mesh);
-	}
+	//Update thye filter radii
+	projection->cycle = cycle;
+	projection->update_projections(*cell_info_vector,
+			dof_handler);
+	std::cout<<"Projections updated "<<std::endl;
+	density_field.create_neighbors(
+			*cell_info_vector,
+			hp_fe_values,
+			dof_handler,
+			design_handler,
+			*projection,
+			*mesh);
 
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;
@@ -856,19 +834,6 @@ void FEM<dim>::assembly(){
 					false,dis
 					JxW);*/
 
-/*
- * The code below is only used to assign E_values at the Gauss points for test purpose.
- * For most of the cases, it should be commented out.
- */
-
-/*
-			if (quad_points[q_point](1) < 0.5)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-1;
-			else if (quad_points[q_point](1) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else if (quad_points[q_point](0) < 0.4)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else if (quad_points[q_point](0) > 0.6)	(*cell_info_vector)[cell_itr].E_values[q_point] = 1e-9;
-			else								(*cell_info_vector)[cell_itr].E_values[q_point] = 1;
-			//std::cout<<q_point<<"  "<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
-*/
 
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
