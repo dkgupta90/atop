@@ -94,7 +94,7 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 3);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
@@ -207,9 +207,9 @@ int main(){
 	std::cout<<"Optimization completed......Computing time : "<<elapsed_secs<<std::endl;
 	double objMTO = opt.objective;
 	opt.temp1 = true;
-	std::string filename = "output_design/density_3_";
+	std::string filename = "output_design/density_";
 	std::stringstream ss;
-	ss<<opt.obj_fem->itr_count+1;
+	ss<<opt.no_cycles<<"_"<<opt.obj_fem->itr_count+1;
 	filename += ss.str();
 	filename += ".dat";
 	opt.tempfname = filename;

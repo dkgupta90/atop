@@ -501,6 +501,9 @@ void Adaptivity<dim>::dp_coarsening_refinement(){
 template <int dim>
 void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
+	//QR-paper based refinement indicator
+
+
 	//Analysis based refinement
 	run_dp_analysis_based_refinement();
 	//------------------------------------------------------------------
@@ -537,35 +540,27 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
 				//Coarsening
 				if (refineRes[cell_itr] < 0){
-					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag != 1){
-						(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
+					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag != 1){	//if p not increased during analysis based check
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;	// coarsen design field, and adjust p based on bound check
 						if (dim == 2 && current_p_order > 1){
 							int current_dfactor = ceil(sqrt(current_no_design));
 							diff = 1 + 2 * (current_dfactor);
 
-
 							if ((current_no_design - diff) > lower_design_bound){
 								new_p_order = current_p_order;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;	//only d-coarsening
 							}
 							else{
 								new_p_order = current_p_order - 1;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;	//d and p coarsened
 							}
-
-/*							if ((current_no_design) > ((double)upper_design_bound + (double)lower_design_bound)/2){
-								new_p_order = current_p_order;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;
-								(*cell_info_vector)[cell_itr].temp_design_value = round(((double)upper_design_bound + (double)lower_design_bound)/2);
-							}
-							else{
-								new_p_order = current_p_order - 1;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;
-							}*/
 						}
-
-						//Flag above also includes cases where the current p-order is 1 and no p-coarsening can be done
-						//This is because for this case also, d can be reduced to 1, if possible
+						/*
+						 * In the above check, the case with  p = 1 is ignored. For this case coarsening of p is not possible.
+						 * However, if for this case, if old_shape_fn_order and shape_function_order are same, it means the cell was
+						 * not coarsened for analysis check as well as for density based check. For such a case, the no. of design
+						 * variables for this cell will be set to 1.
+						 */
 
 					}
 				}
@@ -584,17 +579,6 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 						new_p_order = current_p_order + 1;
 						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
 					}
-
-/*					if ((current_no_design) < ((double)upper_design_bound + (double)lower_design_bound)/2){
-						new_p_order = current_p_order;
-						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
-						(*cell_info_vector)[cell_itr].temp_design_value = round(((double)upper_design_bound + (double)lower_design_bound)/2);
-
-					}
-					else{
-						new_p_order = current_p_order + 1;
-						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 3;
-					}*/
 				}
 			}
 			(*cell_info_vector)[cell_itr].shape_function_order = new_p_order;
@@ -647,6 +631,9 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 	std::cout<<"System level violations corrected "<<std::endl;
 */
 
+	// Update the p-order to reduce the qr-patterns based on solution of previous cycle
+
+
 }
 
 
@@ -659,11 +646,15 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 	for (; cell != endc; ++cell){
 		(*cell_info_vector)[cell_itr].refine_coarsen_flag = 0;
 
+		//Line below saves a history for using it in qr-refinement
+		(*cell_info_vector)[cell_itr].old_shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
+
 		if (cell->refine_flag_set()){
 			//std::cout<<cell_itr<<"    Entered here "<<std::endl;
 			(*cell_info_vector)[cell_itr].shape_function_order++;
 			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
 		}
+
 		if (cell->coarsen_flag_set()){
 			if ((*cell_info_vector)[cell_itr].shape_function_order > 1){
 				(*cell_info_vector)[cell_itr].shape_function_order--;
