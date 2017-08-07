@@ -70,6 +70,7 @@ void dpAdaptivity<dim>::update_design_for_elem_bound_only(
 			new_no_design = 1;	// this means there was no change in p-order and design refinement was still needed, thus d set to 1.
 		}
 
+		// This case only happens if the p-order was not 1 before density based refinement
 		if (cell_info_vector[cell_itr].refine_coarsen_flag == -2){
 			int current_no_design = cell_info_vector[cell_itr].design_points.no_points;
 			int current_dfactor = ceil(sqrt(current_no_design) - 0.00001);

@@ -628,17 +628,6 @@ void FEM<dim>::initialize_cycle(){
 			density_endc = design_handler.end();
 	unsigned int density_cell_itr = 0;
 
-/*	for(; density_cell != density_endc; ++density_cell){
-		std::cout<<"reached here 03"<<std::endl;
-
-		density_cell->set_user_index(density_cell_itr + 1);
-		std::cout<<"reached here 04"<<std::endl;
-
-		(*density_cell_info_vector)[density_cell_itr].cell_area = density_cell->measure();
-		std::cout<<"reached here 05"<<std::endl;
-
-		++density_cell_itr;
-	}*/
 
 	std::cout<<"Updating the design vector here"<<std::endl;
 	density_field.update_design_vector(*cell_info_vector,

@@ -632,7 +632,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 */
 
 	// Update the p-order to reduce the qr-patterns based on solution of previous cycle
-
+	run_qr_based_refinement();
 
 }
 
@@ -699,4 +699,20 @@ void Adaptivity<dim>::run_dp_analysis_based_refinement(){
 		}
 	}
 
+}
+
+template <int dim>
+void Adaptivity<dim>::run_qr_based_refinement(){
+
+	std::vector<double> qr_accuracy(fem->triangulation.n_active_cells()); //to store accuracy of solution for each element
+	std::vector<unsigned int> proposed_p_values(fem->triangulation.n_active_cells());	// obtained based on qr-check
+
+	// Function calls below does the complete QR-test
+	QRIndicator<dim> qr_test(*fem,
+			qr_accuracy,
+			0.8,
+			proposed_p_values,
+			*cell_info_vector
+			);
+	qr_test.estimate();
 }

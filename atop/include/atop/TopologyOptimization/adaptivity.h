@@ -69,6 +69,7 @@ namespace atop{
 		void improved_dp_coarsening_refinement();
 
 		void run_dp_analysis_based_refinement();	//Only analysis part of the refinement is done here
+		void run_qr_based_refinement();	// To refine the p-order based on qr-accuracy
 	};
 
 	template class Adaptivity<2>;
