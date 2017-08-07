@@ -1,3 +1,5 @@
 examples/p-atop/output/*
 examples/p-atop/output_design/*
 .metadata/*
+atop/Debug/*
+examples/p-atop/Debug/*

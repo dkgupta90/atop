@@ -65,8 +65,9 @@ void dpAdaptivity<dim>::update_design_for_elem_bound_only(
 		//std::cout<<new_no_design<<std::endl;
 
 
-		if (cell_info_vector[cell_itr].shape_function_order == 1 && cell_info_vector[cell_itr].refine_coarsen_flag < 0){
-			new_no_design = 1;
+		if (cell_info_vector[cell_itr].shape_function_order == 1 && cell_info_vector[cell_itr].refine_coarsen_flag < 0 &&
+				cell_info_vector[cell_itr].old_shape_fn_order == cell_info_vector[cell_itr].shape_function_order){
+			new_no_design = 1;	// this means there was no change in p-order and design refinement was still needed, thus d set to 1.
 		}
 
 		if (cell_info_vector[cell_itr].refine_coarsen_flag == -2){
