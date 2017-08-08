@@ -17,6 +17,8 @@
 #include<iostream>
 #include <atop/fem/fem.h>
 #include<atop/TopologyOptimization/cell_prop.h>
+#include <deal.II/grid/tria_accessor.h>
+#include <deal.II/grid/tria_iterator.h>
 
 using namespace dealii;
 
@@ -39,6 +41,9 @@ namespace atop{
 				std::vector<CellInfo> &cell_info_vector);
 
 		void estimate();
+		double get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
+				Vector<double> &u_solution,
+				unsigned int new_p);
 
 	};
 	template class  QRIndicator<2>;

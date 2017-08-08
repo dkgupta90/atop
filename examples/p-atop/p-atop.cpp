@@ -116,7 +116,7 @@ int main(){
 			mesh.subdivisions = {20, 10};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 1;
+			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 9;
 			mesh.max_density_el_order = 1;
