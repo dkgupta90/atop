@@ -63,7 +63,6 @@ void QRIndicator<dim>::estimate(){
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin_active(),
 			endc = fem->dof_handler.end();
 	unsigned int cell_itr;
-	double sum_obj = 0;
 	for (; cell != endc; ++cell){
 		cell_itr = cell->user_index() - 1;
 		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].old_shape_fn_order);
@@ -114,8 +113,7 @@ void QRIndicator<dim>::estimate(){
 		double Jvalue = matvec.vector_vector_inner_product(
 				temp_array,
 				u_solution);
-		sum_obj += Jvalue;
-		std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<"   "<<sum_obj<<std::endl;
+		std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<std::endl;
 
 	}
 	exit(0);
