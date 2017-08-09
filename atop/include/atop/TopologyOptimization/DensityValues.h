@@ -48,7 +48,8 @@ namespace atop{
 		/*
 		 * This function is used to find neighbors of a certain cell to be used in Qr-indicator
 		 */
-		void find_neighbors(hp::DoFHandler<2>::active_cell_iterator cell,
+		void find_neighbors(hp::DoFHandler<2>::active_cell_iterator &cell,
+				hp::DoFHandler<2>::active_cell_iterator &new_Cell,
 				FEValues<dim> &fe_values,
 				CellInfo &temp_cell_info,
 				std::vector<CellInfo> &cell_info_vector);
@@ -65,6 +66,12 @@ namespace atop{
 		void smoothing(
 				std::vector<CellInfo> &
 				);
+
+		/*
+		 * Function for smoothing for one cell, used in qr-indicator
+		 */
+		void smoothing(CellInfo &cell_info,
+				std::vector<CellInfo> &cell_info_vector);
 
 		void update_design_vector(
 				std::vector<CellInfo> &cell_info_vector,

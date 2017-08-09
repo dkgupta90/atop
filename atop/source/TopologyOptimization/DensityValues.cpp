@@ -232,7 +232,8 @@ void DensityField<dim>::create_neighbors(
 
 template <int dim>
 void DensityField<dim>::find_neighbors(
-		hp::DoFHandler<2>::active_cell_iterator cell,
+		hp::DoFHandler<2>::active_cell_iterator &cell,
+		hp::DoFHandler<2>::active_cell_iterator &new_cell,
 		FEValues<dim> &fe_values,
 		CellInfo &temp_cell_info,
 		std::vector<CellInfo> &cell_info_vector
@@ -257,6 +258,8 @@ void DensityField<dim>::find_neighbors(
 		std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
 	}
 	std::vector<Point<dim> > qpoints1 = fe_values.get_quadrature_points();
+	temp_cell_info.n_q_points = qpoints1.size();
+
 	temp_cell_info.neighbour_points.clear();
 	temp_cell_info.neighbour_distance.clear();
 	temp_cell_info.neighbour_cell_area_fraction.clear();
@@ -278,6 +281,14 @@ void DensityField<dim>::find_neighbors(
 		rmin1 = proj_radius;
 
 		for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+			//Converting the coordinates of q_point1 from 1-cell triangulation to that of real triangulation
+			Point<dim> point1;
+			Point<dim> centroid1 = cell->center();
+			for(unsigned int dimi = 0; dimi < dim; ++dimi){
+				point1(dimi) = centroid1(dimi) + ((qpoints1[q_point1](dimi) - 0.5) * pow(cell->measure(), 1.0/dim));
+			}
+
+
 			//Iterating over all the psuedo-design points of cell 2
 			unsigned int ng_no_points = cell_info_vector[cell_itr2].pseudo_design_points.no_points;
 			for (unsigned int ngpt_itr = 0; ngpt_itr < ng_no_points; ++ngpt_itr){
@@ -292,8 +303,7 @@ void DensityField<dim>::find_neighbors(
 					}
 
 				distance = 0.0;
-				distance = qpoints1[q_point1].distance(point2);
-
+				distance = point1.distance(point2);
 				if(distance > rmin1){
 					continue;
 				}
@@ -468,6 +478,29 @@ void DensityField<dim>::smoothing(
 			}
 			design_info_vector[cell_itr].density[qpoint] = xPhys;
 		}
+	}
+}
+
+//--------------------------------------------------------------------------------------------------------------------
+template <int dim>
+void DensityField<dim>::smoothing(CellInfo &cell_info,
+		std::vector<CellInfo> &cell_info_vector){
+
+	cell_info.density.clear();
+	cell_info.density.resize(cell_info.n_q_points);
+	for(unsigned int qpoint = 0 ; qpoint < cell_info.neighbour_points.size(); ++qpoint){
+		double xPhys = 0.0;
+		unsigned int cell_itr2, ng_pt_itr;
+		for(unsigned int i = 0; i < cell_info.neighbour_weights[qpoint].size(); ++i){
+			cell_itr2 = cell_info.neighbour_points[qpoint][i].first;
+			ng_pt_itr = cell_info.neighbour_points[qpoint][i].second;
+			xPhys += cell_info.neighbour_weights[qpoint][i]
+					  * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
+/*			std::cout<<qpoint<<"   "<<xPhys<<"  "<<cell_info.neighbour_distance[qpoint][i]<<
+					"    "<<(cell_info_vector)[0].neighbour_distance[qpoint][i]<<std::endl;*/
+		}
+		cell_info.density[qpoint] = xPhys;
+		//std::cout<<"xPhys : "<<xPhys<<std::endl;
 	}
 }
 

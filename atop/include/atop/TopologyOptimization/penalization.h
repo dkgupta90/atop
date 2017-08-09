@@ -42,6 +42,10 @@ namespace atop{
 				double,
 				std::vector<CellInfo>&);
 
+		void update_param(
+				double,
+				CellInfo &);
+
 		double penalized_factor(double xPhys);
 
 	};

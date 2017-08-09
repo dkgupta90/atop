@@ -110,7 +110,6 @@ void QRIndicator<dim>::estimate(){
 		double Jvalue = matvec.vector_vector_inner_product(
 				temp_array,
 				u_solution);
-
 		/*
 		 * Here, we start with looking for higher values of p and then lower values
 		 */
@@ -118,16 +117,16 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order - 1;
+		unsigned int new_p = current_p_order + 4;
 		while (new_p >= 1){
 			// Get the Jvalue for this value of p
 			double Jstar = get_Jvalue(cell, u_solution, new_p);
-
+			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
 			new_p--;
 		}
 		//std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<std::endl;
-		exit(0);
 	}
+	exit(0);
 }
 
 /*
@@ -162,7 +161,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
     const unsigned int   dofs_per_cell = fe.dofs_per_cell;
     const unsigned int   n_q_points = quad_formula.size();
     //std::cout<<dofs_per_cell<<"  "<<n_q_points<<std::endl;
-    FullMatrix<double>   cell_matrix (dofs_per_cell, dofs_per_cell);
 
     // construct the interpolated solution for this element
 	typename hp::DoFHandler<dim>::active_cell_iterator new_cell = temp_dofh.begin_active();
@@ -193,11 +191,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	old_fe_values.get_function_values((*fem).solution, temp_solution);
 
-/*	for (unsigned int i = 0; i < u_solution.size(); ++i)	std::cout<<u_solution(i)<<std::endl;
-	std::cout<<"New solution "<<std::endl;
-	for (unsigned int i = 0; i < temp_solution.size(); ++i)	std::cout<<temp_solution[i](0)<<"  "<<temp_solution[i](1)<<std::endl;*/
-
-
 	//Iterate over all the support points and check
 	for (unsigned int i = 0; i < dofs_per_cell; ++i){
 		unsigned int comp_i = fe.system_to_component_index(i).first;
@@ -215,6 +208,57 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
  * calculating the E_values at each of these points. The calculation of E_Values requires doing the
  * projection again on the pseudo-design.
  */
+	CellInfo new_cell_info;	// to save details related to new cell
+	//Find the neighbors of the current cell for smoothing
+	(*fem).density_field.find_neighbors(cell,
+			new_cell,
+			fe_values,
+			new_cell_info,
+			*(cell_info_vector));
+	//exit(0);
+	// Apply smoothing
+	(*fem).density_field.smoothing(new_cell_info,
+			*cell_info_vector);
 
+	// Update the Evalues
+	(*fem).penal->update_param((*fem).linear_elastic->E, new_cell_info);
+/*	for (unsigned int i = cell_itr; i <= cell_itr; i++){
 
+		for (unsigned int j = 0; j < new_cell_info.density.size(); ++j){
+			std::cout<<new_cell_info.E_values[j]<<std::endl;
+		}
+	}*/
+
+	// Calculating the objective value
+	// Get the stiffness matrix for this cell for the current p-value
+	FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
+	FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
+	normalized_matrix = 0;
+	cell_matrix = 0;
+	unsigned int q_index = fem->elastic_data.get_quad_index(qrule);
+	for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+		normalized_matrix = 0;
+		normalized_matrix = (*fem).elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+		//NaN condition check ----------------------------------------------------------------------------------
+		if (new_cell_info.E_values[q_point] != new_cell_info.E_values[q_point])
+			std::cout<<cell_itr<<"  "<<new_p<<"  "<<q_point<<"   "<<n_q_points<<"  "<<new_cell_info.E_values[q_point]<<std::endl;
+		//------------------------------------------------------------------------------------------------------
+		cell_matrix.add(new_cell_info.E_values[q_point],
+				normalized_matrix);
+	}
+
+	// Computing J value for the current cell
+	Vector<double> temp_array(dofs_per_cell);
+	temp_array = 0;
+	Matrix_Vector matvec;
+	matvec.vector_matrix_multiply(
+			new_solution,
+			cell_matrix,
+			temp_array,
+			dofs_per_cell,
+			dofs_per_cell);
+	double Jstar = matvec.vector_vector_inner_product(
+			temp_array,
+			new_solution);
+	return Jstar;
 }
