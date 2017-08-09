@@ -193,9 +193,9 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	old_fe_values.get_function_values((*fem).solution, temp_solution);
 
-	for (unsigned int i = 0; i < u_solution.size(); ++i)	std::cout<<u_solution(i)<<std::endl;
+/*	for (unsigned int i = 0; i < u_solution.size(); ++i)	std::cout<<u_solution(i)<<std::endl;
 	std::cout<<"New solution "<<std::endl;
-	for (unsigned int i = 0; i < temp_solution.size(); ++i)	std::cout<<temp_solution[i](0)<<"  "<<temp_solution[i](1)<<std::endl;
+	for (unsigned int i = 0; i < temp_solution.size(); ++i)	std::cout<<temp_solution[i](0)<<"  "<<temp_solution[i](1)<<std::endl;*/
 
 
 	//Iterate over all the support points and check
@@ -207,9 +207,14 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_solution(i) = temp_solution[i](1);
 	}
 
-	for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
+	//for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
+
+/*
+ * Next, the stiffness matrix needs to be calculated for this element
+ * This requires calculating the stifness matrices at all the integration points of new_cell and
+ * calculating the E_values at each of these points. The calculation of E_Values requires doing the
+ * projection again on the pseudo-design.
+ */
 
 
-
-	std::cout<<"Entered here "<<cell->user_index()<<std::endl;
 }

@@ -18,6 +18,10 @@
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
+#include <deal.II/grid/grid_generator.h>
+#include <deal.II/dofs/dof_accessor.h>
+#include <deal.II/dofs/dof_tools.h>
+#include <deal.II/grid/tria.h>
 #include <deal.II/hp/dof_handler.h>
 #include <deal.II/hp/fe_values.h>
 
@@ -227,6 +231,91 @@ void DensityField<dim>::create_neighbors(
 }
 
 template <int dim>
+void DensityField<dim>::find_neighbors(
+		hp::DoFHandler<2>::active_cell_iterator cell,
+		FEValues<dim> &fe_values,
+		CellInfo &temp_cell_info,
+		std::vector<CellInfo> &cell_info_vector
+		){
+
+	unsigned int cell_itr1 = cell->user_index() - 1;
+
+	//Stores cell iterators for all neighbors of the current cell
+	std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+	neighbor_iterators.clear();
+
+	//Computing the cell specific filter radius
+	double proj_radius = cell_info_vector[cell_itr1].projection_radius;
+	double drmin = proj_radius + sqrt(cell->measure()); //added term is the distance from center of square element to the corner
+
+	//The following function gets the neighbors of the current cell lying within a distance of drmin
+	neighbor_iterators.push_back(cell);
+	neighbor_search(cell, cell, neighbor_iterators, drmin);
+
+	//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+	if(neighbor_iterators.size() == 0){
+		std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
+	}
+	std::vector<Point<dim> > qpoints1 = fe_values.get_quadrature_points();
+	temp_cell_info.neighbour_points.clear();
+	temp_cell_info.neighbour_distance.clear();
+	temp_cell_info.neighbour_cell_area_fraction.clear();
+	temp_cell_info.neighbour_points.resize(qpoints1.size());
+	temp_cell_info.neighbour_distance.resize(qpoints1.size());
+	temp_cell_info.neighbour_cell_area_fraction.resize(qpoints1.size());
+	//Defining the virtual cell area
+	temp_cell_info.cell_area_fraction = (1.0/((double)cell_info_vector[cell_itr1].pseudo_design_points.no_points));
+
+	unsigned int cell_itr2;
+	typename hp::DoFHandler<2>::active_cell_iterator cell2;
+	//Iterate over all neighboring cells to check distance with Gauss points
+	for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
+		cell2 = neighbor_iterators[ng_itr];
+		cell_itr2 = cell2->user_index() - 1;
+
+		double distance;
+		double rmin1;
+		rmin1 = proj_radius;
+
+		for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+			//Iterating over all the psuedo-design points of cell 2
+			unsigned int ng_no_points = cell_info_vector[cell_itr2].pseudo_design_points.no_points;
+			for (unsigned int ngpt_itr = 0; ngpt_itr < ng_no_points; ++ngpt_itr){
+
+					Point<dim> point2;
+					//converting vector to point coordinates
+					Point<dim> centroid = cell2->center();	//getting the centre for scaling the points
+					double side_length = pow(cell2->measure(), 1.0/dim);
+					for(unsigned int dimi = 0; dimi < dim; ++dimi){
+						point2(dimi) = centroid(dimi) +
+						(cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) * (side_length/2.0);
+					}
+
+				distance = 0.0;
+				distance = qpoints1[q_point1].distance(point2);
+
+				if(distance > rmin1){
+					continue;
+				}
+
+				//Adding the point to the neighbour vector
+				temp_cell_info.neighbour_points[q_point1].push_back(
+						std::make_pair(cell_itr2, ngpt_itr));
+
+				//Adding the respective distance
+				temp_cell_info.neighbour_distance[q_point1].push_back(distance);
+
+				//Adding the virtual area fraction
+				temp_cell_info.neighbour_cell_area_fraction[q_point1].push_back(1.0/((double)cell_info_vector[cell_itr2].pseudo_design_points.no_points));
+			}
+		}
+	}
+	//computing the respective weights
+	calculate_weights(temp_cell_info,
+			proj_radius);
+}
+
+template <int dim>
 void DensityField<dim>::neighbor_search(hp::DoFHandler<2>::active_cell_iterator cell1,
 		hp::DoFHandler<2>::active_cell_iterator cell,
 		std::vector<hp::DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
@@ -266,6 +355,49 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 		DefineMesh<dim> &mesh){
 	unsigned int n_q_points = cell_info_vector[cell_itr1].neighbour_distance.size();
 	cell_info_vector[cell_itr1].neighbour_weights.resize(n_q_points);
+	for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
+		cell_info_vector[cell_itr1].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr1].neighbour_distance[qpoint].size());
+		double sum_weights = 0;
+		for(unsigned int i = 0 ; i < cell_info_vector[cell_itr1].neighbour_distance[qpoint].size(); ++i){
+			double temp1 = rmin - cell_info_vector[cell_itr1].neighbour_distance[qpoint][i];
+
+			//check for mesh type
+			double area_factor = 1;
+			if(mesh.coupling == true){
+				//area_factor = cell_info_vector[cell_itr1].neighbour_cell_area[qpoint][i]/max_cell_area;
+				area_factor = cell_info_vector[cell_itr1].neighbour_cell_area_fraction[qpoint][i];
+			}
+			else{
+				area_factor = cell_info_vector[cell_itr1].neighbour_cell_area_fraction[qpoint][i];
+				//std::cout<<area_factor<<std::endl;
+
+			}
+			temp1 = temp1*area_factor;
+			cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] = temp1;
+			sum_weights += temp1;
+		}
+
+		for(unsigned int i = 0; i < cell_info_vector[cell_itr1].neighbour_weights[qpoint].size(); ++i){
+			if(sum_weights == 0){
+				std::cerr<<"atop::DensityField:calculate_weights(..) : Divide by zero exception"<<std::endl;
+			}
+			else{
+				//Corresponds to dx
+				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
+			}
+		}
+	}
+}
+
+/*
+ * This function calculates weights for the case where the design points cannot move in the domain
+ * It has particularly been implemented for the qr-indicator test.
+ */
+template <int dim>
+void DensityField<dim>::calculate_weights(CellInfo &temp_cell_info,
+		double rmin){
+	unsigned int n_q_points = temp_cell_info.neighbour_distance.size();
+	temp_cell_info.neighbour_weights.resize(n_q_points);
 	for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
 		cell_info_vector[cell_itr1].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr1].neighbour_distance[qpoint].size());
 		double sum_weights = 0;
