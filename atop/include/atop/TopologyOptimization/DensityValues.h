@@ -156,7 +156,9 @@ namespace atop{
 				unsigned int cell_itr1,
 				double rmin,
 				DefineMesh<dim> &mesh);
-
+		void calculate_weights(
+				CellInfo  &cell_info,
+				double rmin);
 
 
 	};

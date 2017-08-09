@@ -399,34 +399,23 @@ void DensityField<dim>::calculate_weights(CellInfo &temp_cell_info,
 	unsigned int n_q_points = temp_cell_info.neighbour_distance.size();
 	temp_cell_info.neighbour_weights.resize(n_q_points);
 	for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
-		cell_info_vector[cell_itr1].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr1].neighbour_distance[qpoint].size());
+		temp_cell_info.neighbour_weights[qpoint].resize(temp_cell_info.neighbour_distance[qpoint].size());
 		double sum_weights = 0;
-		for(unsigned int i = 0 ; i < cell_info_vector[cell_itr1].neighbour_distance[qpoint].size(); ++i){
-			double temp1 = rmin - cell_info_vector[cell_itr1].neighbour_distance[qpoint][i];
-
-			//check for mesh type
-			double area_factor = 1;
-			if(mesh.coupling == true){
-				//area_factor = cell_info_vector[cell_itr1].neighbour_cell_area[qpoint][i]/max_cell_area;
-				area_factor = cell_info_vector[cell_itr1].neighbour_cell_area_fraction[qpoint][i];
-			}
-			else{
-				area_factor = cell_info_vector[cell_itr1].neighbour_cell_area_fraction[qpoint][i];
-				//std::cout<<area_factor<<std::endl;
-
-			}
+		for(unsigned int i = 0 ; i < temp_cell_info.neighbour_distance[qpoint].size(); ++i){
+			double temp1 = rmin - temp_cell_info.neighbour_distance[qpoint][i];
+			double area_factor = temp_cell_info.neighbour_cell_area_fraction[qpoint][i];
 			temp1 = temp1*area_factor;
-			cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] = temp1;
+			temp_cell_info.neighbour_weights[qpoint][i] = temp1;
 			sum_weights += temp1;
 		}
 
-		for(unsigned int i = 0; i < cell_info_vector[cell_itr1].neighbour_weights[qpoint].size(); ++i){
+		for(unsigned int i = 0; i < temp_cell_info.neighbour_weights[qpoint].size(); ++i){
 			if(sum_weights == 0){
 				std::cerr<<"atop::DensityField:calculate_weights(..) : Divide by zero exception"<<std::endl;
 			}
 			else{
 				//Corresponds to dx
-				cell_info_vector[cell_itr1].neighbour_weights[qpoint][i] /= sum_weights;
+				temp_cell_info.neighbour_weights[qpoint][i] /= sum_weights;
 			}
 		}
 	}
