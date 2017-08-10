@@ -19,6 +19,8 @@
 #include<atop/TopologyOptimization/cell_prop.h>
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
+#include <atop/fem/output.h>
+
 
 using namespace dealii;
 
@@ -32,6 +34,8 @@ namespace atop{
 		std::vector<CellInfo> *cell_info_vector;
 		double tol_accuracy;
 		FEM<dim> *fem;
+
+		Vector<double> cells_adjacent_per_node;
 
 		QRIndicator(
 				FEM<dim> &obj_fem,

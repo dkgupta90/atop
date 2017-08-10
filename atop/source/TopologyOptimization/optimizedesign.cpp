@@ -115,6 +115,10 @@ void Optimizedesign<dim>::optimize(){
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
+		if (cycle > 0){
+			no_cycles = 1;
+			return;
+		}
 		std::cout<<"Cycle : "<<cycle + 1 <<std::endl;
 		//Passing the cycle number
 		obj_fem->cycle = cycle;

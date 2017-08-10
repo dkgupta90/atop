@@ -49,17 +49,33 @@ void QRIndicator<dim>::estimate(){
 	FullMatrix<double> D_matrix (3, 3);
 	elastic_tool.get_D_plane_stress2D(D_matrix, 0.3);*/
 
-	/*
-	 * Below, an iteration over all the cells is performed.
-	 * For each cell, first the solution and load and computed at all the dofs.
-	 * Next, solution check is performed with increased or decreased value of p
-	 * A decision is made on the value of p for each cell.
-	 */
 
 	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
 				fem->quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
+
+
+	// for storing the output of qr distribution
+	typename hp::DoFHandler<dim>::active_cell_iterator analysis_density_cell = fem->analysis_density_handler.begin_active(),
+			analysis_density_endc = fem->analysis_density_handler.end();
+	hp::FEValues<dim> hp_fe_analysis_density_values(fem->fe_analysis_density_collection,
+				fem->quadrature_collection,
+				update_values | update_gradients |
+				update_quadrature_points | update_JxW_values);
+
+	cells_adjacent_per_node = 0;
+	cells_adjacent_per_node.reinit(fem->analysis_density_handler.n_dofs());	//for normalizing the nodal density value
+
+	Vector<double> nodal_qrValue;	//For creating the decoupled design mesh
+	nodal_qrValue.reinit(fem->analysis_density_handler.n_dofs());	//	decoupled design output
+
+	/*
+	 * Below, an iteration over all the cells is performed.
+	 * For each cell, first the solution and load are computed at all the dofs.
+	 * Next, solution check is performed with increased or decreased value of p
+	 * A decision is made on the value of p for each cell.
+	 */
 
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin_active(),
 			endc = fem->dof_handler.end();
@@ -118,15 +134,69 @@ void QRIndicator<dim>::estimate(){
 
 		// Getting the solution for lower values of p
 		unsigned int new_p = current_p_order + 4;
-		while (new_p >= 1){
+		double sum_JJstar = 0.0;
+		while (new_p >= 2){
 			// Get the Jvalue for this value of p
 			double Jstar = get_Jvalue(cell, u_solution, new_p);
+			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
-			new_p--;
+			new_p-=2;
 		}
+
+		sum_JJstar /= 3;
+
+		// Adding to the qrValue vector
+		const unsigned int density_per_design_cell = analysis_density_cell->get_fe().dofs_per_cell;
+
+		std::vector<types::global_dof_index> local_design_indices(density_per_design_cell);
+		Vector<double> cell_qr(density_per_design_cell);
+
+		cell_qr = 0;
+		analysis_density_cell->get_dof_indices(local_design_indices);
+
+		for(unsigned int i = 0; i < density_per_design_cell; ++i){
+			unsigned int n_q_points = 1;
+			for(unsigned int q_point = 0 ; q_point < n_q_points; ++q_point){
+				cell_qr(i) += 	sum_JJstar;
+
+			}
+			nodal_qrValue(local_design_indices[i]) += cell_qr(i);
+			cells_adjacent_per_node(local_design_indices[i]) += 1;
+
+		}
+		++analysis_density_cell;
 		//std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<std::endl;
 	}
-	exit(0);
+
+	//Normalizing the nodal qr vector
+	for(unsigned int i = 0; i < nodal_qrValue.size(); ++i){
+		unsigned int denom = cells_adjacent_per_node(i);
+		if (denom <= 0){
+			std::cerr<<"ERROR!! Wrong no. of cells adjacent to node found"<<std::endl;
+		}
+		else{
+			nodal_qrValue(i) /= denom;
+			nodal_qrValue(i) /= denom;
+			nodal_qrValue(i) /= denom;
+
+		}
+	}
+
+	//writing the output qrvalue file
+	std::string filename = "qrValue-";
+	std::stringstream ss;
+	ss<< fem->cycle +1;
+	filename += ss.str();
+	filename += ".vtk";
+	std::vector<std::string> property_names;
+	property_names.clear();
+	property_names.push_back("p-order");
+	OutputData<dim> out_soln;
+	out_soln.write_fe_solution(filename, fem->analysis_density_handler,
+			nodal_qrValue, property_names);
+	std::cout<<"Output QR file created ..."<<std::endl;
+
+
 }
 
 /*
@@ -152,7 +222,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	temp_dofh.distribute_dofs(fe);
 	//Getting the quad rule
 	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].pseudo_design_points.no_points,
-																			new_p);
+																		new_p);
 	QGauss<dim> quad_formula(qrule);
 	FEValues<dim> fe_values (fe, quad_formula,
 	                             update_values   | update_gradients |

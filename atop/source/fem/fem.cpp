@@ -97,8 +97,6 @@ FEM<dim>::FEM(
 			fe_design_collection.push_back(FESystem<dim>(FE_DGQ<dim>(degree), 1));
 		}
 	}
-
-
 	this->design_vector = &obj_design_vector;
 
 	unsigned int cell_itr = 0;

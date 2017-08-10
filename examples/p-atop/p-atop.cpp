@@ -120,7 +120,7 @@ int main(){
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 9;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 25;
+			mesh.initial_dcount_per_el = 49;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
