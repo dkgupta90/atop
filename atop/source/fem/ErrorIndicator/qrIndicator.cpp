@@ -140,10 +140,10 @@ void QRIndicator<dim>::estimate(){
 			double Jstar = get_Jvalue(cell, u_solution, new_p);
 			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
-			new_p-=2;
+			new_p-=1;
 		}
 
-		sum_JJstar /= 3;
+		sum_JJstar /= 5;
 
 		// Adding to the qrValue vector
 		const unsigned int density_per_design_cell = analysis_density_cell->get_fe().dofs_per_cell;
@@ -259,6 +259,11 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	std::vector<Point<dim> > quad_points = old_fe_values.get_quadrature_points();
 
+/*	//priting out the gauss points used for evaluation
+	std::cout<<"Evaluation gauss points : "<<std::endl;
+	for (unsigned int i = 0; i < quad_points.size(); ++i){
+		std::cout<<quad_points[i](0)<<"   "<<quad_points[i](1)<<std::endl;
+	}*/
 	old_fe_values.get_function_values((*fem).solution, temp_solution);
 
 	//Iterate over all the support points and check
@@ -270,6 +275,21 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_solution(i) = temp_solution[i](1);
 	}
 
+/*	if (new_p == 4){
+		// print the original solution
+		std::cout<<"Original solution : "<<std::endl;
+		for (unsigned int i = 0; i < u_solution.size(); ++i){
+			std::cout<<u_solution(i)<<std::endl;
+		}
+
+		// print the new solution
+		std::cout<<"New solution : "<<std::endl;
+		for (unsigned int i = 0; i < new_solution.size(); ++i){
+			std::cout<<new_solution(i)<<std::endl;
+		}
+
+		exit(0);
+	}*/
 	//for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
 
 /*
@@ -292,11 +312,18 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	// Update the Evalues
 	(*fem).penal->update_param((*fem).linear_elastic->E, new_cell_info);
-/*	for (unsigned int i = cell_itr; i <= cell_itr; i++){
 
-		for (unsigned int j = 0; j < new_cell_info.density.size(); ++j){
-			std::cout<<new_cell_info.E_values[j]<<std::endl;
-		}
+/*	if (new_p == 3 && cell_itr == 177){
+		//printing the actual E_values
+		std::cout<<"Original E values"<<std::endl;
+		for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].E_values.size(); ++i)
+			std::cout<<(*cell_info_vector)[cell_itr].E_values[i]<<std::endl;
+
+		std::cout<<"Current E values"<<std::endl;
+		for (unsigned int i = 0; i < new_cell_info.E_values.size(); ++i)
+			std::cout<<new_cell_info.E_values[i]<<std::endl;
+
+		exit(0);
 	}*/
 
 	// Calculating the objective value
@@ -330,5 +357,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	double Jstar = matvec.vector_vector_inner_product(
 			temp_array,
 			new_solution);
+
 	return Jstar;
 }
