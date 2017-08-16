@@ -13,6 +13,7 @@
 #include <atop/fem/create_design.h>
 #include <atop/TopologyOptimization/penalization.h>
 #include <atop/physics/mechanics/elastic.h>
+#include <atop/physics/electrical/electrostatic.h>
 #include <deal.II/grid/tria.h>
 #include <string.h>
 #include <atop/TopologyOptimization/cell_prop.h>
@@ -44,6 +45,8 @@ template <int dim>
 
 	//Objects for defining the physics of the problem
 	LinearElastic<dim> *linear_elastic;
+	LinearElectrostatic<dim> *lin_elecstat;
+
 
 	//name of optimization problem
 	std::string problem_name;

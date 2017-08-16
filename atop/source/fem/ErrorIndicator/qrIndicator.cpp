@@ -16,6 +16,7 @@
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/tria.h>
+//#include <deal.II/hp/fe_values.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/math_tools/algebra/MatrixVector.h>
 
@@ -44,17 +45,10 @@ QRIndicator<dim>::QRIndicator(
 template <int dim>
 void QRIndicator<dim>::estimate(){
 
-/*	// Getting the 1-time D-matrix
-	ElasticTools elastic_tool;
-	FullMatrix<double> D_matrix (3, 3);
-	elastic_tool.get_D_plane_stress2D(D_matrix, 0.3);*/
-
-
 	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
 				fem->quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
-
 
 	// for storing the output of qr distribution
 	typename hp::DoFHandler<dim>::active_cell_iterator analysis_density_cell = fem->analysis_density_handler.begin_active(),
@@ -63,10 +57,8 @@ void QRIndicator<dim>::estimate(){
 				fem->quadrature_collection,
 				update_values | update_gradients |
 				update_quadrature_points | update_JxW_values);
-
 	cells_adjacent_per_node = 0;
 	cells_adjacent_per_node.reinit(fem->analysis_density_handler.n_dofs());	//for normalizing the nodal density value
-
 	Vector<double> nodal_qrValue;	//For creating the decoupled design mesh
 	nodal_qrValue.reinit(fem->analysis_density_handler.n_dofs());	//	decoupled design output
 
@@ -88,12 +80,12 @@ void QRIndicator<dim>::estimate(){
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 
 		//Get the state solution for the current cell
-		Vector<double> u_solution(dofs_per_cell);
+		Vector<double> u_solution(dofs_per_cell);	// for the current displacement solution
+		Vector<double> f_solution(dofs_per_cell);	// for the current force solution
 		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 		cell->get_dof_indices(local_dof_indices);
 		for (unsigned int i = 0; i < dofs_per_cell; ++i){
 			u_solution(i) = fem->solution(local_dof_indices[i]);
-			//std::cout<<u_solution(i)<<std::endl;
 		}
 
 		// Get the stiffness matrix for this cell for the current p-value
@@ -114,18 +106,20 @@ void QRIndicator<dim>::estimate(){
 		}
 
 		// Computing J value for the current cell
-		Vector<double> temp_array(dofs_per_cell);
-		temp_array = 0;
+/*		Vector<double> temp_array(dofs_per_cell);
+		temp_array = 0;*/
 		Matrix_Vector matvec;
 		matvec.vector_matrix_multiply(
 				u_solution,
 				cell_matrix,
-				temp_array,
+				f_solution,
 				dofs_per_cell,
 				dofs_per_cell);
 		double Jvalue = matvec.vector_vector_inner_product(
-				temp_array,
+				f_solution,
 				u_solution);
+
+
 		/*
 		 * Here, we start with looking for higher values of p and then lower values
 		 */
@@ -133,7 +127,7 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 4;
+		unsigned int new_p = current_p_order + 1;
 		double sum_JJstar = 0.0;
 		while (new_p >= 2){
 			// Get the Jvalue for this value of p
@@ -141,6 +135,7 @@ void QRIndicator<dim>::estimate(){
 			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
 			new_p-=1;
+			exit(0);
 		}
 
 		sum_JJstar /= 5;
@@ -164,6 +159,7 @@ void QRIndicator<dim>::estimate(){
 			cells_adjacent_per_node(local_design_indices[i]) += 1;
 
 		}
+
 		++analysis_density_cell;
 		//std::cout<<q_index<<"   "<<(*cell_info_vector)[cell_itr].old_shape_fn_order<<"   "<<n_q_points<<"  "<<Jvalue<<std::endl;
 	}
@@ -220,16 +216,20 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	temp_dofh.clear();
 	temp_dofh.distribute_dofs(fe);
+
 	//Getting the quad rule
 	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].pseudo_design_points.no_points,
 																		new_p);
 	QGauss<dim> quad_formula(qrule);
+	// fe_values declared below is for a new op value
 	FEValues<dim> fe_values (fe, quad_formula,
 	                             update_values   | update_gradients |
 	                             update_quadrature_points | update_JxW_values);
 
     const unsigned int   dofs_per_cell = fe.dofs_per_cell;
     const unsigned int   n_q_points = quad_formula.size();
+	Vector<double> new_solution(dofs_per_cell);
+	Vector<double> new_f_solution(dofs_per_cell);
     //std::cout<<dofs_per_cell<<"  "<<n_q_points<<std::endl;
 
     // construct the interpolated solution for this element
@@ -238,11 +238,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	//Get the coordinates for all the support points
 	std::vector<Point<dim> > support_pts = fe.get_unit_support_points();
-	Vector<double> new_solution(dofs_per_cell);
-
     std::vector<Vector<double> > temp_solution(support_pts.size(), Vector<double>(dim));
-
-
 
 	// Create artifical quad for solution interpolation
 	Quadrature<dim> temp_quad_formula(support_pts);
@@ -258,12 +254,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	const FEValues<dim> &old_fe_values = hp_fe_values.get_present_fe_values();
 
 	std::vector<Point<dim> > quad_points = old_fe_values.get_quadrature_points();
-
-/*	//priting out the gauss points used for evaluation
-	std::cout<<"Evaluation gauss points : "<<std::endl;
-	for (unsigned int i = 0; i < quad_points.size(); ++i){
-		std::cout<<quad_points[i](0)<<"   "<<quad_points[i](1)<<std::endl;
-	}*/
 	old_fe_values.get_function_values((*fem).solution, temp_solution);
 
 	//Iterate over all the support points and check
@@ -292,6 +282,28 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	}*/
 	//for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
 
+	// Interpolate the force field on each of the faces
+	//Adding distributed load on the edge
+    for (unsigned int face_number = 0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
+
+
+      if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 62)){
+          hp_fe_face_values.reinit (cell, face_number, q_index);
+          const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+          for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
+            {
+              for (unsigned int i=0; i<dofs_per_cell; ++i){
+            	  std::vector<double> distLoad = {0.0, 0.5};
+      			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
+                cell_rhs(i) += (distLoad[component_i] *
+                               fe_face_values.shape_value(i,q_point) *
+                                fe_face_values.JxW(q_point));
+              }
+            	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
+
+            }
+        }
+    }
 /*
  * Next, the stiffness matrix needs to be calculated for this element
  * This requires calculating the stifness matrices at all the integration points of new_cell and
