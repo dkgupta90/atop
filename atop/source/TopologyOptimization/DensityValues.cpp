@@ -233,7 +233,7 @@ void DensityField<dim>::create_neighbors(
 template <int dim>
 void DensityField<dim>::find_neighbors(
 		hp::DoFHandler<2>::active_cell_iterator &cell,
-		hp::DoFHandler<2>::active_cell_iterator &new_cell,
+		DoFHandler<2>::active_cell_iterator &new_cell,
 		FEValues<dim> &fe_values,
 		CellInfo &temp_cell_info,
 		std::vector<CellInfo> &cell_info_vector

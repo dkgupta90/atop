@@ -35,6 +35,7 @@ namespace atop{
 		double tol_accuracy;
 		FEM<dim> *fem;
 
+
 		Vector<double> cells_adjacent_per_node;
 
 		QRIndicator(
@@ -47,6 +48,7 @@ namespace atop{
 		void estimate();
 		double get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
 				Vector<double> &u_solution,
+				Vector<double> &f_solution,
 				unsigned int new_p);
 
 	};

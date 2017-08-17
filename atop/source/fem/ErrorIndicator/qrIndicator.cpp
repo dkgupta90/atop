@@ -12,6 +12,7 @@
 #include <deal.II/grid/tria_accessor.h>
 #include <deal.II/grid/tria_iterator.h>
 #include <deal.II/grid/grid_out.h>
+#include <deal.II/dofs/dof_handler.h>
 #include <deal.II/hp/dof_handler.h>
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
@@ -20,6 +21,10 @@
 #include <deal.II/hp/fe_values.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/math_tools/algebra/MatrixVector.h>
+#include <deal.II/lac/full_matrix.h>
+#include <deal.II/lac/sparse_direct.h>
+
+
 
 
 
@@ -128,17 +133,16 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 3;
+		unsigned int new_p = current_p_order + 1;
 		double sum_JJstar = 0.0;
-		while (new_p >= 2){
+		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order){
 			// Get the Jvalue for this value of p
-			double Jstar = get_Jvalue(cell, u_solution, new_p);
+			double Jstar = get_Jvalue(cell, u_solution, f_solution, new_p);
 			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
 			new_p-=1;
-			//exit(0);
 		}
-
+		exit(0);
 		sum_JJstar /= 5;
 
 		// Adding to the qrValue vector
@@ -204,6 +208,7 @@ void QRIndicator<dim>::estimate(){
 template <int dim>
 double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
 		Vector<double> &u_solution,
+		Vector<double> &f_solution,
 		unsigned int new_p){
 
 	unsigned int cell_itr = cell->user_index() - 1;
@@ -217,10 +222,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	DoFHandler<dim> temp_dofh2(temp_tria2);
 	FESystem<dim> fe(FE_Q<dim>(new_p), dim);
 	FESystem<dim> fe2(FE_Q<dim>((*cell_info_vector)[cell_itr].old_shape_fn_order), dim);
-	temp_dofh.clear();
-	temp_dofh.distribute_dofs(fe);
-	temp_dofh2.clear();
-	temp_dofh2.distribute_dofs(fe2);
+
 
 	//Getting the quad rule
 	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].pseudo_design_points.no_points,
@@ -235,18 +237,51 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
     const unsigned int   dofs_per_cell = fe.dofs_per_cell;
     const unsigned int   n_q_points = quad_formula.size();
-	Vector<double> new_solution(dofs_per_cell);
-    //std::cout<<dofs_per_cell<<"  "<<n_q_points<<std::endl;
+	Vector<double> new_solution(dofs_per_cell);	// for the displacement field on new support points
+	Vector<double> new_f_solution(dofs_per_cell);	// for the force field on new support points
+	Vector<double> actual_solution(dofs_per_cell);
+	SparseMatrix<double> system_matrix;
+	Vector<double> system_rhs;
+	// Compute the solution for new_p
+	actual_solution = 0;
+	ConstraintMatrix constraints;
+	constraints.clear();
+	//adding the constraints
+
+
+	temp_dofh.clear();
+	temp_dofh.distribute_dofs(fe);
+	temp_dofh2.clear();
+	temp_dofh2.distribute_dofs(fe2);
+
+	DynamicSparsityPattern dsp (temp_dofh.n_dofs());
+	DoFTools::make_sparsity_pattern (temp_dofh,
+	                                 dsp,
+	                                 constraints,
+	                                 false);
+	SparsityPattern sparsity_pattern;
+	sparsity_pattern.copy_from(dsp);
+	system_matrix.reinit(sparsity_pattern);
+	system_rhs.reinit(temp_dofh.n_dofs());
 
     // construct the interpolated solution for this element
-	typename hp::DoFHandler<dim>::active_cell_iterator new_cell = temp_dofh.begin_active();
+	typename DoFHandler<dim>::active_cell_iterator new_cell = temp_dofh.begin_active();
 	typename DoFHandler<dim>::active_cell_iterator new_cell2 = temp_dofh2.begin_active();
 
 	fe_values.reinit(new_cell);
 
+	std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+	std::cout<<local_dof_indices.size()<<"  "<<std::endl;
+	new_cell->get_dof_indices(local_dof_indices);
+	constraints.add_line(local_dof_indices[0]);	//since local and global are same at 1-element level
+	constraints.add_line(local_dof_indices[1]);
+	constraints.add_line(local_dof_indices[2]);
+	constraints.close();
+
 	//Get the coordinates for all the support points
 	std::vector<Point<dim> > support_pts = fe.get_unit_support_points();
-    std::vector<Vector<double> > temp_solution(support_pts.size(), Vector<double>(dim));
+    std::vector<Vector<double> > temp_u_solution(support_pts.size(), Vector<double>(dim));
+    std::vector<Vector<double> > temp_f_solution(support_pts.size(), Vector<double>(dim));
 
 	// Create artifical quad for solution interpolation
 	Quadrature<dim> quad_formula2(support_pts);
@@ -255,80 +290,43 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 								update_quadrature_points | update_JxW_values);
 	fe_values2.reinit(new_cell2);
 	std::vector<Point<dim> > quad_points = fe_values2.get_quadrature_points();
-/*	for (unsigned int i = 0; i < quad_points.size(); ++i){
-		std::cout<<quad_points[i](0)<<" "<<quad_points[i](1)<<" "<<support_pts[i](0)<<" "<<support_pts[i](1)<<std::endl;
-	}*/
-	std::cout<<"Reached here 114 "<<std::endl;
-	std::cout<<fe2.dofs_per_cell<<"  "<<u_solution.size()<<std::endl;
 
-	// Getting u_solution in the correct order
-	std::vector<Point<dim> > cell_supp_points = cell->get_fe().get_unit_support_points();
-	std::vector<Point<dim> > new_cell2_supp_points = fe2.get_unit_support_points();
+	fe_values2.get_function_values(u_solution, temp_u_solution);	//Getting displacement at new support points
+	fe_values2.get_function_values(f_solution, temp_f_solution);	//Getting force field at new support points
 
-	for (unsigned int i = 0; i < cell_supp_points.size(); ++i){
-		std::cout<<cell_supp_points[i](0)<<" "<<cell_supp_points[i](1)<<" "<<new_cell2_supp_points[i](0)<<" "<<new_cell2_supp_points[i](1)<<std::endl;
-	}
-
-	std::cout<<"Interpolating the solution ..."<<std::endl;
-	fe_values2.get_function_values(u_solution, temp_solution);
-
-	std::cout<<"Reached here"<<std::endl;
 	//Iterate over all the support points and check
 	for (unsigned int i = 0; i < dofs_per_cell; ++i){
 		unsigned int comp_i = fe.system_to_component_index(i).first;
-		if (comp_i == 0)
-			new_solution(i) = temp_solution[i](0);
+		if (comp_i == 0){
+			new_solution(i) = temp_u_solution[i](0);
+			new_f_solution(i) = temp_f_solution[i](0);
+		}
 		else
-			new_solution(i) = temp_solution[i](1);
-	}
+		{
+			new_solution(i) = temp_u_solution[i](1);
+			new_f_solution(i) = temp_f_solution[i](1);
+		}
 
-	std::cout<<"reached here 3"<<std::endl;
-	if (cell_itr == 1){
+		// Setting internal nodes to 0
+		if (fabs(support_pts[i](0) - 0.5)<(0.5-1e-10) && fabs(support_pts[i](1) - 0.5)<(0.5-1e-10)){
+			new_f_solution(i) = 0.0;	// case where support point is internal
+		}
+	}
+	if (cell_itr == 0){
 		// print the original solution
-		std::cout<<"Original solution : "<<std::endl;
-		for (unsigned int i = 0; i < u_solution.size(); ++i){
-			std::cout<<u_solution(i)<<std::endl;
+		std::cout<<"Original f solution : "<<std::endl;
+		for (unsigned int i = 0; i < f_solution.size(); ++i){
+			std::cout<<f_solution(i)<<std::endl;
 		}
 
 		// print the new solution
-		std::cout<<"New solution : "<<std::endl;
-		for (unsigned int i = 0; i < new_solution.size(); ++i){
-			std::cout<<new_solution(i)<<std::endl;
+		std::cout<<"New f solution : "<<std::endl;
+		for (unsigned int i = 0; i < new_f_solution.size(); ++i){
+			std::cout<<new_f_solution(i)<<std::endl;
 		}
-
-		exit(0);
 	}
-	//for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
 
 
-	// Interpolate the force field on each of the faces
-	//Adding distributed load on the edge
-	std::vector<unsigned int> dof_rep_flag(dofs_per_cell); // to check that no dof is repeated
-
-/*    for (unsigned int face_number = 0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
-
-    	fe_face_values.reinit(new_cell, face_number);
-
-
-
-
-      if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 62)){
-          hp_fe_face_values.reinit (cell, face_number, q_index);
-          const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
-          for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
-            {
-              for (unsigned int i=0; i<dofs_per_cell; ++i){
-            	  std::vector<double> distLoad = {0.0, 0.5};
-      			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
-                cell_rhs(i) += (distLoad[component_i] *
-                               fe_face_values.shape_value(i,q_point) *
-                                fe_face_values.JxW(q_point));
-              }
-            	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
-
-            }
-        }
-    }*/
 /*
  * Next, the stiffness matrix needs to be calculated for this element
  * This requires calculating the stifness matrices at all the integration points of new_cell and
@@ -349,19 +347,9 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	// Update the Evalues
 	(*fem).penal->update_param((*fem).linear_elastic->E, new_cell_info);
-
-/*	if (new_p == 3 && cell_itr == 177){
-		//printing the actual E_values
-		std::cout<<"Original E values"<<std::endl;
-		for (unsigned int i = 0; i < (*cell_info_vector)[cell_itr].E_values.size(); ++i)
-			std::cout<<(*cell_info_vector)[cell_itr].E_values[i]<<std::endl;
-
-		std::cout<<"Current E values"<<std::endl;
-		for (unsigned int i = 0; i < new_cell_info.E_values.size(); ++i)
-			std::cout<<new_cell_info.E_values[i]<<std::endl;
-
-		exit(0);
-	}*/
+	for (unsigned int i = 0; i < new_cell_info.E_values.size(); ++i){
+		std::cout<<i<<"    "<<new_cell_info.E_values[i]<<std::endl;
+	}
 
 	// Calculating the objective value
 	// Get the stiffness matrix for this cell for the current p-value
@@ -380,19 +368,38 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		cell_matrix.add(new_cell_info.E_values[q_point],
 				normalized_matrix);
 	}
+	constraints.distribute_local_to_global (cell_matrix,
+	                                          new_f_solution,
+	                                          local_dof_indices,
+	                                          system_matrix,
+	                                          system_rhs);
+
+	SparseDirectUMFPACK  A_direct;
+	A_direct.initialize(system_matrix);
+	A_direct.vmult (actual_solution, system_rhs);
+	constraints.distribute(actual_solution);
+	actual_solution(local_dof_indices[0]) = new_solution(local_dof_indices[0]);
+	actual_solution(local_dof_indices[1]) = new_solution(local_dof_indices[1]);
+	actual_solution(local_dof_indices[2]) = new_solution(local_dof_indices[2]);
+
+	std::cout<<"Solution for new p: "<<std::endl;
+	for (unsigned int i = 0; i < actual_solution.size(); ++i){
+		std::cout<<actual_solution(i)<<std::endl;
+	}
 
 	// Computing J value for the current cell
 	Vector<double> temp_array(dofs_per_cell);
-	temp_array = 0;
-	Matrix_Vector matvec;
+/*	temp_array = 0;
+
 	matvec.vector_matrix_multiply(
 			new_solution,
 			cell_matrix,
 			temp_array,
 			dofs_per_cell,
-			dofs_per_cell);
+			dofs_per_cell);*/
+	Matrix_Vector matvec;
 	double Jstar = matvec.vector_vector_inner_product(
-			temp_array,
+			new_f_solution,
 			new_solution);
 
 	return Jstar;

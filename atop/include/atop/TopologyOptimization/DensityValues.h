@@ -49,7 +49,7 @@ namespace atop{
 		 * This function is used to find neighbors of a certain cell to be used in Qr-indicator
 		 */
 		void find_neighbors(hp::DoFHandler<2>::active_cell_iterator &cell,
-				hp::DoFHandler<2>::active_cell_iterator &new_Cell,
+				DoFHandler<2>::active_cell_iterator &new_Cell,
 				FEValues<dim> &fe_values,
 				CellInfo &temp_cell_info,
 				std::vector<CellInfo> &cell_info_vector);
