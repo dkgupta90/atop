@@ -16,7 +16,8 @@
 #include <deal.II/dofs/dof_accessor.h>
 #include <deal.II/dofs/dof_tools.h>
 #include <deal.II/grid/tria.h>
-//#include <deal.II/hp/fe_values.h>
+#include <deal.II/lac/constraint_matrix.h>
+#include <deal.II/hp/fe_values.h>
 #include <atop/physics/mechanics/elastic.h>
 #include <atop/math_tools/algebra/MatrixVector.h>
 
@@ -127,7 +128,7 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 1;
+		unsigned int new_p = current_p_order + 2;
 		double sum_JJstar = 0.0;
 		while (new_p >= 2){
 			// Get the Jvalue for this value of p
@@ -135,7 +136,7 @@ void QRIndicator<dim>::estimate(){
 			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
 			new_p-=1;
-			exit(0);
+			//exit(0);
 		}
 
 		sum_JJstar /= 5;
@@ -209,31 +210,38 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	unsigned int p_index = fem->elastic_data.get_p_index(new_p);
 
 	//Create a triangulation of one element
-	Triangulation<dim> temp_tria;
+	Triangulation<dim> temp_tria, temp_tria2;
 	GridGenerator::hyper_cube(temp_tria);
+	GridGenerator::hyper_cube(temp_tria2);
 	DoFHandler<dim> temp_dofh(temp_tria);
+	DoFHandler<dim> temp_dofh2(temp_tria2);
 	FESystem<dim> fe(FE_Q<dim>(new_p), dim);
-
+	FESystem<dim> fe2(FE_Q<dim>((*cell_info_vector)[cell_itr].old_shape_fn_order), dim);
 	temp_dofh.clear();
 	temp_dofh.distribute_dofs(fe);
+	temp_dofh2.clear();
+	temp_dofh2.distribute_dofs(fe2);
 
 	//Getting the quad rule
 	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].pseudo_design_points.no_points,
 																		new_p);
 	QGauss<dim> quad_formula(qrule);
+
 	// fe_values declared below is for a new op value
 	FEValues<dim> fe_values (fe, quad_formula,
 	                             update_values   | update_gradients |
 	                             update_quadrature_points | update_JxW_values);
 
+
     const unsigned int   dofs_per_cell = fe.dofs_per_cell;
     const unsigned int   n_q_points = quad_formula.size();
 	Vector<double> new_solution(dofs_per_cell);
-	Vector<double> new_f_solution(dofs_per_cell);
     //std::cout<<dofs_per_cell<<"  "<<n_q_points<<std::endl;
 
     // construct the interpolated solution for this element
 	typename hp::DoFHandler<dim>::active_cell_iterator new_cell = temp_dofh.begin_active();
+	typename DoFHandler<dim>::active_cell_iterator new_cell2 = temp_dofh2.begin_active();
+
 	fe_values.reinit(new_cell);
 
 	//Get the coordinates for all the support points
@@ -241,21 +249,30 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
     std::vector<Vector<double> > temp_solution(support_pts.size(), Vector<double>(dim));
 
 	// Create artifical quad for solution interpolation
-	Quadrature<dim> temp_quad_formula(support_pts);
+	Quadrature<dim> quad_formula2(support_pts);
+	FEValues<dim> fe_values2(fe2, quad_formula2,
+								update_values | update_gradients |
+								update_quadrature_points | update_JxW_values);
+	fe_values2.reinit(new_cell2);
+	std::vector<Point<dim> > quad_points = fe_values2.get_quadrature_points();
+/*	for (unsigned int i = 0; i < quad_points.size(); ++i){
+		std::cout<<quad_points[i](0)<<" "<<quad_points[i](1)<<" "<<support_pts[i](0)<<" "<<support_pts[i](1)<<std::endl;
+	}*/
+	std::cout<<"Reached here 114 "<<std::endl;
+	std::cout<<fe2.dofs_per_cell<<"  "<<u_solution.size()<<std::endl;
 
-	hp::QCollection<dim> temp_qcollection;
-	temp_qcollection.push_back(temp_quad_formula);
-	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
-				temp_qcollection,
-				update_values | update_gradients |
-				update_quadrature_points | update_JxW_values);
+	// Getting u_solution in the correct order
+	std::vector<Point<dim> > cell_supp_points = cell->get_fe().get_unit_support_points();
+	std::vector<Point<dim> > new_cell2_supp_points = fe2.get_unit_support_points();
 
-	hp_fe_values.reinit(cell, 0);
-	const FEValues<dim> &old_fe_values = hp_fe_values.get_present_fe_values();
+	for (unsigned int i = 0; i < cell_supp_points.size(); ++i){
+		std::cout<<cell_supp_points[i](0)<<" "<<cell_supp_points[i](1)<<" "<<new_cell2_supp_points[i](0)<<" "<<new_cell2_supp_points[i](1)<<std::endl;
+	}
 
-	std::vector<Point<dim> > quad_points = old_fe_values.get_quadrature_points();
-	old_fe_values.get_function_values((*fem).solution, temp_solution);
+	std::cout<<"Interpolating the solution ..."<<std::endl;
+	fe_values2.get_function_values(u_solution, temp_solution);
 
+	std::cout<<"Reached here"<<std::endl;
 	//Iterate over all the support points and check
 	for (unsigned int i = 0; i < dofs_per_cell; ++i){
 		unsigned int comp_i = fe.system_to_component_index(i).first;
@@ -265,7 +282,8 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_solution(i) = temp_solution[i](1);
 	}
 
-/*	if (new_p == 4){
+	std::cout<<"reached here 3"<<std::endl;
+	if (cell_itr == 1){
 		// print the original solution
 		std::cout<<"Original solution : "<<std::endl;
 		for (unsigned int i = 0; i < u_solution.size(); ++i){
@@ -279,12 +297,19 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		}
 
 		exit(0);
-	}*/
+	}
 	//for (unsigned int i = 0; i < new_solution.size(); ++i)	std::cout<<new_solution(i)<<std::endl;
+
 
 	// Interpolate the force field on each of the faces
 	//Adding distributed load on the edge
-    for (unsigned int face_number = 0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
+	std::vector<unsigned int> dof_rep_flag(dofs_per_cell); // to check that no dof is repeated
+
+/*    for (unsigned int face_number = 0; face_number<GeometryInfo<dim>::faces_per_cell; ++face_number){
+
+    	fe_face_values.reinit(new_cell, face_number);
+
+
 
 
       if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 62)){
@@ -303,7 +328,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
             }
         }
-    }
+    }*/
 /*
  * Next, the stiffness matrix needs to be calculated for this element
  * This requires calculating the stifness matrices at all the integration points of new_cell and
