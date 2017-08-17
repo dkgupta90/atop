@@ -128,7 +128,7 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 2;
+		unsigned int new_p = current_p_order + 3;
 		double sum_JJstar = 0.0;
 		while (new_p >= 2){
 			// Get the Jvalue for this value of p
