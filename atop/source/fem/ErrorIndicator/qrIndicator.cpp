@@ -79,6 +79,7 @@ void QRIndicator<dim>::estimate(){
 			endc = fem->dof_handler.end();
 	unsigned int cell_itr;
 	for (; cell != endc; ++cell){
+		for (unsigned int i = 1; i <= 35; ++i)	++cell;
 		cell_itr = cell->user_index() - 1;
 		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].old_shape_fn_order);
 		unsigned int q_index = fem->elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
@@ -133,13 +134,13 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 1;
+		unsigned int new_p = current_p_order + 6;
 		double sum_JJstar = 0.0;
 		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order){
 			// Get the Jvalue for this value of p
 			double Jstar = get_Jvalue(cell, u_solution, f_solution, new_p);
 			sum_JJstar += (Jvalue/Jstar);
-			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue/Jstar<<std::endl;
+			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue<<"  "<<Jstar<<"  "<<Jvalue/Jstar<<std::endl;
 			new_p-=1;
 		}
 		exit(0);
@@ -215,9 +216,10 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	unsigned int p_index = fem->elastic_data.get_p_index(new_p);
 
 	//Create a triangulation of one element
+	double cell_length = sqrt(cell->measure());
 	Triangulation<dim> temp_tria, temp_tria2;
-	GridGenerator::hyper_cube(temp_tria);
-	GridGenerator::hyper_cube(temp_tria2);
+	GridGenerator::hyper_cube(temp_tria, 0, cell_length);
+	GridGenerator::hyper_cube(temp_tria2, 0, cell_length);
 	DoFHandler<dim> temp_dofh(temp_tria);
 	DoFHandler<dim> temp_dofh2(temp_tria2);
 	FESystem<dim> fe(FE_Q<dim>(new_p), dim);
@@ -244,25 +246,12 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	Vector<double> system_rhs;
 	// Compute the solution for new_p
 	actual_solution = 0;
-	ConstraintMatrix constraints;
-	constraints.clear();
-	//adding the constraints
 
 
 	temp_dofh.clear();
 	temp_dofh.distribute_dofs(fe);
 	temp_dofh2.clear();
 	temp_dofh2.distribute_dofs(fe2);
-
-	DynamicSparsityPattern dsp (temp_dofh.n_dofs());
-	DoFTools::make_sparsity_pattern (temp_dofh,
-	                                 dsp,
-	                                 constraints,
-	                                 false);
-	SparsityPattern sparsity_pattern;
-	sparsity_pattern.copy_from(dsp);
-	system_matrix.reinit(sparsity_pattern);
-	system_rhs.reinit(temp_dofh.n_dofs());
 
     // construct the interpolated solution for this element
 	typename DoFHandler<dim>::active_cell_iterator new_cell = temp_dofh.begin_active();
@@ -273,10 +262,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
 	std::cout<<local_dof_indices.size()<<"  "<<std::endl;
 	new_cell->get_dof_indices(local_dof_indices);
-	constraints.add_line(local_dof_indices[0]);	//since local and global are same at 1-element level
-	constraints.add_line(local_dof_indices[1]);
-	constraints.add_line(local_dof_indices[2]);
-	constraints.close();
+
 
 	//Get the coordinates for all the support points
 	std::vector<Point<dim> > support_pts = fe.get_unit_support_points();
@@ -290,7 +276,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 								update_quadrature_points | update_JxW_values);
 	fe_values2.reinit(new_cell2);
 	std::vector<Point<dim> > quad_points = fe_values2.get_quadrature_points();
-
 	fe_values2.get_function_values(u_solution, temp_u_solution);	//Getting displacement at new support points
 	fe_values2.get_function_values(f_solution, temp_f_solution);	//Getting force field at new support points
 
@@ -312,7 +297,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_f_solution(i) = 0.0;	// case where support point is internal
 		}
 	}
-	if (cell_itr == 0){
+	if (cell_itr == 35){
 		// print the original solution
 		std::cout<<"Original f solution : "<<std::endl;
 		for (unsigned int i = 0; i < f_solution.size(); ++i){
@@ -320,11 +305,33 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		}
 
 		// print the new solution
-		std::cout<<"New f solution : "<<std::endl;
+		std::cout<<"New solution : "<<std::endl;
 		for (unsigned int i = 0; i < new_f_solution.size(); ++i){
-			std::cout<<new_f_solution(i)<<std::endl;
+			std::cout<<new_solution(i)<<"   "<<new_f_solution(i)<<std::endl;
 		}
 	}
+
+	ConstraintMatrix constraints;
+	constraints.clear();
+	constraints.add_line(local_dof_indices[0]);	//since local and global are same at 1-element level
+	constraints.add_line(local_dof_indices[1]);
+	constraints.add_line(local_dof_indices[2]);
+	constraints.add_line(local_dof_indices[3]);
+	constraints.set_inhomogeneity(0, new_solution(local_dof_indices[0]));
+	constraints.set_inhomogeneity(1, new_solution(local_dof_indices[1]));
+	constraints.set_inhomogeneity(2, new_solution(local_dof_indices[2]));
+	constraints.set_inhomogeneity(3, new_solution(local_dof_indices[3]));
+
+	constraints.close();
+	DynamicSparsityPattern dsp (temp_dofh.n_dofs());
+	DoFTools::make_sparsity_pattern (temp_dofh,
+	                                 dsp,
+	                                 constraints,
+	                                 false);
+	SparsityPattern sparsity_pattern;
+	sparsity_pattern.copy_from(dsp);
+	system_matrix.reinit(sparsity_pattern);
+	system_rhs.reinit(temp_dofh.n_dofs());
 
 
 /*
@@ -347,9 +354,9 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 
 	// Update the Evalues
 	(*fem).penal->update_param((*fem).linear_elastic->E, new_cell_info);
-	for (unsigned int i = 0; i < new_cell_info.E_values.size(); ++i){
+/*	for (unsigned int i = 0; i < new_cell_info.E_values.size(); ++i){
 		std::cout<<i<<"    "<<new_cell_info.E_values[i]<<std::endl;
-	}
+	}*/
 
 	// Calculating the objective value
 	// Get the stiffness matrix for this cell for the current p-value
@@ -358,6 +365,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	normalized_matrix = 0;
 	cell_matrix = 0;
 	unsigned int q_index = fem->elastic_data.get_quad_index(qrule);
+	//std::cout<<"No. of quad points : "<<n_q_points<<std::endl;
 	for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 		normalized_matrix = 0;
 		normalized_matrix = (*fem).elastic_data.elem_stiffness_array[p_index][q_index][q_point];
@@ -368,25 +376,32 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		cell_matrix.add(new_cell_info.E_values[q_point],
 				normalized_matrix);
 	}
+
+	//cell_matrix.print(std::cout);
 	constraints.distribute_local_to_global (cell_matrix,
 	                                          new_f_solution,
 	                                          local_dof_indices,
 	                                          system_matrix,
 	                                          system_rhs);
 
+/*	std::cout<<"cell_rhs    system_rhs     actual_solution"<<std::endl;
+	for (unsigned int i = 0; i < new_f_solution.size(); ++i)
+		std::cout<<new_f_solution(i)<<"   "<<system_rhs(i)<<"   "<<actual_solution(i)<<std::endl;*/
+	//std::cout<<"Reached here "<<std::endl;
+	//system_matrix.print(std::cout);
 	SparseDirectUMFPACK  A_direct;
 	A_direct.initialize(system_matrix);
 	A_direct.vmult (actual_solution, system_rhs);
 	constraints.distribute(actual_solution);
-	actual_solution(local_dof_indices[0]) = new_solution(local_dof_indices[0]);
+/*	actual_solution(local_dof_indices[0]) = new_solution(local_dof_indices[0]);
 	actual_solution(local_dof_indices[1]) = new_solution(local_dof_indices[1]);
-	actual_solution(local_dof_indices[2]) = new_solution(local_dof_indices[2]);
+	actual_solution(local_dof_indices[2]) = new_solution(local_dof_indices[2]);*/
 
 	std::cout<<"Solution for new p: "<<std::endl;
 	for (unsigned int i = 0; i < actual_solution.size(); ++i){
-		std::cout<<actual_solution(i)<<std::endl;
+		std::cout<<new_solution(i)<<"   "<<actual_solution(i)<<std::endl;
 	}
-
+	//cell_matrix.print(std::cout);
 	// Computing J value for the current cell
 	Vector<double> temp_array(dofs_per_cell);
 /*	temp_array = 0;
@@ -400,7 +415,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	Matrix_Vector matvec;
 	double Jstar = matvec.vector_vector_inner_product(
 			new_f_solution,
-			new_solution);
+			actual_solution);
 
 	return Jstar;
 }

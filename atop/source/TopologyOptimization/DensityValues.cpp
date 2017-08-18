@@ -285,7 +285,7 @@ void DensityField<dim>::find_neighbors(
 			Point<dim> point1;
 			Point<dim> centroid1 = cell->center();
 			for(unsigned int dimi = 0; dimi < dim; ++dimi){
-				point1(dimi) = centroid1(dimi) + ((qpoints1[q_point1](dimi) - 0.5) * pow(cell->measure(), 1.0/dim));
+				point1(dimi) = centroid1(dimi) + (qpoints1[q_point1](dimi) - (0.5 * pow(cell->measure(), 1.0/dim)));
 			}
 
 

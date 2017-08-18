@@ -393,7 +393,7 @@ void FEM<dim>::output_results(){
 	}
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			system_rhs, solution_names);
+			solution, solution_names);
 
 	//Writing the density solution
 	filename = "density-";
