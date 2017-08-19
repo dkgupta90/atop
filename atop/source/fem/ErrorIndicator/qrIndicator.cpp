@@ -79,7 +79,7 @@ void QRIndicator<dim>::estimate(){
 			endc = fem->dof_handler.end();
 	unsigned int cell_itr;
 	for (; cell != endc; ++cell){
-		for (unsigned int i = 1; i <= 35; ++i)	++cell;
+		/*for (unsigned int i = 1; i <= 35; ++i)	++cell;*/
 		cell_itr = cell->user_index() - 1;
 		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].old_shape_fn_order);
 		unsigned int q_index = fem->elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
@@ -134,17 +134,17 @@ void QRIndicator<dim>::estimate(){
 		unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 6;
+		unsigned int new_p = current_p_order + 2;
 		double sum_JJstar = 0.0;
-		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order){
+		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order + 2){
 			// Get the Jvalue for this value of p
 			double Jstar = get_Jvalue(cell, u_solution, f_solution, new_p);
 			sum_JJstar += (Jvalue/Jstar);
 			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue<<"  "<<Jstar<<"  "<<Jvalue/Jstar<<std::endl;
-			new_p-=1;
+			new_p-=2;
 		}
-		exit(0);
-		sum_JJstar /= 5;
+		//exit(0);
+		//sum_JJstar /= 5;
 
 		// Adding to the qrValue vector
 		const unsigned int density_per_design_cell = analysis_density_cell->get_fe().dofs_per_cell;
@@ -297,7 +297,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_f_solution(i) = 0.0;	// case where support point is internal
 		}
 	}
-	if (cell_itr == 35){
+/*	if (cell_itr == 35){
 		// print the original solution
 		std::cout<<"Original f solution : "<<std::endl;
 		for (unsigned int i = 0; i < f_solution.size(); ++i){
@@ -309,7 +309,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		for (unsigned int i = 0; i < new_f_solution.size(); ++i){
 			std::cout<<new_solution(i)<<"   "<<new_f_solution(i)<<std::endl;
 		}
-	}
+	}*/
 
 	ConstraintMatrix constraints;
 	constraints.clear();
@@ -397,10 +397,10 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	actual_solution(local_dof_indices[1]) = new_solution(local_dof_indices[1]);
 	actual_solution(local_dof_indices[2]) = new_solution(local_dof_indices[2]);*/
 
-	std::cout<<"Solution for new p: "<<std::endl;
+/*	std::cout<<"Solution for new p: "<<std::endl;
 	for (unsigned int i = 0; i < actual_solution.size(); ++i){
 		std::cout<<new_solution(i)<<"   "<<actual_solution(i)<<std::endl;
-	}
+	}*/
 	//cell_matrix.print(std::cout);
 	// Computing J value for the current cell
 	Vector<double> temp_array(dofs_per_cell);
