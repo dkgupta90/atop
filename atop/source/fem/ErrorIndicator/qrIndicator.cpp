@@ -82,10 +82,13 @@ void QRIndicator<dim>::estimate(){
 		/*for (unsigned int i = 1; i <= 35; ++i)	++cell;*/
 		cell_itr = cell->user_index() - 1;
 		unsigned int p_index = fem->elastic_data.get_p_index((*cell_info_vector)[cell_itr].old_shape_fn_order);
+		unsigned int qrule = (*cell_info_vector)[cell_itr].quad_rule;
+		unsigned int no_design_pts = (*cell_info_vector)[cell_itr].old_design_count;
 		unsigned int q_index = fem->elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 
+		//if (fem->cycle == 1 && cell_itr == 0)	exit(0);
 		//Get the state solution for the current cell
 		Vector<double> u_solution(dofs_per_cell);	// for the current displacement solution
 		Vector<double> f_solution(dofs_per_cell);	// for the current force solution
@@ -101,9 +104,11 @@ void QRIndicator<dim>::estimate(){
 		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
 		normalized_matrix = 0;
 		cell_matrix = 0;
+
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 			normalized_matrix = 0;
 			normalized_matrix = (*fem).elastic_data.elem_stiffness_array[p_index][q_index][q_point];
+
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])
 				std::cout<<q_point<<(*cell_info_vector)[cell_itr].E_values[q_point]<<std::endl;
@@ -225,9 +230,8 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	FESystem<dim> fe(FE_Q<dim>(new_p), dim);
 	FESystem<dim> fe2(FE_Q<dim>((*cell_info_vector)[cell_itr].old_shape_fn_order), dim);
 
-
 	//Getting the quad rule
-	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].pseudo_design_points.no_points,
+	unsigned int qrule = fem->gauss_int.get_quadRule((*cell_info_vector)[cell_itr].old_design_count,
 																		new_p);
 	QGauss<dim> quad_formula(qrule);
 
@@ -260,9 +264,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	fe_values.reinit(new_cell);
 
 	std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-	std::cout<<local_dof_indices.size()<<"  "<<std::endl;
 	new_cell->get_dof_indices(local_dof_indices);
-
 
 	//Get the coordinates for all the support points
 	std::vector<Point<dim> > support_pts = fe.get_unit_support_points();
@@ -297,6 +299,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 			new_f_solution(i) = 0.0;	// case where support point is internal
 		}
 	}
+
 /*	if (cell_itr == 35){
 		// print the original solution
 		std::cout<<"Original f solution : "<<std::endl;
@@ -393,9 +396,7 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	A_direct.initialize(system_matrix);
 	A_direct.vmult (actual_solution, system_rhs);
 	constraints.distribute(actual_solution);
-/*	actual_solution(local_dof_indices[0]) = new_solution(local_dof_indices[0]);
-	actual_solution(local_dof_indices[1]) = new_solution(local_dof_indices[1]);
-	actual_solution(local_dof_indices[2]) = new_solution(local_dof_indices[2]);*/
+
 
 /*	std::cout<<"Solution for new p: "<<std::endl;
 	for (unsigned int i = 0; i < actual_solution.size(); ++i){

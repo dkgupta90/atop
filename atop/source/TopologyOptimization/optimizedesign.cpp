@@ -115,8 +115,8 @@ void Optimizedesign<dim>::optimize(){
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
-		if (cycle > 0){
-			no_cycles = 1;
+		if (cycle > 2){
+			no_cycles = 3;
 			return;
 		}
 		std::cout<<"Cycle : "<<cycle + 1 <<std::endl;
@@ -185,7 +185,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			obj_oc.min_obj_change = 1e-3;   //0.4 * pow(0.4, cycle);
+			obj_oc.min_obj_change = 1e-2;   //0.4 * pow(0.4, cycle);
 			obj_oc.obj_data = ((void*)this);
 			obj_oc.optimize(design_vector);
 		}

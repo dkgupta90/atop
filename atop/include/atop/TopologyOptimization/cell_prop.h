@@ -55,6 +55,7 @@ namespace atop{
 		unsigned int quad_rule; //Should match with the current quad rule
 		unsigned int shape_function_order;
 		unsigned int old_shape_fn_order; // to have a history for 3 different refinement indicators
+		unsigned int old_design_count; 	// to have a history for 3 different refinement indicators
 		unsigned int n_q_points;	//No. of quadrature points
 
 		unsigned int design_bound;	//denotes the maximum number of design variables that can be associated with this cell

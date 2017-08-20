@@ -594,9 +594,15 @@ void FEM<dim>::initialize_cycle(){
 		cell->set_user_index(cell_itr + 1);
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
 		unsigned int p_degree = (*cell_info_vector)[cell_itr].shape_function_order;
+
 		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
 				(*cell_info_vector)[cell_itr].design_points.no_points,
 				p_degree);
+/*		if (cycle == 2 && cell_itr == 0){
+			std::cout<<(*cell_info_vector)[cell_itr].design_points.no_points<<"  "<<p_degree<<std::endl;
+			std::cout<<"Quad rule : "<<(*cell_info_vector)[cell_itr].quad_rule<<std::endl;
+			exit(0);
+		}*/
 		QGauss<dim> temp_quad((*cell_info_vector)[cell_itr].quad_rule);
 		(*cell_info_vector)[cell_itr].n_q_points = temp_quad.size();
 

@@ -648,9 +648,6 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 	for (; cell != endc; ++cell){
 		(*cell_info_vector)[cell_itr].refine_coarsen_flag = 0;
 
-		//Line below saves a history for using it in qr-refinement
-		(*cell_info_vector)[cell_itr].old_shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
-
 		if (cell->refine_flag_set()){
 			//std::cout<<cell_itr<<"    Entered here "<<std::endl;
 			(*cell_info_vector)[cell_itr].shape_function_order++;
@@ -670,6 +667,12 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 
 template <int dim>
 void Adaptivity<dim>::run_dp_analysis_based_refinement(){
+
+	for (unsigned int cell_itr = 0; cell_itr < (*cell_info_vector).size(); ++cell_itr){
+		//Line below saves a history for using it in qr-refinement
+		(*cell_info_vector)[cell_itr].old_shape_fn_order = (*cell_info_vector)[cell_itr].shape_function_order;
+		(*cell_info_vector)[cell_itr].old_design_count = (*cell_info_vector)[cell_itr].design_points.no_points;
+	}
 	if (fem->cycle < 2){
 		//Update shape functions based on analysis error criterion
 		cout<<"Performing analysis based refinement : "<<std::endl;
