@@ -49,7 +49,7 @@ QRIndicator<dim>::QRIndicator(
 
 /* This function checks the J/Jstar values and proposed the p-order to be used for each finite element*/
 template <int dim>
-void QRIndicator<dim>::estimate(){
+void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 
 	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
 				fem->quadrature_collection,
@@ -136,21 +136,21 @@ void QRIndicator<dim>::estimate(){
 		 * Here, we start with looking for higher values of p and then lower values
 		 */
 		unsigned int current_p_order = (*cell_info_vector)[cell_itr].old_shape_fn_order;
-		unsigned int max_p = current_p_order + 3;
+		//unsigned int max_p = current_p_order + 3;
 
 		// Getting the solution for lower values of p
-		unsigned int new_p = current_p_order + 2;
+		unsigned int new_p = current_p_order + 1;
 		double sum_JJstar = 0.0;
-		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order + 2){
+		while (new_p >= (*cell_info_vector)[cell_itr].old_shape_fn_order + 1){
 			// Get the Jvalue for this value of p
 			double Jstar = get_Jvalue(cell, u_solution, f_solution, new_p);
 			sum_JJstar += (Jvalue/Jstar);
-			std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue<<"  "<<Jstar<<"  "<<Jvalue/Jstar<<std::endl;
-			new_p-=2;
+			//std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue<<"  "<<Jstar<<"  "<<Jstar/Jvalue<<std::endl;
+			new_p-=1;
 		}
 		//exit(0);
 		//sum_JJstar /= 5;
-
+		qr_error[cell_itr] = sum_JJstar;	//assigning the error
 		// Adding to the qrValue vector
 		const unsigned int density_per_design_cell = analysis_density_cell->get_fe().dofs_per_cell;
 
@@ -397,7 +397,11 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	A_direct.vmult (actual_solution, system_rhs);
 	constraints.distribute(actual_solution);
 
-
+	if (cell_itr == 13){
+		for (unsigned int i = 0; i < system_rhs.size(); ++i){
+			std::cout<<actual_solution(i)<<"   "<<system_rhs(i)<<std::endl;
+		}
+	}
 /*	std::cout<<"Solution for new p: "<<std::endl;
 	for (unsigned int i = 0; i < actual_solution.size(); ++i){
 		std::cout<<new_solution(i)<<"   "<<actual_solution(i)<<std::endl;
@@ -405,17 +409,16 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	//cell_matrix.print(std::cout);
 	// Computing J value for the current cell
 	Vector<double> temp_array(dofs_per_cell);
-/*	temp_array = 0;
-
+	temp_array = 0;
+	Matrix_Vector matvec;
 	matvec.vector_matrix_multiply(
-			new_solution,
+			actual_solution,
 			cell_matrix,
 			temp_array,
 			dofs_per_cell,
-			dofs_per_cell);*/
-	Matrix_Vector matvec;
+			dofs_per_cell);
 	double Jstar = matvec.vector_vector_inner_product(
-			new_f_solution,
+			temp_array,
 			actual_solution);
 
 	return Jstar;

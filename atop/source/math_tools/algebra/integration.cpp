@@ -62,8 +62,8 @@ void GaussIntegration<dim>::update_quadRuleVector(
 		if (cell_info_vector[i].quad_rule > quadRuleVector[cell_info_vector[i].shape_function_order - 1]){
 			quadRuleVector[cell_info_vector[i].shape_function_order - 1] = cell_info_vector[i].quad_rule;
 		}
-		if (cell_info_vector[i].quad_rule + 3 > quadRuleVector[(cell_info_vector[i].shape_function_order + 2) - 1]){
-			quadRuleVector[(cell_info_vector[i].shape_function_order + 2) - 1] = cell_info_vector[i].quad_rule + 3;
+		if (cell_info_vector[i].quad_rule + 2 > quadRuleVector[(cell_info_vector[i].shape_function_order + 1) - 1]){
+			quadRuleVector[(cell_info_vector[i].shape_function_order + 1) - 1] = cell_info_vector[i].quad_rule + 2;
 		}
 	}
 }

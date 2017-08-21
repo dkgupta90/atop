@@ -94,7 +94,7 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 4);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 3);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;

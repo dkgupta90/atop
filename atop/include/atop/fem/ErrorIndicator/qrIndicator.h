@@ -45,7 +45,7 @@ namespace atop{
 				std::vector<unsigned int> &qr_p_value,
 				std::vector<CellInfo> &cell_info_vector);
 
-		void estimate();
+		void estimate(std::vector<double> &qr_error);
 		double get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
 				Vector<double> &u_solution,
 				Vector<double> &f_solution,

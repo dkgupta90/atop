@@ -578,7 +578,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 					}
 					else{
 						new_p_order = current_p_order + 1;
-						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;	// p-order increased
 					}
 				}
 			}
@@ -719,5 +719,22 @@ void Adaptivity<dim>::run_qr_based_refinement(){
 			proposed_p_values,
 			*cell_info_vector
 			);
-	qr_test.estimate();
+	qr_test.estimate(qr_accuracy);
+	for (unsigned int i = 0; i < qr_accuracy.size(); ++i){
+		std::cout<<i<<"  "<<qr_accuracy[i]<<std::endl;
+	}
+
+	//Refine all cells which have not been refined and have qr_accuracy less than 0.1
+	unsigned int cell_itr = 0;	//Iterator for the triangulation vector
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin_active(),
+			endc = fem->dof_handler.end();
+	for (; cell != endc; ++cell){
+		(*cell_info_vector)[cell_itr].refine_coarsen_flag = 0;
+
+		if ((*cell_info_vector)[cell_itr].shape_function_order <= (*cell_info_vector)[cell_itr].old_shape_fn_order){
+			(*cell_info_vector)[cell_itr].shape_function_order = (*cell_info_vector)[cell_itr].old_shape_fn_order + 1;
+			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 3; //QR-refinement has been done in this cell
+		}
+		++cell_itr;
+	}
 }
