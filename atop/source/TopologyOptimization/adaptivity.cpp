@@ -47,13 +47,6 @@ void Adaptivity<dim>::update(
 	//Run the mesh adaptivity approach
 	mesh_refine_indicator(fem->mesh->adaptivityType);
 
-
-	//Run projection adaptivity
-
-
-	//Run penalization continuation
-
-
 }
 
 /**
@@ -171,13 +164,12 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 	double refine_ubound = rhomax - ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
 	double coarsen_lbound = rhomin + (alpha * rhomid * exp(-beta * (double)(cycle+1)));
 	double coarsen_ubound = rhomax - (alpha * rhomid * exp(-beta * (double)(cycle+1)));
-/*
 	refine_lbound = 0.05;
 	refine_ubound = 0.95;
 	coarsen_lbound = refine_lbound;
-	coarsen_ubound = refine_ubound;*/
+	coarsen_ubound = refine_ubound;
 
-	std::cout<<"refinement bounds : "<<refine_lbound<<"   "<<refine_ubound<<std::endl;
+	std::cout<<"Refinement bounds : "<<refine_lbound<<"   "<<refine_ubound<<std::endl;
 
 	//Initializing the refineRes vector
 	refineRes.clear();
@@ -201,9 +193,7 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 			refineRes[cell_itr] += refine_ubound - density;
 		}
 	}
-
 	std::cout<<"DONE"<<std::endl;
-
 }
 
 
@@ -307,14 +297,7 @@ void Adaptivity<dim>::compute_sortedRefineRes(){
 			}
 		}
 	}
-
-	for (unsigned int i = 0; i < len; ++i){
-		//std::cout<<sortedRefineRes[i].second<<"    "<<sortedRefineRes[i].first<<std::endl;
-	}
 }
-
-
-
 
 //Updating the element level bounds
 template <int dim>

@@ -118,7 +118,7 @@ int main(){
 
 			mesh.initial_el_order = 3;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 6;
+			mesh.max_el_order = 8;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 16;
 			mesh.max_dcount_per_el = 64;

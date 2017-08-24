@@ -559,11 +559,8 @@ void FEM<dim>::initialize_cycle(){
 	 * Link the density_cell_info_vector to the density triangulation
 	 * user index is 1, 2, 3, ...
 	 */
-	std::cout<<"reached here 01"<<std::endl;
 	typename hp::DoFHandler<dim>::active_cell_iterator density_cell = design_handler.begin_active(),
 			density_endc = design_handler.end();
-	unsigned int density_cell_itr = 0;
-
 
 	std::cout<<"Updating the design vector here"<<std::endl;
 	density_field.update_design_vector(*cell_info_vector,
@@ -700,20 +697,13 @@ void FEM<dim>::assembly(){
 		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
 		hp_fe_values.reinit(cell, q_index);
 		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
-		//hp_fe_analysis_density_values.reinit(fe_den_cell, 0);
-		//const FEValues<dim> &fe_analysis_density_values = hp_fe_analysis_density_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		(*cell_info_vector)[cell_itr].dofs_per_cell = dofs_per_cell;
-
-		//		std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<dofs_per_cell<<std::endl;
-
-
 		const unsigned int density_per_fe_cell = fe_den_cell->get_fe().dofs_per_cell;
 
 		FullMatrix<double> cell_matrix(dofs_per_cell, dofs_per_cell);
 		FullMatrix<double> normalized_matrix(dofs_per_cell, dofs_per_cell);
 		normalized_matrix = 0;
-
 		Vector<double> cell_rhs(dofs_per_cell);
 		Vector<double> cell_density(density_per_fe_cell);
 
@@ -723,8 +713,6 @@ void FEM<dim>::assembly(){
 		cell_matrix = 0;
 		cell_rhs = 0;
 		cell_density = 0;
-		//QGauss<dim> quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
-		//unsigned int n_q_points = quadrature_formula.size(); //No. of integration points
 		unsigned int n_q_points = (*cell_info_vector)[cell_itr].n_q_points;
 		//std::cout<<"NO. of q points : "<<n_q_points<<std::endl;
 		QGauss<dim-1> face_quadrature_formula((*cell_info_vector)[cell_itr].quad_rule);
