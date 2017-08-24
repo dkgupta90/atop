@@ -25,12 +25,7 @@ unsigned int GaussIntegration<dim>::get_quadRule(
 	unsigned int p_design = ceil((double)(-3.0 + sqrt(1.0 + 8 * no_design) - 1e-10)/2.0);
 	unsigned int p_total = p_design + 2 * p_degree;
 	unsigned int qrule = ceil((double)((p_total + 1)/2.0))+0;
-	//qrule = 10;
 	return qrule;
-	if (no_design == 15 && p_degree == 2 && qrule == 6){
-		std::cout<<"Stopiing in get_quadRule"<<std::endl;
-		exit(0);
-	}
 }
 
 template <int dim>
@@ -62,9 +57,9 @@ void GaussIntegration<dim>::update_quadRuleVector(
 		if (cell_info_vector[i].quad_rule > quadRuleVector[cell_info_vector[i].shape_function_order - 1]){
 			quadRuleVector[cell_info_vector[i].shape_function_order - 1] = cell_info_vector[i].quad_rule;
 		}
-		if (cell_info_vector[i].quad_rule + 2 > quadRuleVector[(cell_info_vector[i].shape_function_order + 1) - 1]){
+/*		if (cell_info_vector[i].quad_rule + 2 > quadRuleVector[(cell_info_vector[i].shape_function_order + 1) - 1]){
 			quadRuleVector[(cell_info_vector[i].shape_function_order + 1) - 1] = cell_info_vector[i].quad_rule + 2;
-		}
+		}*/
 	}
 }
 

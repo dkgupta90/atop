@@ -115,7 +115,7 @@ void Optimizedesign<dim>::optimize(){
 
 	//Running the number of refinement cycles
 	for(cycle = 0; cycle < no_cycles; ++cycle){
-/*		if (cycle > 3){
+/*		if (cycle > 3){ 	// this code is mainly written to save the qr-indicator results of the last cycle
 			no_cycles = 4;
 			return;
 		}*/

@@ -200,35 +200,6 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 		if(density <= refine_ubound && density > rhomid){
 			refineRes[cell_itr] += refine_ubound - density;
 		}
-/*		unsigned int no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
-
-		//Iterate over the design points of the current element
-		for (unsigned int ditr = 0; ditr < no_design; ++ditr){
-			double tempres = 0.0;
-			double rho = (*cell_info_vector)[cell_itr].design_points.rho[ditr];
-
-			//Checking the design point value
-			if (rho >= refine_lbound && rho <= refine_ubound){
-				if (rho <= rhomid){
-					tempres = rho - refine_lbound;
-				}
-				else{
-					tempres = refine_ubound - rho;
-				}
-				tempres = tempres / no_design;
-				//tempres = fabs(refine_lbound - rho) + fabs(refine_lbound - rho)/(2 * no_design);
-			}
-			else if (rho < coarsen_lbound){
-				tempres = (rho - coarsen_lbound)/no_design;
-			}
-			else if (rho > coarsen_ubound){
-				tempres = (coarsen_ubound - rho)/no_design;
-			}
-
-			//Adding to the refinement residual vector
-			refineRes[cell_itr] += tempres;
-		}*/
-		//std::cout<<refineRes[cell_itr]<<std::endl;
 	}
 
 	std::cout<<"DONE"<<std::endl;
@@ -609,7 +580,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 	}
 
 	std::cout<<"Polishing the p-distribution for 1-level hanging "<<std::endl;
-	dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
+	//dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
 
 
 	//Update the design field to allow maximum number of permissible design variables as per element-bound in each element.
@@ -709,6 +680,8 @@ void Adaptivity<dim>::run_dp_analysis_based_refinement(){
 template <int dim>
 void Adaptivity<dim>::run_qr_based_refinement(){
 
+	if (fem->cycle >= 0)	return;
+
 	std::vector<double> qr_accuracy(fem->triangulation.n_active_cells()); //to store accuracy of solution for each element
 	std::vector<unsigned int> proposed_p_values(fem->triangulation.n_active_cells());	// obtained based on qr-check
 
@@ -730,7 +703,10 @@ void Adaptivity<dim>::run_qr_based_refinement(){
 			endc = fem->dof_handler.end();
 	for (; cell != endc; ++cell){
 		(*cell_info_vector)[cell_itr].refine_coarsen_flag = 0;
-
+		if (qr_accuracy[cell_itr] > 0.1){
+			++cell_itr;
+			continue;
+		}
 		if ((*cell_info_vector)[cell_itr].shape_function_order <= (*cell_info_vector)[cell_itr].old_shape_fn_order){
 			(*cell_info_vector)[cell_itr].shape_function_order = (*cell_info_vector)[cell_itr].old_shape_fn_order + 1;
 			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 3; //QR-refinement has been done in this cell

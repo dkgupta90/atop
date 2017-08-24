@@ -397,11 +397,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	A_direct.vmult (actual_solution, system_rhs);
 	constraints.distribute(actual_solution);
 
-	if (cell_itr == 13){
-		for (unsigned int i = 0; i < system_rhs.size(); ++i){
-			std::cout<<actual_solution(i)<<"   "<<system_rhs(i)<<std::endl;
-		}
-	}
 /*	std::cout<<"Solution for new p: "<<std::endl;
 	for (unsigned int i = 0; i < actual_solution.size(); ++i){
 		std::cout<<new_solution(i)<<"   "<<actual_solution(i)<<std::endl;

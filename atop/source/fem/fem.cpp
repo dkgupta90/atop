@@ -105,15 +105,10 @@ FEM<dim>::FEM(
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell =dof_handler.begin_active();
 			cell != dof_handler.end(); ++cell){
 		cell->set_active_fe_index(p_index);
-/*		if (cell_itr == 5){
-			cell->set_active_fe_index(p_index + 2);
-		}*/
 
 		cell_itr++;
 
 	}
-	//dof_handler.begin_active()->set_active_fe_index(1);
-
 	//intializing the type of element for each cell of analysis density mesh
 	for (typename hp::DoFHandler<dim>::active_cell_iterator cell = analysis_density_handler.begin_active();
 			cell != analysis_density_handler.end(); ++cell){
@@ -162,7 +157,6 @@ void FEM<dim>::setup_system(){
 	boundary_values.clear();
 	//FE mesh
 	dof_handler.distribute_dofs(fe_collection);
-
 	hanging_node_constraints.clear();
 	DoFTools::make_hanging_node_constraints(dof_handler,
 			hanging_node_constraints);
@@ -181,21 +175,11 @@ void FEM<dim>::setup_system(){
 	hanging_node_constraints.close();
 	  std::cout<< "No.of degrees of freedom: " << dof_handler.n_dofs() << "\n";
 	std::cout<<"No. of hanging node constraints : "<<hanging_node_constraints.n_constraints()<<std::endl;
-
-	//solution.reinit(dof_handler.n_dofs());
-	//system_rhs.reinit(dof_handler.n_dofs());
 	analysis_density_handler.distribute_dofs(fe_analysis_density_collection);	//Used to add density on every node
 
 	//Density mesh or design mesh
 	design_handler.distribute_dofs(fe_design_collection);
 
-/* 	sparsity_pattern.reinit(dof_handler->n_dofs(),
- 			dof_handler->n_dofs(),
- 			dof_handler->max_couplings_between_dofs());
- 	DoFTools::make_sparsity_pattern(*dof_handler,
- 			sparsity_pattern);
- 	hanging_node_constraints.condense(sparsity_pattern);
- 	sparsity_pattern.compress();*/
 	DynamicSparsityPattern dsp (dof_handler.n_dofs());
 	DoFTools::make_sparsity_pattern (dof_handler,
 	                                 dsp,
@@ -208,14 +192,10 @@ void FEM<dim>::setup_system(){
 	system_rhs.reinit(dof_handler.n_dofs());
 	lambda_solution.reinit(dof_handler.n_dofs());
 	l_vector.reinit(dof_handler.n_dofs());
-
 	nodal_density.reinit(analysis_density_handler.n_dofs());	//filtered densities for the output
 	nodal_p_order.reinit(analysis_density_handler.n_dofs());
 	cells_adjacent_per_node.reinit(analysis_density_handler.n_dofs());	//for normalizing the nodal density value
 	nodal_d_count.reinit(analysis_density_handler.n_dofs());
-
-
-
 }
 
 /**
@@ -468,9 +448,9 @@ void FEM<dim>::reset(){
 			++cell_info_itr){
 		(*cell_info_itr).dim = dim;
 		(*cell_info_itr).shape_function_order = cell->active_fe_index() + 1;
-		unsigned int q_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
-		(*cell_info_itr).quad_rule = current_quad_rule[q_index];
-		QGauss<dim> temp_quad(current_quad_rule[q_index]);
+		unsigned int quad_index = (*cell_info_itr).shape_function_order - 1;	//in the current quad vector based on p order
+		(*cell_info_itr).quad_rule = current_quad_rule[quad_index];
+		QGauss<dim> temp_quad(current_quad_rule[quad_index]);
 		(*cell_info_itr).n_q_points = temp_quad.size();
 		(*cell_info_itr).cell_area = 0.00001;
 		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, 0.01);
@@ -481,6 +461,8 @@ void FEM<dim>::reset(){
 			(*cell_info_itr).design_points.initialize_field(dim, mesh->initial_dcount_per_el, 1, volfrac);
 
 			//here, we assume that the initial design mesh is uniform, so psuedo_design mesh is kept the same
+			// note here that the no. of pseudodesign points can be a non-perfect-sqaure no., since this count is
+			// used. the actual psuedo-design mesh will be created from local filtering.
 			(*cell_info_itr).pseudo_design_points.no_points = mesh->initial_dcount_per_el;
 			(*cell_info_itr).pseudo_design_points.initialize_field(dim, mesh->initial_dcount_per_el, 1, volfrac);
 		}
@@ -491,44 +473,16 @@ void FEM<dim>::reset(){
 
 
 	//Initialize the density cell parameters for all the density cells
-	if (mesh->coupling == false && mesh->adaptivityType == "movingdesignpoints"){
-		unsigned int design_len = (*design_vector).size();	//size of design vector
-		unsigned int k = 0;	//for iterating over all the design variables
+	for(std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector->begin();
+			density_cell_info_itr != density_cell_info_vector->end();
+			++density_cell_info_itr){
 
-		//Iterating over the number of design points
-		for(std::vector<CellInfo>::iterator design_point_info_itr = density_cell_info_vector->begin();
-				design_point_info_itr != density_cell_info_vector->end();
-				++design_point_info_itr){
-
-			//Setting the density quad rule to 1
-			(*design_point_info_itr).density.resize(1);
-			(*design_point_info_itr).density[0] = (*design_vector)[k]; k++;	//added design densty and iterated k
-
-
-
-			(*design_point_info_itr).projection_fact = (*design_vector)[k];	k++;	//added projection factor
-
-			//Adding the position of the design point
-			(*design_point_info_itr).pointX.resize(dim);
-			for (unsigned int j = 0; j < dim; j++){
-				(*design_point_info_itr).pointX[j] = (*design_vector)[k];	k++;
-			}
-
-			(*design_point_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
-		}
-	}
-	else{
-		for(std::vector<CellInfo>::iterator density_cell_info_itr = density_cell_info_vector->begin();
-				density_cell_info_itr != density_cell_info_vector->end();
-				++density_cell_info_itr){
-
-			//Setting the density quad rule to 1
-			(*density_cell_info_itr).quad_rule = 1;
-			(*density_cell_info_itr).n_q_points = 1; //	located at the centroid
-			(*density_cell_info_itr).cell_area = 0.00001;	//area of the density cell
-			(*density_cell_info_itr).density.resize((*density_cell_info_itr).n_q_points, volfrac);
-			(*density_cell_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
-		}
+		//Setting the density quad rule to 1
+		(*density_cell_info_itr).quad_rule = 1;
+		(*density_cell_info_itr).n_q_points = 1; //	located at the centroid
+		(*density_cell_info_itr).cell_area = 0.00001;	//area of the density cell
+		(*density_cell_info_itr).density.resize((*density_cell_info_itr).n_q_points, volfrac);
+		(*density_cell_info_itr).dxPhys.resize(mesh->design_var_per_point(), 0.0);
 	}
 
 	/**
@@ -573,12 +527,9 @@ void FEM<dim>::initialize_cycle(){
 	 */
 
 	std::cout<<"Initializing the cycle "<<std::endl;
-
-	//Initializing the pseudo-design field parameters
-	std::cout<<"Initializing the peudo-design field"<<std::endl;
 	initialize_pseudo_designField();
-
 	std::cout<<"Psuedo design field initialized"<<std::endl;
+
 	//Updating the hp_fe_values
 	hp::FEValues<dim> hp_fe_values(fe_collection,
 				quadrature_collection,
@@ -594,18 +545,11 @@ void FEM<dim>::initialize_cycle(){
 		cell->set_user_index(cell_itr + 1);
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
 		unsigned int p_degree = (*cell_info_vector)[cell_itr].shape_function_order;
-
 		(*cell_info_vector)[cell_itr].quad_rule = gauss_int.get_quadRule(
 				(*cell_info_vector)[cell_itr].design_points.no_points,
 				p_degree);
-/*		if (cycle == 2 && cell_itr == 0){
-			std::cout<<(*cell_info_vector)[cell_itr].design_points.no_points<<"  "<<p_degree<<std::endl;
-			std::cout<<"Quad rule : "<<(*cell_info_vector)[cell_itr].quad_rule<<std::endl;
-			exit(0);
-		}*/
 		QGauss<dim> temp_quad((*cell_info_vector)[cell_itr].quad_rule);
 		(*cell_info_vector)[cell_itr].n_q_points = temp_quad.size();
-
 		++cell_itr;
 	}
 	if (cycle > 0)	gauss_int.update_quadRuleVector(current_quad_rule, *cell_info_vector);
@@ -668,9 +612,7 @@ void FEM<dim>::initialize_pseudo_designField(){
 			if ((*cell_info_vector)[i].design_points.no_points > temp_max_design)
 				temp_max_design = (*cell_info_vector)[i].design_points.no_points;
 		}
-		//temp_max_design = 64;
-		max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);
-
+		max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);	//this refers top pseudo-points
 		//Updating the distribution and number of design points per cell
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 			(*cell_info_vector)[i].pseudo_design_points.no_points = max_design_points_per_cell;
