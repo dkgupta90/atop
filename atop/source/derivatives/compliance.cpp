@@ -65,7 +65,7 @@ void Compliance<dim>::compute(
 					fem->system_rhs,
 					fem->solution);	// this is only true for fixed boundaries
 
-	//std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
+	std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
 
 	//Calculating the sensitivities with respect to the density space design variables
 	std::cout<<"Computing sensitivity response "<<std::endl;
