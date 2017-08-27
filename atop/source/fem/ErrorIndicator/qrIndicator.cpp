@@ -130,7 +130,7 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 		double Jvalue = matvec.vector_vector_inner_product(
 				f_solution,
 				u_solution);
-
+		//std::cout<<"Jvalue : "<<Jvalue<<std::endl;
 
 		/*
 		 * Here, we start with looking for higher values of p and then lower values
@@ -148,6 +148,7 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 			//std::cout<<cell_itr<<"  "<<new_p<<"  "<<Jvalue<<"  "<<Jstar<<"  "<<Jstar/Jvalue<<std::endl;
 			new_p-=1;
 		}
+		//std::cout<<sum_JJstar<<std::endl;
 		//exit(0);
 		//sum_JJstar /= 5;
 		qr_error[cell_itr] = sum_JJstar;	//assigning the error
@@ -189,6 +190,7 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 		}
 	}
 
+	std::cout<<"reached heer 1"<<std::endl;
 	//writing the output qrvalue file
 	std::string filename = "qrValue-";
 	std::stringstream ss;
@@ -199,6 +201,8 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 	property_names.clear();
 	property_names.push_back("p-order");
 	OutputData<dim> out_soln;
+	std::cout<<"reached heer 2"<<std::endl;
+
 	out_soln.write_fe_solution(filename, fem->analysis_density_handler,
 			nodal_qrValue, property_names);
 	std::cout<<"Output QR file created ..."<<std::endl;
@@ -240,17 +244,16 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	                             update_values   | update_gradients |
 	                             update_quadrature_points | update_JxW_values);
 
-
     const unsigned int   dofs_per_cell = fe.dofs_per_cell;
     const unsigned int   n_q_points = quad_formula.size();
 	Vector<double> new_solution(dofs_per_cell);	// for the displacement field on new support points
 	Vector<double> new_f_solution(dofs_per_cell);	// for the force field on new support points
 	Vector<double> actual_solution(dofs_per_cell);
+
 	SparseMatrix<double> system_matrix;
 	Vector<double> system_rhs;
 	// Compute the solution for new_p
 	actual_solution = 0;
-
 
 	temp_dofh.clear();
 	temp_dofh.distribute_dofs(fe);
@@ -336,7 +339,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 	system_matrix.reinit(sparsity_pattern);
 	system_rhs.reinit(temp_dofh.n_dofs());
 
-
 /*
  * Next, the stiffness matrix needs to be calculated for this element
  * This requires calculating the stifness matrices at all the integration points of new_cell and
@@ -379,7 +381,6 @@ double QRIndicator<dim>::get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell
 		cell_matrix.add(new_cell_info.E_values[q_point],
 				normalized_matrix);
 	}
-
 	//cell_matrix.print(std::cout);
 	constraints.distribute_local_to_global (cell_matrix,
 	                                          new_f_solution,

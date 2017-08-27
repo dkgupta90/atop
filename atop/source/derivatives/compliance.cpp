@@ -44,14 +44,9 @@ void Compliance<dim>::compute(
 		double &objective,
 		std::vector<double> &obj_grad){
 
-	std::cout<<"Calculating objective and sensitivities...."<<std::endl;
+	//std::cout<<"Calculating objective and sensitivities...."<<std::endl;
 
 	objective = 0.0;
-
-	/**
-	 * Iterating over all the cells and including the contributions
-	 */
-
 	hp::FEValues<dim> hp_fe_values(fem->fe_collection,
 			fem->quadrature_collection,
 			update_values |
@@ -64,12 +59,13 @@ void Compliance<dim>::compute(
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler->begin_active(),
 			endc = dof_handler->end();
 
+	// calculating the objective
 	Matrix_Vector matvec;
 	objective = matvec.vector_vector_inner_product(
 					fem->system_rhs,
 					fem->solution);	// this is only true for fixed boundaries
 
-	std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
+	//std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
 
 	//Calculating the sensitivities with respect to the density space design variables
 	std::cout<<"Computing sensitivity response "<<std::endl;
@@ -90,9 +86,12 @@ void Compliance<dim>::compute(
 		temp_obj_grad[i].resize((*cell_info_vector)[i].design_points.no_points, 0.0);
 	}
 
+	double time11;
 	cell = dof_handler->begin_active(),
 					endc = dof_handler->end();
 	for(; cell != endc; ++cell){
+		time11 = (clock() - time1)/((double)CLOCKS_PER_SEC);
+		//std::cout<<time11<<std::endl;
 		unsigned int quadrature_rule = (*cell_info_vector)[cell_itr].quad_rule;
 		unsigned int quad_index = elastic_data->get_quad_index(quadrature_rule);
 		unsigned int p_index = elastic_data->get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
@@ -147,14 +146,11 @@ void Compliance<dim>::compute(
 				//(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
 				(*cell_info_vector)[cell_itr2].pseudo_design_points.dxPhys_drho[ngpt_itr] += (qweights[q_point] * dxPhys_dx);
 
-
 				//Iterating over all the design points of the cell
 				for (unsigned int j = 0; j < (*cell_info_vector)[cell_itr2].pseudo_design_points.dx_drho[ngpt_itr].size(); ++j){
 
 					double dx_drho = (*cell_info_vector)[cell_itr2].pseudo_design_points.dx_drho[ngpt_itr][j];
 					if ((fabs(dx_drho) - 0) < 1e-12)	continue;
-
-
 					(*cell_info_vector)[cell_itr2].design_points.dxPhys_drho[j] += (qweights[q_point] * dxPhys_dx * dx_drho);
 
 					double dEfactor = dE_dxPhys * dxPhys_dx * dx_drho;
@@ -175,7 +171,6 @@ void Compliance<dim>::compute(
 							temp_array,
 							cell_array);
 					temp_obj_grad[cell_itr2][j] -= dobj;
-
 				}
 			}
 

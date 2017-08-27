@@ -14,6 +14,7 @@ namespace atop{
 	template <int dim>
 	class GaussIntegration{
 	public:
+		unsigned int max_el_order;
 		unsigned int get_quadRule(unsigned int,
 				unsigned int);
 

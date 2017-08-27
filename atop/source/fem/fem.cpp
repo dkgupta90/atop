@@ -429,7 +429,7 @@ void FEM<dim>::reset(){
 	//initializing the sizes of current and running quad rule
 	gauss_int.initialize_quadRuleVector(current_quad_rule,
 			mesh->max_el_order, mesh->initial_dcount_per_el);
-
+	gauss_int.max_el_order = mesh->max_el_order;
 	running_quad_rule.clear();
 	running_quad_rule.resize(mesh->max_el_order, 1);
 
@@ -541,6 +541,7 @@ void FEM<dim>::initialize_cycle(){
 			endc = dof_handler.end();
 	unsigned int cell_itr = 0;
 	GaussIntegration<dim> gauss_int;
+	gauss_int.max_el_order = mesh->max_el_order;
 	for(; cell != endc; ++cell){
 		cell->set_user_index(cell_itr + 1);
 		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area

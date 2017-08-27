@@ -456,19 +456,14 @@ void Adaptivity<dim>::dp_coarsening_refinement(){
 template <int dim>
 void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
-	//QR-paper based refinement indicator
-
-
 	//Analysis based refinement
 	run_dp_analysis_based_refinement();
 	//------------------------------------------------------------------
 
 	std::cout<<"Initiating design based refinement module ....."<<std::endl;
-	unsigned int no_cells = sortedRefineRes.size();
-
 /*
  * In the code below, the refinement residuals are used to perform dp-refinement
- * For -ve values, cells are considered for cooarsening
+ * For -ve values, cells are considered for coarsening
  * For +ve values, cells are considered for refinement
  */
 
@@ -476,38 +471,37 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 	typename hp::DoFHandler<dim>::active_cell_iterator cell = fem->dof_handler.begin(),
 			endc = fem->dof_handler.end();
 	unsigned int cell_itr = 0;
-
 	//Updating the p-orders based on the refineRes values
 	for (; cell != endc; ++cell){
 
 			int current_p_order = (*cell_info_vector)[cell_itr].shape_function_order;
 			int current_no_design = (*cell_info_vector)[cell_itr].design_points.no_points;
-			int new_p_order = current_p_order;
+			int new_p_order = current_p_order;	//temporarily set to the current value
 
-			if (fabs(refineRes[cell_itr]) < 1e-14){
-				//Do not update the p-order
+			if (fabs(refineRes[cell_itr]) < 1e-14){ // not flagged for refinement / coarsening
+				//Here refineRes refers to the residual based on the density indicator (currently Gupta et al, 2016 indicator)
+				//Do not update the d-value, therefore p-order is also not changed here.
 			}
 			else{
 				int diff;
-
 				int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1);
 				int upper_design_bound = dp_adap.get_design_bound(current_p_order);
 
 				//Coarsening
-				if (refineRes[cell_itr] < 0){
+				if (refineRes[cell_itr] < -1e-12){
 					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag != 1){	//if p not increased during analysis based check
 						(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;	// coarsen design field, and adjust p based on bound check
 						if (dim == 2 && current_p_order > 1){
 							int current_dfactor = ceil(sqrt(current_no_design));
 							diff = 1 + 2 * (current_dfactor);
 
-							if ((current_no_design - diff) > lower_design_bound){
+							if ((*cell_info_vector)[cell_itr].old_shape_fn_order < current_p_order){//((current_no_design - diff) > lower_design_bound){
 								new_p_order = current_p_order;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;	//only d-coarsening
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2;
 							}
 							else{
 								new_p_order = current_p_order - 1;
-								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -1;	//d and p coarsened
+								(*cell_info_vector)[cell_itr].refine_coarsen_flag = -2; //coarsened during dp-coarsening
 							}
 						}
 						/*
@@ -519,20 +513,21 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 
 					}
 				}
-				else{
+				else if (refineRes[cell_itr] > 1e-12){
 					int current_dfactor = ceil(sqrt(current_no_design));
 
 					//calculating ceil d_Factor
 					if (dim == 2){
 						diff = 1 + 2*current_dfactor;
 					}
-				    int corrected_design_bound = dp_adap.get_corrected_design_bound(*fem, *cell_info_vector, cell);
-					if (current_no_design + diff <= corrected_design_bound){
+				    //int corrected_design_bound = dp_adap.get_corrected_design_bound(*fem, *cell_info_vector, cell);
+					if ((*cell_info_vector)[cell_itr].refine_coarsen_flag == 1){//current_no_design + diff <= corrected_design_bound){
 						new_p_order = current_p_order;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;
 					}
 					else{
-						new_p_order = current_p_order + 1;
-						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;	// p-order increased
+						new_p_order = (*cell_info_vector)[cell_itr].old_shape_fn_order + 1;
+						(*cell_info_vector)[cell_itr].refine_coarsen_flag = 2;	// p-order increased during dp-refinement
 					}
 				}
 			}
@@ -563,7 +558,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 	}
 
 	std::cout<<"Polishing the p-distribution for 1-level hanging "<<std::endl;
-	//dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
+	dp_adap.update_p_order_contrast(*fem, *cell_info_vector);
 
 
 	//Update the design field to allow maximum number of permissible design variables as per element-bound in each element.
@@ -603,9 +598,11 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 		(*cell_info_vector)[cell_itr].refine_coarsen_flag = 0;
 
 		if (cell->refine_flag_set()){
-			//std::cout<<cell_itr<<"    Entered here "<<std::endl;
-			(*cell_info_vector)[cell_itr].shape_function_order++;
-			(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
+			if ((*cell_info_vector)[cell_itr].shape_function_order < (*(fem->mesh)).max_el_order){
+				// The above condition is put to ensure that p-values higher than max_el_order are not allowed
+				(*cell_info_vector)[cell_itr].shape_function_order++;
+				(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
+			}
 		}
 
 		if (cell->coarsen_flag_set()){
@@ -663,7 +660,7 @@ void Adaptivity<dim>::run_dp_analysis_based_refinement(){
 template <int dim>
 void Adaptivity<dim>::run_qr_based_refinement(){
 
-	if (fem->cycle >= 0)	return;
+	if (fem->cycle >= 2)	return;
 
 	std::vector<double> qr_accuracy(fem->triangulation.n_active_cells()); //to store accuracy of solution for each element
 	std::vector<unsigned int> proposed_p_values(fem->triangulation.n_active_cells());	// obtained based on qr-check
@@ -676,9 +673,9 @@ void Adaptivity<dim>::run_qr_based_refinement(){
 			*cell_info_vector
 			);
 	qr_test.estimate(qr_accuracy);
-	for (unsigned int i = 0; i < qr_accuracy.size(); ++i){
+/*	for (unsigned int i = 0; i < qr_accuracy.size(); ++i){
 		std::cout<<i<<"  "<<qr_accuracy[i]<<std::endl;
-	}
+	}*/
 
 	//Refine all cells which have not been refined and have qr_accuracy less than 0.1
 	unsigned int cell_itr = 0;	//Iterator for the triangulation vector
