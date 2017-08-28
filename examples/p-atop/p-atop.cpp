@@ -94,7 +94,7 @@ int main(){
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 4);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
@@ -116,11 +116,11 @@ int main(){
 			mesh.subdivisions = {40, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 2;
+			mesh.initial_el_order = 5;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 8;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 16;
+			mesh.initial_dcount_per_el = 64;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
@@ -129,7 +129,7 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "distLoad";
+			std::string loadType = "pointLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force

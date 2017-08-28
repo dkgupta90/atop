@@ -190,7 +190,6 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 		}
 	}
 
-	std::cout<<"reached heer 1"<<std::endl;
 	//writing the output qrvalue file
 	std::string filename = "qrValue-";
 	std::stringstream ss;
@@ -201,7 +200,6 @@ void QRIndicator<dim>::estimate(std::vector<double> &qr_error){
 	property_names.clear();
 	property_names.push_back("p-order");
 	OutputData<dim> out_soln;
-	std::cout<<"reached heer 2"<<std::endl;
 
 	out_soln.write_fe_solution(filename, fem->analysis_density_handler,
 			nodal_qrValue, property_names);

@@ -346,7 +346,7 @@ void dpAdaptivity<dim>::update_p_order_contrast(
 		cell_itr++;
 	}
 
-/*	//Introduce the symmetry part
+	//Introduce the symmetry part
 	cell_itr = 0;
 	cell = fem.dof_handler.begin_active(),
 			endc = fem.dof_handler.end();
@@ -372,7 +372,7 @@ void dpAdaptivity<dim>::update_p_order_contrast(
 		}
 
 		cell_itr++;
-	}*/
+	}
 }
 
 template <int dim>
