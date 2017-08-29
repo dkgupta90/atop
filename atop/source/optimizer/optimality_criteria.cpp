@@ -74,9 +74,9 @@ void OC::optimize(
 			for (unsigned int i = 0; i < design_vector->size(); ++i){
 				double octemp1;
 				double old_density = old_design_vector[i];
-				if (obj_grad[i] > 0){
+/*				if (obj_grad[i] > 0){
 					std::cout<<"Error located "<<obj_grad[i]<<std::endl;
-				}
+				}*/
 
 				//For compliant mechanism
 				if (opt_design2d->problem_name == "compliant_mechanism" && obj_grad[i] > 0){
@@ -149,7 +149,7 @@ void OC::optimize(
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
-	}while(fabs(old_objective - objective) > min_obj_change);// || opt_design2d->obj_fem->itr_count < 10);
+	}while(fabs(old_objective - objective) > min_obj_change || opt_design2d->obj_fem->itr_count < 20);
 
 
 }

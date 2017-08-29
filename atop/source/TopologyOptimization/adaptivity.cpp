@@ -600,7 +600,7 @@ void Adaptivity<dim>::increase_decrease_p_order(){
 		if (cell->refine_flag_set()){
 			if ((*cell_info_vector)[cell_itr].shape_function_order < (*(fem->mesh)).max_el_order){
 				// The above condition is put to ensure that p-values higher than max_el_order are not allowed
-				ayush(*cell_info_vector)[cell_itr].shape_function_order++;
+				(*cell_info_vector)[cell_itr].shape_function_order++;
 				(*cell_info_vector)[cell_itr].refine_coarsen_flag = 1;
 			}
 		}

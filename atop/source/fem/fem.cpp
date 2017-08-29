@@ -333,15 +333,6 @@ void FEM<dim>::solve(){
 	}
 	hanging_node_constraints.distribute(solution);
 	hanging_node_constraints.distribute(lambda_solution);
-
-/*	for (unsigned int i = 0; i < solution.size(); ++i){
-		std::cout<<solution[i]<<std::endl;
-	}*/
-	//std::cout<<"Printing rhs vector"<<std::endl;
-	// (unsigned int i = 0; i < system_rhs.size(); ++i)	std::cout<<system_rhs(i)<<std::endl;
-
-
-
 }
 
 template <int dim>
@@ -404,9 +395,6 @@ void FEM<dim>::output_results(){
 		out_soln.write_fe_solution(filename, analysis_density_handler,
 				nodal_d_count, density_names);
 	}
-
-	//std::cout<<"Output written"<<std::endl;
-
 	//Writing the design output
 	filename = "design-";
 	filename += ss.str();
@@ -954,7 +942,6 @@ template <int dim>
 void FEM<dim>::add_point_source_to_rhs(){
 		deallog.depth_console (2);
 
-    std::cout<<"Entered here"<<std::endl;
 	unsigned int no_sources = (mesh->point_source_vector).size();
 	for(unsigned int s = 0; s < no_sources; ++s){
 		std::vector<double> load_point = mesh->point_source_vector[s].first;
@@ -1135,7 +1122,7 @@ void FEM<dim>::add_boundary_constraints(){
 
 						if (comp_i == 1){
 							hanging_node_constraints.add_line(local_dof_indices[i]);
-							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
 						}
 
 					}
@@ -1145,7 +1132,7 @@ void FEM<dim>::add_boundary_constraints(){
 
 						if (comp_i == 0){
 							hanging_node_constraints.add_line(local_dof_indices[i]);
-							std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
 						}
 					}
 					else if (boundary_indic == 54){
