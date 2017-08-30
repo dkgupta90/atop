@@ -164,10 +164,10 @@ void Adaptivity<dim>::calc_refinement_res_multires(){
 	double refine_ubound = rhomax - ((1 - alpha) * rhomid * exp(-beta * (double)(cycle+1)));
 	double coarsen_lbound = rhomin + (alpha * rhomid * exp(-beta * (double)(cycle+1)));
 	double coarsen_ubound = rhomax - (alpha * rhomid * exp(-beta * (double)(cycle+1)));
-	refine_lbound = 0.05;
+/*	refine_lbound = 0.05;
 	refine_ubound = 0.95;
 	coarsen_lbound = refine_lbound;
-	coarsen_ubound = refine_ubound;
+	coarsen_ubound = refine_ubound;*/
 
 	std::cout<<"Refinement bounds : "<<refine_lbound<<"   "<<refine_ubound<<std::endl;
 

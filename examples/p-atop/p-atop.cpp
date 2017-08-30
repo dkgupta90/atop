@@ -80,7 +80,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.4, 1.0);
+			"dp-refinement", 0.05, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -116,11 +116,11 @@ int main(){
 			mesh.subdivisions = {40, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 5;
+			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 8;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 64;
+			mesh.initial_dcount_per_el = 16;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
@@ -150,11 +150,12 @@ int main(){
 			mesh.subdivisions = {40, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 1;
+			mesh.initial_el_order = 5;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 11;
+			mesh.max_el_order = 8;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 1;
+			mesh.initial_dcount_per_el = 64;
+			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
 

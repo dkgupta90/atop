@@ -34,7 +34,7 @@ void OC::optimize(
 	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(obj_data);
 
 
-
+	bool exit_flag; // to impose certain minimum no. of iterations in the first cycle
 	do{
 		old_objective = objective;
 		std::cout<<"Iteration : "<<opt_design2d->obj_fem->itr_count + 2<<std::endl;
@@ -65,9 +65,8 @@ void OC::optimize(
 
 
 
-		double l1 = 1e-5, l2 = 100000000, move = 0.2;
+		double l1 = 1e-5, l2 = 100000000, move = 0.08;
 		//l1 = l2;
-
 
 		while ((l2 - l1) > 1e-4){
 			double lmid = 0.5*(l1  + l2);
@@ -149,7 +148,17 @@ void OC::optimize(
 		}
 		//std::cout<<density_sum<<std::endl;
 		std::cout<<"Volfrac: "<<current_volfrac<<std::endl;
-	}while(fabs(old_objective - objective) > min_obj_change || opt_design2d->obj_fem->itr_count < 20);
+
+		if (opt_design2d->cycle == 0 && opt_design2d->obj_fem->itr_count < 5 && opt_design2d->no_cycles > 1)
+			exit_flag = false;
+		else if (opt_design2d->cycle > 0)
+			exit_flag = true;
+		else if (opt_design2d->no_cycles == 1)
+			exit_flag = true;	// for case when reference mesh is run (want to eixt after 2 iterations)
+		else
+			exit_flag = true;
+
+	}while(fabs(old_objective - objective) > min_obj_change || exit_flag == false);
 
 
 }

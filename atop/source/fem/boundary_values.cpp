@@ -18,7 +18,7 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 			ExcDimensionMismatch(values.size(), dim));
 	Assert(dim >= 2,
 			ExcNotImplemented());
-	unsigned int model_problem = 3;
+	unsigned int model_problem = 6;
 	double xmin, xmax, ymin, ymax;
 
 	if (model_problem == 4){
@@ -61,6 +61,16 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 		//MBB problem
 		xmin = 0, ymin = 0, xmax = 1, ymax = 1;
 		if (sqrt(pow(p[0] - 0.5, 2) + pow(p[1] - 0.5, 2)) < 0.027){
+			values(0) = 0;
+			values(1) = 0;
+		}
+	}
+
+	//force invertor problem
+	else if (model_problem == 6){
+		//MBB problem
+		xmin = 0, ymin = 0, xmax = 2, ymax = 1;
+		if (std::fabs(p(0) - (xmin)) < 1e-12 && (p(1) - 0.05) < 0){
 			values(0) = 0;
 			values(1) = 0;
 		}
