@@ -8,7 +8,7 @@
 /*
  * This examples aims at a 2D as well as 3D implementation of electrical conduction problems
  * A linear case will be considered for simplicity.
- * However, in future it is aimed to extend it to the n nonlinear solar cell problem
+ * However, in future it is aimed to extend it to the nonlinear solar cell problem
  * This is a scalar problem with only one dof per node/support point
  */
 
@@ -53,7 +53,7 @@ unsigned int get_boundary_indicator_dist(std::vector<double> X){
 
 	if (X.size() == 2){	// for two-dimensions
 		if (fabs(X[1] - 1) < 1e-12)
-			return 62;	//for adding distributed load
+			return 62;	//for adding distributed thermal load
 		else if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - 0.1))	//fixed Dirichlet b.c.
 			return 42;
 		else
