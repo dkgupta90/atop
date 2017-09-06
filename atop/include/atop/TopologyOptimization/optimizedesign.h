@@ -47,7 +47,6 @@ template <int dim>
 	LinearElastic<dim> *linear_elastic;
 	LinearElectrostatic<dim> *lin_elecstat;
 
-
 	//name of optimization problem
 	std::string problem_name;
 	bool is_problem_self_adjoint;
@@ -88,6 +87,7 @@ template <int dim>
 				unsigned int cycles = 5);
 
 		void problemType(LinearElastic<dim> &obj_linear_elastic);
+		void problemType(LinearElectrostatic<dim> &obj_linear_electrostatic);
 
 		void optimize();
 		void run_system();

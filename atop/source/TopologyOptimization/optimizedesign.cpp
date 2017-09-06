@@ -78,6 +78,11 @@ void Optimizedesign<dim>::problemType(LinearElastic<dim> &obj_linear_elastic){
 }
 
 template <int dim>
+void Optimizedesign<dim>::problemType(LinearElectrostatic<dim> &obj_linear_electrostatic){
+	this->lin_elecstat = &obj_linear_electrostatic;
+}
+
+template <int dim>
 void Optimizedesign<dim>::optimize(){
 
 	//Changes the string to uppercase for simple comparison
@@ -92,13 +97,17 @@ void Optimizedesign<dim>::optimize(){
 			density_cell_info_vector,
 			*mesh,
 			design_vector,
-			timer);
+			timer,
+			problem_name);
 
 	obj_fem->fileReadFlag = temp1;
 	obj_fem->filefname = tempfname;
 
 	//Passing the problem type to the FEM class
-	obj_fem->problemType(*linear_elastic);
+	if (this->problem_name == "minimum_compliance" || this->problem_name == "compliant_mechanism")
+		obj_fem->problemType(*linear_elastic);
+	else if (this->problem_name == "electrical_conduction")
+		obj_fem->problemType(*lin_elecstat);
 
 	//Passing the volume fraction upper bound
 	obj_fem->volfrac = volfrac;

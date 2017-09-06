@@ -31,6 +31,7 @@
 #include <atop/TopologyOptimization/cell_prop.h>
 #include <atop/TopologyOptimization/projection.h>
 #include <atop/physics/mechanics/elastic.h>
+#include <atop/physics/electrical/electrostatic.h>
 #include <atop/fem/define_mesh.h>
 #include <atop/TopologyOptimization/DensityValues.h>
 #include <atop/TopologyOptimization/penalization.h>
@@ -71,6 +72,7 @@ namespace atop{
 		//Object storing parameters related to the physics of the problem
 		ElasticData elastic_data;
 		LinearElastic<dim> *linear_elastic;
+		LinearElectrostatic<dim> *linear_electrostatic;
 
 		//NUmerical integration object
 		GaussIntegration<dim> gauss_int;
@@ -111,6 +113,7 @@ namespace atop{
 		bool fileReadFlag;
 		std::string filefname;
 		bool self_adjoint;
+		std::string problem_name;
 
 		std::vector<unsigned int> current_quad_rule; //For integrating over an element
 		std::vector<unsigned int> running_quad_rule; //Used for quad related adaptivity
@@ -123,7 +126,8 @@ namespace atop{
 		std::vector<CellInfo>&,
 		DefineMesh<dim>&,
 		std::vector<double>&,
-		Timer &);
+		Timer &,
+		std::string &);
 
 		//Solving the FE problem
 		void analyze();
@@ -135,6 +139,7 @@ namespace atop{
 
 		//For the physics of the problem
 		void problemType(LinearElastic<dim>&);
+		void problemType(LinearElectrostatic<dim>&);
 
 		//For the regularizarion type
 		void projectionType(Projection&);

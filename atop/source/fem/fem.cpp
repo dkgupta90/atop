@@ -53,7 +53,8 @@ FEM<dim>::FEM(
 		std::vector<CellInfo> &obj_density_cell_info_vector,
 		DefineMesh<dim> &obj_mesh,
 		std::vector<double> &obj_design_vector,
-		Timer &obj_timer):
+		Timer &obj_timer,
+		std::string &problem_name):
 		dof_handler(triangulation),
 		analysis_density_handler(analysis_density_triangulation),
 		design_handler(design_triangulation){
@@ -62,6 +63,7 @@ FEM<dim>::FEM(
 	this->density_cell_info_vector = &obj_density_cell_info_vector;
 	this->mesh = &obj_mesh;
 	this->timer = &obj_timer;
+	this->problem_name = problem_name;
 
 	//Create the mesh
 	this->mesh->createMesh(
@@ -69,23 +71,46 @@ FEM<dim>::FEM(
 			analysis_density_triangulation,
 			design_triangulation);
 
-	//For Lagrange element
-	if (mesh->elementType == "FE_Q"){
-		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
-			fe_collection.push_back(FESystem<dim>(FE_Q<dim>(degree), dim));
+	if (this->problem_name == "electrical_conduction"){
+		std::cout<<" Defining a scalar problem"<<std::endl;
+		// for scalar elements
+		//For Lagrange element
+		if (mesh->elementType == "FE_Q"){
+			for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+				fe_collection.push_back(FE_Q<dim>(degree));
+			}
+
+		}
+
+		//For Legendre elements (not tested yet)
+		if (mesh->elementType == "FE_Q_hierarchical"){
+			for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+				fe_collection.push_back(FE_Q_Hierarchical<dim>(degree));
+			}
 		}
 
 	}
 
-	//For Legendre elements (not tested yet)
-	if (mesh->elementType == "FE_Q_hierarchical"){
-		for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
-			fe_collection.push_back(FESystem<dim>(FE_Q_Hierarchical<dim>(degree), dim));
+	else{
+		//For Lagrange element
+		if (mesh->elementType == "FE_Q"){
+			for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+				fe_collection.push_back(FESystem<dim>(FE_Q<dim>(degree), dim));
+			}
+
+		}
+
+		//For Legendre elements (not tested yet)
+		if (mesh->elementType == "FE_Q_hierarchical"){
+			for (unsigned int degree = 1; degree <= mesh->max_el_order; ++degree){
+				fe_collection.push_back(FESystem<dim>(FE_Q_Hierarchical<dim>(degree), dim));
+			}
 		}
 	}
+
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+15; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+10; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -301,6 +326,10 @@ void FEM<dim>::problemType(LinearElastic<dim> &obj_linear_elastic){
 }
 
 template<int dim>
+void FEM<dim>::problemType(LinearElectrostatic<dim> &obj_linear_elastostatic){
+	this->linear_electrostatic = &obj_linear_elastostatic;
+}
+template<int dim>
 void FEM<dim>::projectionType(Projection &projection){
 	this->projection = &projection;
 }
@@ -417,16 +446,19 @@ void FEM<dim>::reset(){
 	//initializing the sizes of current and running quad rule
 	gauss_int.initialize_quadRuleVector(current_quad_rule,
 			mesh->max_el_order, mesh->initial_dcount_per_el);
+
 	gauss_int.max_el_order = mesh->max_el_order;
 	running_quad_rule.clear();
 	running_quad_rule.resize(mesh->max_el_order, 1);
 
+
+
 	elastic_data.initialize_quadRuleVectors(current_quad_rule,
 			running_quad_rule);
+
 	//current_quad_rule  will be updated on adaptivity in quadrature
 
 	elastic_data.nu = linear_elastic->poisson;
-
 	/**
 	 * Initialize the cell parameters for all the FE cells, will be updated in initialize function
 	 */
