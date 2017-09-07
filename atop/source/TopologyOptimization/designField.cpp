@@ -92,9 +92,6 @@ void DesignField::update_field_manual(unsigned int ctr){
 
 		}
 	}
-
-
-
 }
 
 void DesignField::update_no_points(unsigned int no_design_points){

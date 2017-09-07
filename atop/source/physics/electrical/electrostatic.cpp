@@ -361,27 +361,50 @@ void ElasticTools::get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<doubl
 }
 
 template <int dim>
-void ElectrostaticTools::get_normalized_matrix(unsigned int p_index,
+void ElectrostaticTools<dim>::get_normalized_matrix(unsigned int p_index,
 		unsigned int q_index,
-		hp::FECollection<2> &fe_collection,
-		hp::QCollection<2> &quadrature_collection,
-		hp::DoFHandler<2> &dofhandler,
+		hp::FECollection<dim> &fe_collection,
+		hp::QCollection<dim> &quadrature_collection,
+		hp::DoFHandler<dim> &dofhandler,
 		std::vector<FullMatrix<double> > &elem_stiffness_array){
-	elem_stiffness_array.clear();
 
-	for(unsigned int i = 0; i < B_matrix_vector.size(); ++i){
-		FullMatrix<double> elem_stiffness(B_matrix_vector[i].n_cols(), B_matrix_vector[i].n_cols());
-		elem_stiffness = 0;
-		elem_stiffness.triple_product(D_matrix,
-				B_matrix_vector[i],
-				B_matrix_vector[i],
-				true,
-				false,
-				JxW[i]);
-		elem_stiffness_array.push_back(elem_stiffness);
-		//display_matrix(B_matrix_vector[i]);
+	elem_stiffness_array.clear(); // to save all point stiffness matrices for certain p-value and q-rule
+	hp::FEValues<dim> hp_fe_values(fe_collection,
+			quadrature_collection,
+			update_values | update_gradients |
+			update_quadrature_points | update_JxW_values);
 
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dofhandler.begin_active();
+
+	unsigned int real_p_index = cell->active_fe_index();	// for saving back after the computation
+
+	cell->set_active_fe_index(p_index);
+	hp_fe_values.reinit(cell, q_index);
+
+	const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
+
+	const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+
+	unsigned int n_q_points = fe_values.n_quadrature_points;
+
+	FullMatrix<double> K_matrix(dofs_per_cell, dofs_per_cell);
+
+	for (unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
+		K_matrix = 0;
+
+		for (unsigned int i = 0; i < dofs_per_cell; ++i){
+			for (unsigned int j = 0; j < dofs_per_cell; ++j){
+				K_matrix(i, j) += (fe_values.shape_grad (i, qpoint) *
+									fe_values.shape_grad (i, qpoint) *
+									fe_values.JxW(qpoint));
+			}
+		}
+
+		elem_stiffness_array.push_back(K_matrix);
 	}
+	//reverting to the actual fe index
+	cell->set_active_fe_index(real_p_index);
+
 }
 
 template <int dim>
@@ -392,7 +415,7 @@ void ElectrostaticData<dim>::update_normalized_matrices(hp::FECollection<dim> &t
 	this->fe_collection = &temp_fe_coll;
 	this->quadrature_collection = &temp_q_coll;
 
-	ElectrostaticTools<dim> elastic_tool;
+	ElectrostaticTools<dim> electrostatic_tool;
 
 	unsigned int max_p_degree = running_quadRuleVector->size();
 	//std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
@@ -408,9 +431,11 @@ void ElectrostaticData<dim>::update_normalized_matrices(hp::FECollection<dim> &t
 		for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
 			unsigned int q_index = i - 1;
 
-			elastic_tool.get_normalized_matrix(D_matrix,
-					B_matrix_list[p_index][q_index],
-					JxW[p_index][q_index],
+			electrostatic_tool.get_normalized_matrix(p_index,
+					q_index,
+					*fe_collection,
+					*quadrature_collection,
+					dofhandler,
 					elem_stiffness_array[p_index][q_index]
 					);
 		}
@@ -470,7 +495,7 @@ unsigned int ElectrostaticData<dim>::get_p_index(unsigned int p_order){
 }
 
 
-void ElasticData::check_linker(){
+/*void ElasticData::check_linker(){
 	std::vector<FullMatrix<double> > KEquads;
 	KEquads = elem_stiffness_array[0][1];
 	std::vector<double> JxWquads = JxW[0][1];
@@ -481,7 +506,7 @@ void ElasticData::check_linker(){
 	}
 	ElasticTools els;
 	els.display_matrix(output);
-}
+}*/
 
 void ElasticData::initialize_quadRuleVectors(std::vector<unsigned int> &temp_current,
 		std::vector<unsigned int> &temp_running){

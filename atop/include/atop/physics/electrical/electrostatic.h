@@ -64,9 +64,9 @@ namespace atop{
 
 		void get_normalized_matrix(unsigned int p_index,
 				unsigned int q_index,
-				hp::FECollection<2> &fe_collection,
-				hp::QCollection<2> &quadrature_collection,
-				hp::DoFHandler<2> &dofhandler,
+				hp::FECollection<dim> &fe_collection,
+				hp::QCollection<dim> &quadrature_collection,
+				hp::DoFHandler<dim> &dofhandler,
 				std::vector<FullMatrix<double> > &elem_stiffness_array);
 		void display_matrix(FullMatrix<double> &mat);
 	};
