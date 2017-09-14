@@ -189,7 +189,7 @@ void FEM<dim>::setup_system(){
 	//Applying the boundary conditions
 	boundary_info();
 
-	add_boundary_constraints();	//For adding complex boudnary related constraints
+	add_boundary_constraints();	//For adding complex boundary related constraints
 	BoundaryValues<dim> boundary_v;
 
 	VectorTools::interpolate_boundary_values(dof_handler,
@@ -311,7 +311,12 @@ void FEM<dim>::assemble_system(){
 	std::cout<<"Physics updated"<<std::endl;
 
 	//Compute cellwise material properties
-	penal->update_param(linear_elastic->E, *cell_info_vector);
+	if (this->problem_name == "electrical_conduction")
+		penal->update_param(linear_electrostatic->E0,
+				linear_electrostatic->Emin,
+				*cell_info_vector);
+	else
+		penal->update_param(linear_elastic->E, *cell_info_vector);
 	std::cout<<"Cell parameters updated"<<std::endl;
 
 	//Assembling the system and RHS
@@ -451,14 +456,16 @@ void FEM<dim>::reset(){
 	running_quad_rule.clear();
 	running_quad_rule.resize(mesh->max_el_order, 1);
 
-
-
-	elastic_data.initialize_quadRuleVectors(current_quad_rule,
-			running_quad_rule);
+	if (this->problem_name == "electrical_conduction")
+		electrostatic_data.initialize_quadRuleVectors(current_quad_rule,
+						running_quad_rule);
+	else{
+		elastic_data.initialize_quadRuleVectors(current_quad_rule,
+				running_quad_rule);
+		elastic_data.nu = linear_elastic->poisson;
+	}
 
 	//current_quad_rule  will be updated on adaptivity in quadrature
-
-	elastic_data.nu = linear_elastic->poisson;
 	/**
 	 * Initialize the cell parameters for all the FE cells, will be updated in initialize function
 	 */
@@ -660,7 +667,12 @@ template <int dim>
 void FEM<dim>::update_physics(){
 
 	//update the B and d matrices for linear elastic problem
-	if(linear_elastic){
+	if(this->problem_name == "electrical_conduction"){
+		electrostatic_data.update_normalized_matrices(fe_collection,
+				quadrature_collection,
+				dof_handler);
+	}
+	else{
 		elastic_data.update_elastic_matrices(fe_collection,
 				quadrature_collection,
 				dof_handler);
@@ -715,10 +727,16 @@ void FEM<dim>::assembly(){
 	for (; cell != endc; ++cell){
 		//std::cout<<cell_itr<<std::endl;
 		//Getting the q_index for the cell
-		unsigned int q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
+		unsigned int q_index;
+		if (this->problem_name == "electrical_conduction")
+			q_index = electrostatic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
+		else
+			q_index = elastic_data.get_quad_index((*cell_info_vector)[cell_itr].quad_rule);
+
 		hp_fe_values.reinit(cell, q_index);
 		const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+		//std::cout<<"Dofs per cell = "<<dofs_per_cell<<std::endl;
 		(*cell_info_vector)[cell_itr].dofs_per_cell = dofs_per_cell;
 		const unsigned int density_per_fe_cell = fe_den_cell->get_fe().dofs_per_cell;
 
@@ -742,8 +760,8 @@ void FEM<dim>::assembly(){
 		//Add source function to the right hand side
 		std::vector<Vector<double>> rhs_values(n_q_points,
 				Vector<double>(dim));
-/*		add_source_to_rhs(fe_values.get_quadrature_points(),
-				rhs_values);*/
+		add_source_to_rhs(fe_values.get_quadrature_points(),
+				rhs_values);
 
 		//Writing the quadrature points and density value for this cell into the file
 		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();
@@ -758,37 +776,24 @@ void FEM<dim>::assembly(){
 		}
 		fout.close();
 
-		//for (unsigned int i = 0; i < )
 		//Calculating the cell_matrix
 		double total_weight = 0.0; // For setting the density values at the nodes
-		unsigned int p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
-
-
-		//std::cout<<cycle<<" "<<(*cell_info_vector)[cell_itr].shape_function_order<<" "<<q_index<<" "<<n_q_points<<std::endl;
-
-/*		FullMatrix<double> D_matrix(3, 3);
-		FullMatrix<double> B_matrix(3, dofs_per_cell);
-		double JxW;
-		ElasticTools elastic_tool;
-
-		elastic_tool.get_D_plane_stress2D(D_matrix,
-				0.3);*/
+		unsigned int p_index;
+		if (this->problem_name == "electrical_conduction"){
+			p_index = electrostatic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		}
+		else{
+			p_index = elastic_data.get_p_index((*cell_info_vector)[cell_itr].shape_function_order);
+		}
 
 		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 
 			normalized_matrix = 0;
-
-/*			elastic_tool.get_point_B_matrix_2D(B_matrix,  JxW,
-					cell, hp_fe_values, q_index, q_point);*/
-
-			normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
-/*			normalized_matrix.triple_product(D_matrix,
-					B_matrix,
-					B_matrix,
-					true,
-					false,dis
-					JxW);*/
-
+			if (this->problem_name == "electrical_conduction"){
+				normalized_matrix = electrostatic_data.elem_stiffness_array[p_index][q_index][q_point];
+			}
+			else
+				normalized_matrix = elastic_data.elem_stiffness_array[p_index][q_index][q_point];
 
 			//NaN condition check ----------------------------------------------------------------------------------
 			if ((*cell_info_vector)[cell_itr].E_values[q_point] != (*cell_info_vector)[cell_itr].E_values[q_point])

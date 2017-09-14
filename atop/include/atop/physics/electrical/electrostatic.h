@@ -26,42 +26,6 @@ namespace atop{
 	template <int dim>
 	class ElectrostaticTools{
 	public:
-		void get_lambda_mu(std::vector<double> &E_values,
-				double nu,
-				std::vector<double> &lambda_values,
-				std::vector<double> &mu_values);
-		void get_D_plane_stress2D(FullMatrix<double> &D_matrix,
-				double nu);
-		void get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_vector,
-				std::vector<double> &JxW,
-				unsigned int p_index,
-				unsigned int q_index,
-				hp::FECollection<2>&,
-				hp::QCollection<2>&,
-				hp::DoFHandler<2> &dofhandler);
-		void get_point_B_matrix_2D(FullMatrix<double> &B_matrix,
-				double &JxW,
-				typename hp::DoFHandler<2>::active_cell_iterator&,
-				hp::FEValues<2>&,
-				unsigned int,
-				unsigned int);
-		void get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
-				std::vector<std::vector<double> > &JxW,
-						unsigned int p_index,
-						unsigned int q_index,
-						hp::FECollection<2> &fe_collection,
-						hp::QCollection<1> &face_quadrature_collection,
-						hp::DoFHandler<2> &dofhandler);
-
-		//Updates for every cell
-		void get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
-				std::vector<std::vector<double> > &JxW,
-						unsigned int q_index,
-						hp::DoFHandler<2>::active_cell_iterator &cell,
-						hp::FECollection<2> &fe_collection,
-						hp::QCollection<1> &face_quadrature_collection);
-
-
 		void get_normalized_matrix(unsigned int p_index,
 				unsigned int q_index,
 				hp::FECollection<dim> &fe_collection,
@@ -92,9 +56,6 @@ namespace atop{
 		void update_normalized_matrices(hp::FECollection<dim> &temp_fe_coll,
 				hp::QCollection<dim> &temp_q_coll,
 				hp::DoFHandler<dim> &dofhandler);
-		void update_face_B_matrices(hp::FECollection<dim> &temp_fe_coll,
-				hp::QCollection<dim-1> &temp_face_q_coll,
-				hp::DoFHandler<dim> &dofhandler);
 		void check_linker();
 		unsigned int get_quad_index(unsigned int quad_rule);
 		unsigned int get_p_index(unsigned int);
@@ -107,6 +68,10 @@ namespace atop{
 		double E0, Emin;
 		LinearElectrostatic();
 	};
+
+	template class LinearElectrostatic<2>;
+	template class ElectrostaticData<2>;
+	template class ElectrostaticTools<2>;
 }
 
 

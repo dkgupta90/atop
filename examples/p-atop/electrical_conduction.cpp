@@ -29,7 +29,7 @@ using namespace atop;
 std::vector<double> source_function(std::vector<double> X){
 	//This function returns the value of the source function in the whole domain
 	if (X.size() == 2){
-		std::vector<double> output_source = {0.0, 0.0};
+		std::vector<double> output_source = {310.0};	//photoillumination current
 		return output_source;
 	}
 	else if (X.size() == 3){
@@ -53,8 +53,8 @@ unsigned int get_boundary_indicator_dist(std::vector<double> X){
 
 	if (X.size() == 2){	// for two-dimensions
 		if (fabs(X[1] - 1) < 1e-12)
-			return 62;	//for adding distributed thermal load
-		else if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - 0.1))	//fixed Dirichlet b.c.
+			return 62;	//for adding distributed electrical load
+		else if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - 1.0))	//fixed Dirichlet b.c.
 			return 42;
 		else
 			return 9999;
@@ -88,8 +88,8 @@ int main(){
 
 	//Define the physics of the problem
 	LinearElectrostatic<2> material1;
-	material1.E0 = 1.0;	//electrode conductivity
-	material1.Emin = 1e-3;	//TCo conductivity
+	material1.E0 = 100;	//electrode conductivity
+	material1.Emin = 0.02;	//TCo conductivity as in Gupta et al 2015, SMO
 
 	//Define the optimization parameters
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);

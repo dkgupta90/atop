@@ -71,6 +71,7 @@ namespace atop{
 
 		//Object storing parameters related to the physics of the problem
 		ElasticData elastic_data;
+		ElectrostaticData<dim> electrostatic_data;
 		LinearElastic<dim> *linear_elastic;
 		LinearElectrostatic<dim> *linear_electrostatic;
 
