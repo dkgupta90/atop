@@ -320,7 +320,6 @@ void FEM<dim>::assemble_system(){
 
 	//Assembling the system and RHS
 	assembly();
-	std::cout<<"Assembly finished"<<std::endl;
 
 }
 
@@ -459,8 +458,7 @@ void FEM<dim>::output_results(){
 				*cell_info_vector);
 	}
 
-	std::cout<<"Output files written"<<std::endl;
-	exit(0);
+	//std::cout<<"Output files written"<<std::endl;
 
 }
 template <int dim>

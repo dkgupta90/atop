@@ -60,6 +60,10 @@ void SensitivityAnalysis<dim>::run(
 				*fem);
 		obj_comp.compute(obj, obj_grad);
 	}
+	else if (problem_name == "electrical_conduction"){
+		std::cout<<"Electrical compliance to be calculated "<<std::endl;
+		exit(0);
+	}
 }
 
 
