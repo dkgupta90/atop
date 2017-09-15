@@ -41,7 +41,7 @@ std::vector<double> source_function(std::vector<double> X){
 unsigned int get_boundary_indicator(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[0] - 0) < 1e-12)
+	if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - (0.0075)) < 0.001)
 		return 42;
 	else
 		return 9999;

@@ -10,15 +10,43 @@
 
 using namespace atop;
 
+
+template <int dim>
+inline
+double BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int comp) const{
+	Assert(dim >= 2,
+			ExcNotImplemented());
+	unsigned int model_problem = 1;
+	double xmin, xmax, ymin, ymax;
+
+	//2d electrical conduction problem
+	if (model_problem == 7){
+		//full left boundary at constant voltage
+		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.015;
+		if (std::fabs(p(0) - (xmin)) < 1e-12){
+			return(0.5);
+		}
+	}
+	else if (model_problem == 1){
+		//only center of left boundary at constant voltage
+		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.015;
+		if (std::fabs(p(0) - (xmin)) < 1e-12 && std::fabs(p(1) - (0.0075)) < 0.001){
+			return(0.5);
+		}
+	}
+
+}
+
 template <int dim>
 inline
 void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 		Vector<double> &values) const{
+	std::cout<<"Entered the boundary function "<<std::endl;
 	Assert (values.size() == dim,
 			ExcDimensionMismatch(values.size(), dim));
 	Assert(dim >= 2,
 			ExcNotImplemented());
-	unsigned int model_problem = 7;
+	unsigned int model_problem = 6;
 	double xmin, xmax, ymin, ymax;
 
 	if (model_problem == 4){
@@ -75,15 +103,18 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 			values(1) = 0;
 		}
 	}
-	//2d electrical conduction problem
-	else if (model_problem == 7){
-		//MBB problem
-		xmin = 0, ymin = 0, xmax = 2, ymax = 1;
-		if (std::fabs(p(0) - (xmin)) < 1e-12){
-			values(0) = 0.5;
-		}
-	}
+}
 
+template <int dim>
+void BoundaryValues<dim>::value_list(const std::vector<Point<dim>> &points,
+		std::vector<double> &value_list) const {
+	Assert (value_list.size() == points.size(),
+			ExcDimensionMismatch(value_list.size(), points.size()));
+	const unsigned int n_points = points.size();
+	std::cout<<"Entered in value_list"<<std::endl;
+	for (unsigned int p = 0; p < n_points; ++p){
+		value_list[p] = BoundaryValues<dim>::value(points[p], 0);
+	}
 }
 
 template <int dim>
@@ -92,7 +123,6 @@ void BoundaryValues<dim>::vector_value_list(const std::vector<Point<dim>> &point
 	Assert (value_list.size() == points.size(),
 			ExcDimensionMismatch(value_list.size(), points.size()));
 	const unsigned int n_points = points.size();
-
 	for (unsigned int p = 0; p < n_points; ++p){
 		BoundaryValues<dim>::vector_value(points[p],
 				value_list[p]);

@@ -194,7 +194,7 @@ void FEM<dim>::setup_system(){
 	VectorTools::interpolate_boundary_values(dof_handler,
 			42,
 			/*ZeroFunction<dim>(),*/boundary_v,
-			boundary_values);
+			hanging_node_constraints);//boundary_values);
 
 	hanging_node_constraints.close();
 	  std::cout<< "No.of degrees of freedom: " << dof_handler.n_dofs() << "\n";
@@ -368,13 +368,13 @@ void FEM<dim>::solve(){
 	hanging_node_constraints.distribute(lambda_solution);
 	std::cout<<"FEM system solved "<<std::endl;
 
-	double sumQ = 0.0;
+/*	double sumQ = 0.0;
 	for (unsigned int i = 0; i < system_rhs.size(); ++i){
 		sumQ += system_rhs[i];
 	}
 	double Power = sumQ * 0.5;
 	std::cout<<"Power  : "<<Power<<std::endl;
-	exit(0);
+	exit(0);*/
 }
 
 template <int dim>
@@ -388,22 +388,28 @@ void FEM<dim>::output_results(){
 	filename += ".vtk";
 	std::vector<std::string> solution_names;
 	solution_names.clear();
-	switch(dim){
-	case 1:
-		solution_names.push_back("displacement");
-		break;
-	case 2:
-		solution_names.push_back("x_displacement");
-		solution_names.push_back("y_displacement");
-		break;
-	case 3:
-		solution_names.push_back("x_displacement");
-		solution_names.push_back("y_displacement");
-		solution_names.push_back("z_displacement");
-		break;
-	default:
-		Assert(false, ExcNotImplemented);
+	if (this->problem_name == "electrical_conduction"){
+		solution_names.push_back("temperature");
 	}
+	else{
+		switch(dim){
+		case 1:
+			solution_names.push_back("displacement");
+			break;
+		case 2:
+			solution_names.push_back("x_displacement");
+			solution_names.push_back("y_displacement");
+			break;
+		case 3:
+			solution_names.push_back("x_displacement");
+			solution_names.push_back("y_displacement");
+			solution_names.push_back("z_displacement");
+			break;
+		default:
+			Assert(false, ExcNotImplemented);
+		}
+	}
+
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
 			solution, solution_names);
@@ -452,6 +458,9 @@ void FEM<dim>::output_results(){
 				dof_handler,
 				*cell_info_vector);
 	}
+
+	std::cout<<"Output files written"<<std::endl;
+	exit(0);
 
 }
 template <int dim>
@@ -951,10 +960,10 @@ void FEM<dim>::assembly(){
 	//hanging_node_constraints.condense(system_matrix);
 	//hanging_node_constraints.condense(system_rhs);
 
-	MatrixTools::apply_boundary_values(boundary_values,
+/*	MatrixTools::apply_boundary_values(boundary_values,
 			system_matrix,
 			solution,
-			system_rhs);
+			system_rhs);*/
 
 
 

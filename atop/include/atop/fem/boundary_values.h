@@ -17,10 +17,15 @@ namespace atop{
 	class BoundaryValues : public Function<dim>{
 	public:
 		BoundaryValues(): Function<dim>() {}
+		virtual double value(const Point<dim> &p,
+				 const unsigned int comp) const;
+		virtual void value_list (const std::vector<Point<dim>> & points,
+				std::vector<double> &value_list) const;
 		virtual void vector_value(const Point<dim> &p,
 				Vector<double> &values) const;
 		virtual void vector_value_list (const std::vector<Point<dim>> & points,
 				std::vector<Vector<double>> &value_list) const;
+
 	};
 
 	template class BoundaryValues<2>;
