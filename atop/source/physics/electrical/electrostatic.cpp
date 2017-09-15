@@ -56,7 +56,7 @@ void ElectrostaticTools<dim>::get_normalized_matrix(unsigned int p_index,
 		for (unsigned int i = 0; i < dofs_per_cell; ++i){
 			for (unsigned int j = 0; j < dofs_per_cell; ++j){
 				K_matrix(i, j) += (fe_values.shape_grad (i, qpoint) *
-									fe_values.shape_grad (i, qpoint) *
+									fe_values.shape_grad (j, qpoint) *
 									fe_values.JxW(qpoint));
 			}
 		}
@@ -69,11 +69,22 @@ void ElectrostaticTools<dim>::get_normalized_matrix(unsigned int p_index,
 }
 
 template <int dim>
+void ElectrostaticTools<dim>::display_matrix(FullMatrix<double> &mat){
+	unsigned int cols = mat.n_cols();
+	unsigned int rows = mat.n_rows();
+	for(unsigned int i = 0; i < rows; ++i){
+		for(unsigned int j = 0; j < cols; ++j){
+			std::cout<<mat(i, j)<<"  ";
+		}
+		std::cout<<std::endl;
+	}
+}
+
+template <int dim>
 void ElectrostaticData<dim>::update_normalized_matrices(hp::FECollection<dim> &temp_fe_coll,
 		hp::QCollection<dim> &temp_q_coll,
 		hp::DoFHandler<dim> &dofhandler){
 
-	std::cout<<"Entered here "<<std::endl;
 	this->fe_collection = &temp_fe_coll;
 	this->quadrature_collection = &temp_q_coll;
 
@@ -103,6 +114,7 @@ void ElectrostaticData<dim>::update_normalized_matrices(hp::FECollection<dim> &t
 		}
 		(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
 	}
+	//check_linker();
 }
 
 template <int dim>
@@ -115,19 +127,19 @@ unsigned int ElectrostaticData<dim>::get_p_index(unsigned int p_order){
 	return (p_order - 1);
 }
 
-
-/*void ElasticData::check_linker(){
+template <int dim>
+void ElectrostaticData<dim>::check_linker(){
 	std::vector<FullMatrix<double> > KEquads;
 	KEquads = elem_stiffness_array[0][1];
-	std::vector<double> JxWquads = JxW[0][1];
-	FullMatrix<double> output(8, 8);
+	std::cout<<"Reached here"<<std::endl;
+	FullMatrix<double> output(4, 4);
 	output = 0;
 	for(unsigned int i = 0 ; i < KEquads.size(); ++i){
 		output.add(KEquads[i], 1);
 	}
-	ElasticTools els;
-	els.display_matrix(output);
-}*/
+	ElectrostaticTools<dim> elecs;
+	elecs.display_matrix(output);
+}
 
 template <int dim>
 void ElectrostaticData<dim>::initialize_quadRuleVectors(std::vector<unsigned int> &temp_current,

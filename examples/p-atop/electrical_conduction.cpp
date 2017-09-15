@@ -79,7 +79,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.1, 1.0);
+			"dp-refinement", 0.00075, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -97,7 +97,7 @@ int main(){
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
 	opt.problemType(material1);
-	opt.volfrac = 0.3; //Maximum permissible volume fraction
+	opt.volfrac = 0.2; //Maximum permissible volume fraction
 
 	//Initializing the compulsory variables
 	mesh.point_stiffness_vector.clear();
@@ -110,8 +110,8 @@ int main(){
 
 	if (dim == 2){
 		if (test_problem == "elec_cond2D"){
-			mesh.coordinates = {{0, 2}, {0, 1}};
-			mesh.subdivisions = {40, 20};
+			mesh.coordinates = {{0, 0.015}, {0, 0.015}};
+			mesh.subdivisions = {20, 20};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
 			mesh.initial_el_order = 2;
@@ -127,12 +127,12 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "distLoad";
+			std::string loadType = "pointLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
-				std::vector<double> point = {2.0, 0.5};
-				std::vector<double> source = {0, 1.0};
+				std::vector<double> point = {0.0, 0.0};
+				std::vector<double> source = {0, 0.0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 				   //empty dist load
 			}

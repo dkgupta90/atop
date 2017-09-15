@@ -171,7 +171,6 @@ void FEM<dim>::analyze(){
 	solve();	//Solving the system
 	//std::cout<<"System solved"<<std::endl;
 	output_results();
-
 }
 
 //Function for setting up the FE system
@@ -367,6 +366,15 @@ void FEM<dim>::solve(){
 	}
 	hanging_node_constraints.distribute(solution);
 	hanging_node_constraints.distribute(lambda_solution);
+	std::cout<<"FEM system solved "<<std::endl;
+
+	double sumQ = 0.0;
+	for (unsigned int i = 0; i < system_rhs.size(); ++i){
+		sumQ += system_rhs[i];
+	}
+	double Power = sumQ * 0.5;
+	std::cout<<"Power  : "<<Power<<std::endl;
+	exit(0);
 }
 
 template <int dim>
@@ -826,7 +834,7 @@ void FEM<dim>::assembly(){
               for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
                 {
                   for (unsigned int i=0; i<dofs_per_cell; ++i){
-                	  std::vector<double> distLoad = {0.0, 0.5};
+                	  std::vector<double> distLoad = {0.0, 0.0};
           			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
                     cell_rhs(i) += (distLoad[component_i] *
                                    fe_face_values.shape_value(i,q_point) *

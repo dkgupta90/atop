@@ -18,7 +18,7 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 			ExcDimensionMismatch(values.size(), dim));
 	Assert(dim >= 2,
 			ExcNotImplemented());
-	unsigned int model_problem = 6;
+	unsigned int model_problem = 7;
 	double xmin, xmax, ymin, ymax;
 
 	if (model_problem == 4){
@@ -73,6 +73,14 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 		if (std::fabs(p(0) - (xmin)) < 1e-12 && (p(1) - 0.05) < 0){
 			values(0) = 0;
 			values(1) = 0;
+		}
+	}
+	//2d electrical conduction problem
+	else if (model_problem == 7){
+		//MBB problem
+		xmin = 0, ymin = 0, xmax = 2, ymax = 1;
+		if (std::fabs(p(0) - (xmin)) < 1e-12){
+			values(0) = 0.5;
 		}
 	}
 
