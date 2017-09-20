@@ -361,19 +361,6 @@ void FEM<dim>::solve(){
 	A_direct.initialize(system_matrix);
 	A_direct.vmult (solution, system_rhs);
 
-	Vector<double> const_vector(solution.size());
-	if (problem_name == "electrical_conduction"){
-		for (unsigned int i = 0; i < const_vector.size(); ++i){
-			const_vector(i) = 1.0;
-		}
-	}
-	else{
-		for (unsigned int i = 0; i < const_vector.size(); ++i){
-			const_vector(i) = l_vector(i);
-		}
-	}
-
-
 	if (self_adjoint == false){
 		std::cout<<"Calculating lambda "<<std::endl;
 		A_direct.vmult(lambda_solution, const_vector);
@@ -430,7 +417,7 @@ void FEM<dim>::output_results(){
 
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			system_rhs, solution_names);
+			solution, solution_names);
 
 	//Writing the density solution
 	filename = "density-";
@@ -748,6 +735,19 @@ void FEM<dim>::assembly(){
 	add_point_source_to_rhs();
 	add_point_stiffness_to_system();
 	add_point_to_l_vector();
+
+	// Defining the const vector
+	const_vector.reinit(solution.size());
+	if (problem_name == "electrical_conduction"){
+		for (unsigned int i = 0; i < const_vector.size(); ++i){
+			const_vector(i) = 1.0;
+		}
+	}
+	else{
+		for (unsigned int i = 0; i < const_vector.size(); ++i){
+			const_vector(i) = l_vector(i);
+		}
+	}
 
 	bool output_FE_density_field = true;
 	std::string fe_fname = "fe_density/fe_density-";

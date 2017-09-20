@@ -104,6 +104,7 @@ namespace atop{
 		Vector<double> nodal_density;
 		Vector<double> nodal_p_order;	//to save the poylnomial order in each element
 		Vector<double> nodal_d_count;	//to save the design distribution
+		Vector<double> const_vector;	// for the thermal problem
 
 
 		std::map<types::global_dof_index, double> boundary_values;
