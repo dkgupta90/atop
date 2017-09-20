@@ -1,13 +1,12 @@
 /*
  *
- *  Created on: Sep 15, 2017
+ *  Created on: Sep 18, 2017
  *      Author: Deepak K. Gupta
  *  
  */
 
-#ifndef ELECTRICAL_COMPLIANCE_H_
-#define ELECTRICAL_COMPLIANCE_H_
-
+#ifndef DERIVATIVES_AVERAGE_STATE_H_
+#define DERIVATIVES_AVERAGE_STATE_H_
 
 #include <deal.II/hp/dof_handler.h>
 #include <atop/TopologyOptimization/cell_prop.h>
@@ -18,7 +17,7 @@
 using namespace dealii;
 namespace atop{
 	template <int dim>
-	class ElectricalCompliance{
+	class VoltageAverage{
 	public:
 		void set_input(
 				hp::DoFHandler<dim> &dof_handler,
@@ -45,8 +44,7 @@ namespace atop{
 	};
 
 
-	template class ElectricalCompliance<2>;
+	template class VoltageAverage<2>;
 }
 
-
-#endif /* INCLUDE_ATOP_DERIVATIVES_ELECTRICAL_COMPLIANCE_H_ */
+#endif /* INCLUDE_ATOP_DERIVATIVES_AVERAGE_state_H_ */

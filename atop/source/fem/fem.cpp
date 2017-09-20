@@ -354,17 +354,36 @@ void FEM<dim>::solve(){
 			system_rhs,
 			preconditioner);*/
 
+/*	for (unsigned int i = 0; i < system_rhs.size(); ++i)
+		std::cout<<i<<"  "<<system_rhs(i)<<std::endl;*/
+
 	SparseDirectUMFPACK  A_direct;
 	A_direct.initialize(system_matrix);
 	A_direct.vmult (solution, system_rhs);
 
+	Vector<double> const_vector(solution.size());
+	if (problem_name == "electrical_conduction"){
+		for (unsigned int i = 0; i < const_vector.size(); ++i){
+			const_vector(i) = 1.0;
+		}
+	}
+	else{
+		for (unsigned int i = 0; i < const_vector.size(); ++i){
+			const_vector(i) = l_vector(i);
+		}
+	}
+
+
 	if (self_adjoint == false){
 		std::cout<<"Calculating lambda "<<std::endl;
-		A_direct.vmult(lambda_solution, l_vector);
+		A_direct.vmult(lambda_solution, const_vector);
 		lambda_solution *= -1;
 	}
 	hanging_node_constraints.distribute(solution);
 	hanging_node_constraints.distribute(lambda_solution);
+
+	//updating the system_rhs for the dirichlet boundaries
+	//system_matrix.vmult(system_rhs, solution);
 	std::cout<<"FEM system solved "<<std::endl;
 
 /*	double sumQ = 0.0;
@@ -411,7 +430,7 @@ void FEM<dim>::output_results(){
 
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			solution, solution_names);
+			system_rhs, solution_names);
 
 	//Writing the density solution
 	filename = "density-";

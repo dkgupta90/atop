@@ -65,7 +65,7 @@ void OC::optimize(
 
 
 
-		double l1 = 1e-5, l2 = 100000000, move = 0.08;
+		double l1 = 1e-5, l2 = 100000000, move = 0.2;
 		//l1 = l2;
 
 		while ((l2 - l1) > 1e-4){
@@ -82,6 +82,11 @@ void OC::optimize(
 					obj_grad[i] = -1e-10;
 					octemp1 = old_density * (pow(-(obj_grad[i]/(lmid * vol_grad[i])), 0.3));
 
+				}
+				//For voltage average in eletrical conduction
+				else if (opt_design2d->problem_name == "electrical_conduction" && obj_grad[i] > 0){
+					obj_grad[i] = -1e-10;
+					octemp1 = old_density * (pow(-(obj_grad[i]/(lmid * vol_grad[i])), 0.3));
 				}
 				else{
 					octemp1 = old_density * (sqrt(-(obj_grad[i]/(lmid * vol_grad[i]))));

@@ -95,7 +95,7 @@ int main(){
 	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
 	opt.problem_name = "electrical_conduction";
 	//opt.problem_name = "compliant_mechanism";
-	opt.is_problem_self_adjoint = true;
+	opt.is_problem_self_adjoint = false;
 	opt.problemType(material1);
 	opt.volfrac = 0.2; //Maximum permissible volume fraction
 

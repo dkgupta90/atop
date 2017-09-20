@@ -13,6 +13,8 @@
 #include <atop/fem/fem.h>
 #include <atop/derivatives/compliance.h>
 #include <atop/derivatives/compliant_mechanism.h>
+#include <atop/derivatives/electrical_compliance.h>
+#include <atop/derivatives/average_state.h>
 
 using namespace dealii;
 using namespace atop;
@@ -61,8 +63,13 @@ void SensitivityAnalysis<dim>::run(
 		obj_comp.compute(obj, obj_grad);
 	}
 	else if (problem_name == "electrical_conduction"){
-		std::cout<<"Electrical compliance to be calculated "<<std::endl;
-		exit(0);
+		VoltageAverage<dim> obj_volavg;
+		obj_volavg.set_input(
+				*dof_handler,
+				*cell_info_vector,
+				*density_cell_info_vector,
+				*fem);
+		obj_volavg.compute(obj, obj_grad);
 	}
 }
 
