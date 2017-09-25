@@ -32,7 +32,15 @@ namespace atop{
 				hp::QCollection<dim> &quadrature_collection,
 				hp::DoFHandler<dim> &dofhandler,
 				std::vector<FullMatrix<double> > &elem_stiffness_array);
+		void get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
+				std::vector<std::vector<double> > &JxW,
+						unsigned int p_index,
+						unsigned int q_index,
+						hp::FECollection<dim> &fe_collection,
+						hp::QCollection<dim-1> &face_quadrature_collection,
+						hp::DoFHandler<dim> &dofhandler);
 		void display_matrix(FullMatrix<double> &mat);
+
 	};
 
 

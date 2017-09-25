@@ -20,7 +20,7 @@ double BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int comp) 
 	double xmin, xmax, ymin, ymax;
 
 	//2d electrical conduction problem
-	if (model_problem == 7){
+	if (model_problem == 2){
 		//full left boundary at constant voltage
 		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.015;
 		if (std::fabs(p(0) - (xmin)) < 1e-12){
@@ -31,6 +31,13 @@ double BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int comp) 
 		//only center of left boundary at constant voltage
 		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.015;
 		if (std::fabs(p(0) - (xmin)) < 1e-12 && std::fabs(p(1) - (0.0075)) < 0.001){
+			return(0.5);
+		}
+	}
+	else if (model_problem == 2){
+		//only center of left boundary at constant voltage
+		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.0075;
+		if (std::fabs(p(0) - (xmin)) < 1e-12 && std::fabs(p(1) - 0) < 0.001){
 			return(0.5);
 		}
 	}

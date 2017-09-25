@@ -263,7 +263,12 @@ void Adaptivity<dim>::execute_coarsen_refine(){
 	else if (fem->mesh->amrType == "dp-refinement"){
 
 			system_design_bound = dp_adap.get_system_design_bound(*fem);
-			if (dim == 2)	rigid_body_modes = 3;	//manually assigning the RBMs
+			if (dim == 2){
+				if (fem->problem_name == "electrical_conduction")
+					rigid_body_modes = 1;	//manually assigning the RBMs
+				else
+					rigid_body_modes = 3;
+			}
 			update_element_design_bound();
 			//dp_coarsening_refinement();	//dp-adaptivity performed
 			improved_dp_coarsening_refinement();
@@ -484,8 +489,8 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 			}
 			else{
 				int diff;
-				int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1);
-				int upper_design_bound = dp_adap.get_design_bound(current_p_order);
+				int lower_design_bound = dp_adap.get_design_bound(current_p_order - 1, *fem);
+				int upper_design_bound = dp_adap.get_design_bound(current_p_order, *fem);
 
 				//Coarsening
 				if (refineRes[cell_itr] < -1e-12){
@@ -573,7 +578,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 */
 
 	// Update the p-order to reduce the qr-patterns based on solution of previous cycle
-	run_qr_based_refinement();
+	//run_qr_based_refinement();
 
 	cell_itr = 0;
 	cell = fem->dof_handler.begin_active(),
@@ -627,18 +632,27 @@ void Adaptivity<dim>::run_dp_analysis_based_refinement(){
 	if (fem->cycle < 2){
 		//Update shape functions based on analysis error criterion
 		cout<<"Performing analysis based refinement : "<<std::endl;
+		Vector<float> error_indicator(fem->triangulation.n_active_cells());
+		if (fem->problem_name == "electrical_conduction"){
+			KellyErrorEstimator<dim>::estimate ((*fem).dof_handler,
+			                                      (*fem).face_quadrature_collection,
+			                                      typename FunctionMap<dim>::type(),
+			                                      (*fem).solution,
+			                                      error_indicator);
+		}
+		else{
+			std::vector<double> estimated_error_per_cell (fem->triangulation.n_active_cells());
+			StressJumpIndicator<dim> modKellyObj(*fem,
+					estimated_error_per_cell,
+					*cell_info_vector);
 
-		std::vector<double> estimated_error_per_cell (fem->triangulation.n_active_cells());
-		StressJumpIndicator<dim> modKellyObj(*fem,
-				estimated_error_per_cell,
-				*cell_info_vector);
-
-		modKellyObj.estimate();
+			modKellyObj.estimate();
+			for (unsigned int i = 0; i < error_indicator.size(); ++i)
+				error_indicator(i) = estimated_error_per_cell[i];
+		}
 
 
-		Vector<double> error_indicator(estimated_error_per_cell.size());
-		for (unsigned int i = 0; i < error_indicator.size(); ++i)
-			error_indicator(i) = estimated_error_per_cell[i];
+
 
 		GridRefinement::refine_and_coarsen_fixed_number (fem->triangulation,
 														   error_indicator,
@@ -661,7 +675,7 @@ template <int dim>
 void Adaptivity<dim>::run_qr_based_refinement(){
 
 	if (fem->cycle >= 2)	return;
-
+	std::cout<<"Running QR-tests.."<<std::endl;
 	std::vector<double> qr_accuracy(fem->triangulation.n_active_cells()); //to store accuracy of solution for each element
 	std::vector<unsigned int> proposed_p_values(fem->triangulation.n_active_cells());	// obtained based on qr-check
 

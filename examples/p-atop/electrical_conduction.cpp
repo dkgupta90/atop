@@ -41,7 +41,7 @@ std::vector<double> source_function(std::vector<double> X){
 unsigned int get_boundary_indicator(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - (0.0075)) < 0.001)
+	if (fabs(X[0] - 0) < 1e-12 && fabs(X[1] - 0) < 0.001)
 		return 42;
 	else
 		return 9999;
@@ -79,7 +79,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.00075, 1.0);
+			"dp-refinement", 0.0001875, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -92,12 +92,12 @@ int main(){
 	material1.Emin = 0.02;	//TCo conductivity as in Gupta et al 2015, SMO
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 2);
+	Optimizedesign<2> opt(mesh, penal, filter, "OC", 5);
 	opt.problem_name = "electrical_conduction";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = false;
 	opt.problemType(material1);
-	opt.volfrac = 0.2; //Maximum permissible volume fraction
+	opt.volfrac = 0.3; //Maximum permissible volume fraction
 
 	//Initializing the compulsory variables
 	mesh.point_stiffness_vector.clear();
@@ -110,16 +110,16 @@ int main(){
 
 	if (dim == 2){
 		if (test_problem == "elec_cond2D"){
-			mesh.coordinates = {{0, 0.015}, {0, 0.015}};
-			mesh.subdivisions = {20, 20};
+			mesh.coordinates = {{0, 0.015}, {0, 0.0075}};
+			mesh.subdivisions = {80, 40};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
 			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 5;
+			mesh.max_el_order = 7;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 16;
-			mesh.max_dcount_per_el = 64;
+			mesh.max_dcount_per_el = 81;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
 

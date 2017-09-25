@@ -37,7 +37,6 @@ void dpAdaptivity<dim>::update_designField(
 	//Updating the design field for this cell
 	//Here, we currently have only manual update where points are assigned manually
 	//new_design_count = cell_info_vector[cell_itr].design_points.no_points;
-	//std::cout<<"Hello : "<<new_design_count<<std::endl;
 	//cell_info_vector[cell_itr].design_points.no_points = new_design_count;
 	cell_info_vector[cell_itr].design_points.update_no_points(new_design_count);
 
@@ -61,7 +60,7 @@ void dpAdaptivity<dim>::update_design_for_elem_bound_only(
 			endc = fem.dof_handler.end();
 	for (; cell != endc; ++cell){
 		unsigned int new_no_design = get_corrected_design_bound(fem, cell_info_vector, cell);
-		std::cout<<new_no_design<<std::endl;
+		//std::cout<<new_no_design<<std::endl;
 		if (cell_info_vector[cell_itr].shape_function_order == 1 && cell_info_vector[cell_itr].refine_coarsen_flag < -1e-12 &&
 				cell_info_vector[cell_itr].old_shape_fn_order == cell_info_vector[cell_itr].shape_function_order){
 			new_no_design = 1;	// this means there was no change in p-order and design refinement was still needed, thus d set to 1.
@@ -123,8 +122,14 @@ void dpAdaptivity<dim>::correctify_p_order(
 
 template <int dim>
 unsigned int dpAdaptivity<dim>::get_design_bound(
-		unsigned int p_order){
-	return (pow(p_order + 1, dim) * dim - rigid_body_modes);
+		unsigned int p_order,
+		FEM<dim> &fem){
+	if (fem.problem_name == "electrical_conduction"){
+		return (pow(p_order + 1, dim) * 1 - rigid_body_modes);
+	}
+	else{
+		return (pow(p_order + 1, dim) * dim - rigid_body_modes);
+	}
 }
 
 template <int dim>
@@ -135,7 +140,7 @@ unsigned int dpAdaptivity<dim>::get_corrected_design_bound(
 
 	//Get direct bound on the element based on dofs
 	unsigned int cell_itr = cell->user_index() - 1;
-	unsigned int design_bound = get_design_bound(cell_info_vector[cell_itr].shape_function_order);
+	unsigned int design_bound = get_design_bound(cell_info_vector[cell_itr].shape_function_order, fem);
 
 	//Iterate over all the neighbour cells
 	for (unsigned int iface = 0; iface < GeometryInfo<dim>::faces_per_cell; ++iface){
@@ -164,7 +169,10 @@ unsigned int dpAdaptivity<dim>::get_system_design_bound(
 	unsigned int total_dofs = fem.dof_handler.n_dofs();
 	unsigned int no_hanging_nodes = (fem.hanging_node_constraints).n_constraints();
 	//std::cout<<"No. of hanging nodes : "<<no_hanging_nodes<<std::endl;
-	rigid_body_modes = 3;	//hard coded right now for 2d elastostatic problem
+	if (fem.problem_name == "electrical_conduction")
+		rigid_body_modes = 1;
+	else
+		rigid_body_modes = 3;	//hard coded right now for 2d elastostatic problem
 	unsigned int sys_bound = total_dofs - no_hanging_nodes - rigid_body_modes;
 	std::cout<<"System level bound : "<<sys_bound<<std::endl;
 	return sys_bound;

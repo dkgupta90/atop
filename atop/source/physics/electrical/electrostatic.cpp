@@ -68,6 +68,84 @@ void ElectrostaticTools<dim>::get_normalized_matrix(unsigned int p_index,
 
 }
 
+//The outer dimension of the vectors below denotes the number of faces
+template <int dim>
+void ElectrostaticTools<dim>::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
+		std::vector<std::vector<double> > &JxW,
+				unsigned int p_index,
+				unsigned int q_index,
+				hp::FECollection<dim> &fe_collection,
+				hp::QCollection<dim-1> &face_quadrature_collection,
+				hp::DoFHandler<dim> &dofhandler){
+
+	hp::FEFaceValues<dim> hp_fe_face_values(fe_collection,
+			face_quadrature_collection,
+			update_values | update_gradients |
+			update_quadrature_points | update_JxW_values);
+
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dofhandler.begin_active();
+
+	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
+
+	cell->set_active_fe_index(p_index);
+
+	//Iterate over all the faces
+	B_matrix_vector.clear();
+	B_matrix_vector.resize(GeometryInfo<dim>::faces_per_cell);
+	JxW.clear();
+	JxW.resize(B_matrix_vector.size());
+
+	std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+	for (unsigned int iface = 0; iface < GeometryInfo<dim>::faces_per_cell; ++iface){
+		hp_fe_face_values.reinit(cell, iface, q_index);
+
+		const FEFaceValues<2> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+		unsigned int n_q_points = fe_face_values.n_quadrature_points;
+
+
+		FullMatrix<double> B_matrix(dofs_per_cell, dofs_per_cell);
+
+		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+			B_matrix = 0;
+			for (unsigned int k = 0; k < 3; ++k){
+				unsigned int k0_itr = 0;
+				for(unsigned int i = 0; i < dofs_per_cell; ++i){
+					if (k == 2){
+						unsigned int t1 = 0, t2;
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+						if (comp_i == 0)	t1 = 1;
+						//Now we need to find dof with same coordinate as ith dof and opposite comp_i
+						for (unsigned int j = 0; j < dofs_per_cell; ++j){
+							if (fabs(support_pts[i].distance(support_pts[j])) > 1e-10)
+								continue;
+							unsigned int comp_j = cell->get_fe().system_to_component_index(j).first;
+							if (comp_j == t1){
+								t2 = j;
+								break;
+							}
+
+						}
+						B_matrix(k, i) = B_matrix(t1, t2);
+					}
+					else{
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+
+							B_matrix(comp_i, k0_itr) = fe_face_values.shape_grad(i, q_point)[comp_i];
+							k0_itr++;
+					}
+				}
+			}
+			B_matrix_vector[iface].push_back(B_matrix);
+			JxW[iface].push_back(fe_face_values.JxW(q_point));
+		}
+	}
+	//reverting to the actual fe index
+	cell->set_active_fe_index(real_p_index);
+}
+
+
 template <int dim>
 void ElectrostaticTools<dim>::display_matrix(FullMatrix<double> &mat){
 	unsigned int cols = mat.n_cols();
@@ -116,6 +194,7 @@ void ElectrostaticData<dim>::update_normalized_matrices(hp::FECollection<dim> &t
 	}
 	//check_linker();
 }
+
 
 template <int dim>
 unsigned int ElectrostaticData<dim>::get_quad_index(unsigned int quad_rule){

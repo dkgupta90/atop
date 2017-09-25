@@ -194,7 +194,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.set_upper_bounds(ub);
 			obj_oc.obj_fn = myvfunc;
 			obj_oc.constraint_fn = myvconstraint;
-			if (cycle < 0){
+			if (cycle < 1){
 				obj_oc.min_obj_change = 1e-2;
 			}
 			else{

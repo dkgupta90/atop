@@ -38,7 +38,8 @@ namespace atop{
 		 * This function simply returns the element level bound based on the dofs of the element
 		 * and rigid body modes of that element.
 		 */
-		unsigned int get_design_bound(unsigned int p_order);
+		unsigned int get_design_bound(unsigned int p_order,
+				FEM<dim> &fem);
 
 		/**
 		 * This function calculates the element level design bound for a given shape function
