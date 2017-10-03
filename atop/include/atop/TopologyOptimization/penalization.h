@@ -45,6 +45,10 @@ namespace atop{
 		void update_param(
 				double,
 				CellInfo &);
+		void update_param(
+				double,
+				double,
+				CellInfo &);
 
 		void update_param(
 				double,

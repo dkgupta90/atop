@@ -794,8 +794,8 @@ void FEM<dim>::assembly(){
 		//Add source function to the right hand side
 		std::vector<Vector<double>> rhs_values(n_q_points,
 				Vector<double>(dim));
-		add_source_to_rhs(fe_values.get_quadrature_points(),
-				rhs_values);
+/*		add_source_to_rhs(fe_values.get_quadrature_points(),
+				rhs_values);*/
 
 		//Writing the quadrature points and density value for this cell into the file
 		std::vector<Point<dim> > quad_points = fe_values.get_quadrature_points();

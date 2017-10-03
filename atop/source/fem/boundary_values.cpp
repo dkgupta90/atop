@@ -16,7 +16,7 @@ inline
 double BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int comp) const{
 	Assert(dim >= 2,
 			ExcNotImplemented());
-	unsigned int model_problem = 1;
+	unsigned int model_problem = 2;
 	double xmin, xmax, ymin, ymax;
 
 	//2d electrical conduction problem
@@ -37,7 +37,7 @@ double BoundaryValues<dim>::value(const Point<dim> &p, const unsigned int comp) 
 	else if (model_problem == 2){
 		//only center of left boundary at constant voltage
 		xmin = 0, ymin = 0, xmax = 0.015, ymax = 0.0075;
-		if (std::fabs(p(0) - (xmin)) < 1e-12 && std::fabs(p(1) - 0) < 0.001){
+		if (std::fabs(p(0) - (xmin)) < 1e-12 && std::fabs(p(1) - 0) < 0.00076){
 			return(0.5);
 		}
 	}
@@ -48,12 +48,11 @@ template <int dim>
 inline
 void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 		Vector<double> &values) const{
-	std::cout<<"Entered the boundary function "<<std::endl;
 	Assert (values.size() == dim,
 			ExcDimensionMismatch(values.size(), dim));
 	Assert(dim >= 2,
 			ExcNotImplemented());
-	unsigned int model_problem = 6;
+	unsigned int model_problem = 3;
 	double xmin, xmax, ymin, ymax;
 
 	if (model_problem == 4){

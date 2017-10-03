@@ -69,7 +69,7 @@ void VoltageAverage<dim>::compute(
 					const_vector,
 					fem->solution);	// this is only true for fixed boundaries
 
-	objective = 500 * objective / fem->solution.size();
+	objective = 100 * objective / fem->solution.size();
 	std::cout<<"Iteration: "<<fem->itr_count + 1<<"   Objective: "<<std::setprecision(10)<<objective<<std::setw(10)<<std::endl;
 
 	//Calculating the sensitivities with respect to the density space design variables
@@ -196,7 +196,7 @@ void VoltageAverage<dim>::compute(
 		unsigned int k = 0;
 		for(unsigned int i = 0; i < temp_obj_grad.size(); ++i){
 			for (unsigned int j = 0; j < temp_obj_grad[i].size(); ++j){
-				obj_grad[k] = 500 * (temp_obj_grad[i][j] / fem->solution.size());
+				obj_grad[k] = 100 * (temp_obj_grad[i][j] / fem->solution.size());
 				//std::cout<<k<<"    "<<obj_grad[k]<<std::endl;
 				k++;
 			}

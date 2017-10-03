@@ -686,7 +686,13 @@ void Adaptivity<dim>::run_qr_based_refinement(){
 			proposed_p_values,
 			*cell_info_vector
 			);
-	qr_test.estimate(qr_accuracy);
+
+	if (fem->problem_name == "electrical_conduction"){
+		qr_test.scalar_estimate(qr_accuracy);
+	}
+	else{
+		qr_test.estimate(qr_accuracy);
+	}
 /*	for (unsigned int i = 0; i < qr_accuracy.size(); ++i){
 		std::cout<<i<<"  "<<qr_accuracy[i]<<std::endl;
 	}*/

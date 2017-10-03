@@ -65,7 +65,7 @@ void OC::optimize(
 
 
 
-		double l1 = 1e-5, l2 = 100000000, move = 0.2;
+		double l1 = 1e-5, l2 = 100000000, move = 0.1;
 		//l1 = l2;
 
 		while ((l2 - l1) > 1e-4){
