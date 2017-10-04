@@ -26,6 +26,7 @@ using namespace dealii;
 namespace atop{
 
 
+	template <int dim>
 	class ElasticTools{
 	public:
 		void get_lambda_mu(std::vector<double> &E_values,
@@ -34,13 +35,22 @@ namespace atop{
 				std::vector<double> &mu_values);
 		void get_D_plane_stress2D(FullMatrix<double> &D_matrix,
 				double nu);
+		void get_D_matrix3D(FullMatrix<double> &D_matrix,
+				double nu);
 		void get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_vector,
 				std::vector<double> &JxW,
 				unsigned int p_index,
 				unsigned int q_index,
-				hp::FECollection<2>&,
-				hp::QCollection<2>&,
-				hp::DoFHandler<2> &dofhandler);
+				hp::FECollection<dim>&,
+				hp::QCollection<dim>&,
+				hp::DoFHandler<dim> &dofhandler);
+		void get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matrix_vector,
+				std::vector<double> &JxW,
+				unsigned int p_index,
+				unsigned int q_index,
+				hp::FECollection<dim>&,
+				hp::QCollection<dim>&,
+				hp::DoFHandler<dim> &dofhandler);
 		void get_point_B_matrix_2D(FullMatrix<double> &B_matrix,
 				double &JxW,
 				typename hp::DoFHandler<2>::active_cell_iterator&,
@@ -51,9 +61,9 @@ namespace atop{
 				std::vector<std::vector<double> > &JxW,
 						unsigned int p_index,
 						unsigned int q_index,
-						hp::FECollection<2> &fe_collection,
-						hp::QCollection<1> &face_quadrature_collection,
-						hp::DoFHandler<2> &dofhandler);
+						hp::FECollection<dim> &fe_collection,
+						hp::QCollection<dim-1> &face_quadrature_collection,
+						hp::DoFHandler<dim> &dofhandler);
 
 		//Updates for every cell
 		void get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
@@ -71,13 +81,14 @@ namespace atop{
 		void display_matrix(FullMatrix<double> &mat);
 	};
 
+	template <int dim>
 	class ElasticData{
 	public:
 		double nu; //Poisson coefficient
 		std::vector<unsigned int> *current_quadRuleVector, *running_quadRuleVector;
-		hp::FECollection<2> *fe_collection;
-		hp::QCollection<2> *quadrature_collection;
-		hp::QCollection<1> *face_quadrature_collection;
+		hp::FECollection<dim> *fe_collection;
+		hp::QCollection<dim> *quadrature_collection;
+		hp::QCollection<dim-1> *face_quadrature_collection;
 
 		std::vector<std::vector<std::vector<FullMatrix<double> > > > B_matrix_list;
 		std::vector<std::vector<std::vector<double> > > JxW;
@@ -88,12 +99,12 @@ namespace atop{
 
 		void initialize_quadRuleVectors(std::vector<unsigned int>&,
 				std::vector<unsigned int>&);
-		void update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
-				hp::QCollection<2> &temp_q_coll,
-				hp::DoFHandler<2> &dofhandler);
-		void update_face_B_matrices(hp::FECollection<2> &temp_fe_coll,
-				hp::QCollection<1> &temp_face_q_coll,
-				hp::DoFHandler<2> &dofhandler);
+		void update_elastic_matrices(hp::FECollection<dim> &temp_fe_coll,
+				hp::QCollection<dim> &temp_q_coll,
+				hp::DoFHandler<dim> &dofhandler);
+		void update_face_B_matrices(hp::FECollection<dim> &temp_fe_coll,
+				hp::QCollection<dim-1> &temp_face_q_coll,
+				hp::DoFHandler<dim> &dofhandler);
 		void check_linker();
 		unsigned int get_quad_index(unsigned int quad_rule);
 		unsigned int get_p_index(unsigned int);
@@ -104,12 +115,19 @@ namespace atop{
 	public:
 		double E, poisson; //Define properties of the material
 		std::string planarType;  //For 2D problems
-		ElasticData obj_elas_data;
+		ElasticData<dim> obj_elas_data;
 		LinearElastic();
 
 	};
 
 	template class LinearElastic<2>;
+	template class LinearElastic<3>;
+
+	template class ElasticData<2>;
+	template class ElasticData<3>;
+
+	template class ElasticTools<2>;
+	template class ElasticTools<3>;
 
 }
 

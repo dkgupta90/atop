@@ -20,7 +20,9 @@ template <int dim>
 LinearElastic<dim>::LinearElastic(){
 	obj_elas_data.nu = poisson;
 }
-void ElasticTools::get_lambda_mu(std::vector<double> &E_values,
+
+template <int dim>
+void ElasticTools<dim>::get_lambda_mu(std::vector<double> &E_values,
 		double nu,
 		std::vector<double> &lambda_values,
 		std::vector<double> &mu_values){
@@ -34,7 +36,8 @@ void ElasticTools::get_lambda_mu(std::vector<double> &E_values,
 	}
 }
 
-void ElasticTools::display_matrix(FullMatrix<double> &mat){
+template <int dim>
+void ElasticTools<dim>::display_matrix(FullMatrix<double> &mat){
 	unsigned int cols = mat.n_cols();
 	unsigned int rows = mat.n_rows();
 	for(unsigned int i = 0; i < rows; ++i){
@@ -44,7 +47,9 @@ void ElasticTools::display_matrix(FullMatrix<double> &mat){
 		std::cout<<std::endl;
 	}
 }
-void ElasticTools::get_D_plane_stress2D(FullMatrix<double> &D_matrix,
+
+template <int dim>
+void ElasticTools<dim>::get_D_plane_stress2D(FullMatrix<double> &D_matrix,
 		double nu){
 	double k = 1/(1 - (nu*nu));
 	D_matrix(0, 0) = k;
@@ -59,27 +64,55 @@ void ElasticTools::get_D_plane_stress2D(FullMatrix<double> &D_matrix,
 	//display_matrix(D_matrix);
 }
 
-void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_vector,
+template <int dim>
+void ElasticTools<dim>::get_D_matrix3D(FullMatrix<double> &D_matrix,
+		double nu){
+
+	D_matrix = 0;
+	double k = 1/((1 + nu) * (1 - 2*nu));
+
+	double k1 = (1 - nu) * k;
+	double k2 = nu * k;
+	double k3 = 0.5 * (1 - 2 * nu) * k;
+	D_matrix(0, 0) = k1;
+	D_matrix(0, 1) = k2;
+	D_matrix(0, 2) = k2;
+
+	D_matrix(1, 0) = k2;
+	D_matrix(1, 1) = k1;
+	D_matrix(1, 2) = k2;
+
+	D_matrix(2, 0) = k2;
+	D_matrix(2, 1) = k2;
+	D_matrix(2, 2) = k1;
+
+	D_matrix(3, 3) = k3;
+	D_matrix(4, 4) = k3;
+	D_matrix(5, 5) = k3;
+}
+
+template <int dim>
+void ElasticTools<dim>::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_vector,
 		std::vector<double> &JxW,
 				unsigned int p_index,
 				unsigned int q_index,
-				hp::FECollection<2> &fe_collection,
-				hp::QCollection<2> &quadrature_collection,
-				hp::DoFHandler<2> &dofhandler){
+				hp::FECollection<dim> &fe_collection,
+				hp::QCollection<dim> &quadrature_collection,
+				hp::DoFHandler<dim> &dofhandler){
 
-	hp::FEValues<2> hp_fe_values(fe_collection,
+	hp::FEValues<dim> hp_fe_values(fe_collection,
 			quadrature_collection,
 			update_values | update_gradients |
 			update_quadrature_points | update_JxW_values);
 
-	typename hp::DoFHandler<2>::active_cell_iterator cell = dofhandler.begin_active();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dofhandler.begin_active();
 
 	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
 
 	cell->set_active_fe_index(p_index);
 	hp_fe_values.reinit(cell, q_index);
 
-	const FEValues<2> &fe_values = hp_fe_values.get_present_fe_values();
+	const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
 
 	const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 
@@ -87,7 +120,7 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 
 	FullMatrix<double> B_matrix(3, dofs_per_cell);
 
-	std::vector<Point<2> > support_pts = cell->get_fe().get_unit_support_points();
+	std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
 
 	for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
 		B_matrix = 0;
@@ -127,7 +160,127 @@ void ElasticTools::get_B_matrix_2D(std::vector<FullMatrix<double> > &B_matrix_ve
 	cell->set_active_fe_index(real_p_index);
 }
 
-void ElasticTools::get_point_B_matrix_2D(FullMatrix<double> &B_matrix,
+template <int dim>
+void ElasticTools<dim>::get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matrix_vector,
+		std::vector<double> &JxW,
+				unsigned int p_index,
+				unsigned int q_index,
+				hp::FECollection<dim> &fe_collection,
+				hp::QCollection<dim> &quadrature_collection,
+				hp::DoFHandler<dim> &dofhandler){
+
+	hp::FEValues<dim> hp_fe_values(fe_collection,
+			quadrature_collection,
+			update_values | update_gradients |
+			update_quadrature_points | update_JxW_values);
+
+	typename hp::DoFHandler<3>::active_cell_iterator cell = dofhandler.begin_active();
+
+	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
+
+	cell->set_active_fe_index(p_index);
+	hp_fe_values.reinit(cell, q_index);
+
+	const FEValues<dim> &fe_values = hp_fe_values.get_present_fe_values();
+
+	const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+
+	unsigned int n_q_points = fe_values.n_quadrature_points;
+
+	FullMatrix<double> B_matrix(6, dofs_per_cell);
+
+	std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+	for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
+		B_matrix = 0;
+		for (unsigned int k = 0; k < 6; ++k){
+			unsigned int k0_itr = 0;
+			for(unsigned int i = 0; i < dofs_per_cell; ++i){
+				if (k > 2){
+					// Check for k = 3, 4, 5 separately
+					if (k == 3){
+						unsigned int t1, t2;
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+
+						// for k = 3, skip the component of z
+						if (comp_i == 2)	continue;
+						else if (comp_i == 0)	t1 = 1;
+						else if (comp_i == 1)	t1 = 0;
+
+						//Now we need to find dof with same coordinate as ith dof and opposite comp_i
+						for (unsigned int j = 0; j < dofs_per_cell; ++j){
+							if (fabs(support_pts[i].distance(support_pts[j])) > 1e-10)
+								continue;
+							unsigned int comp_j = cell->get_fe().system_to_component_index(j).first;
+							if (comp_j == t1){
+								t2 = j;
+								break;
+							}
+
+						}
+					}
+					else if (k == 4){
+						unsigned int t1, t2;
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+
+						// for k = 4, skip the component of x
+						if (comp_i == 0)	continue;
+						else if (comp_i == 1)	t1 = 2;
+						else if (comp_i == 2)	t1 = 1;
+
+						//Now we need to find dof with same coordinate as ith dof and opposite comp_i
+						for (unsigned int j = 0; j < dofs_per_cell; ++j){
+							if (fabs(support_pts[i].distance(support_pts[j])) > 1e-10)
+								continue;
+							unsigned int comp_j = cell->get_fe().system_to_component_index(j).first;
+							if (comp_j == t1){
+								t2 = j;
+								break;
+							}
+
+						}
+					}
+					else if (k == 5){
+						unsigned int t1, t2;
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+
+						// for k = 5, skip the component of x
+						if (comp_i == 1)	continue;
+						else if (comp_i == 0)	t1 = 2;
+						else if (comp_i == 2)	t1 = 0;
+
+						//Now we need to find dof with same coordinate as ith dof and opposite comp_i
+						for (unsigned int j = 0; j < dofs_per_cell; ++j){
+							if (fabs(support_pts[i].distance(support_pts[j])) > 1e-10)
+								continue;
+							unsigned int comp_j = cell->get_fe().system_to_component_index(j).first;
+							if (comp_j == t1){
+								t2 = j;
+								break;
+							}
+
+						}
+					}
+				}
+				//for k = 0, 1, 2
+				else{
+					unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+
+						B_matrix(comp_i, k0_itr) = fe_values.shape_grad(i, q_point)[comp_i];
+						k0_itr++;
+				}
+			}
+		}
+		B_matrix_vector.push_back(B_matrix);
+		JxW.push_back(fe_values.JxW(q_point));
+	}
+
+	//reverting to the actual fe index
+	cell->set_active_fe_index(real_p_index);
+}
+
+template <int dim>
+void ElasticTools<dim>::get_point_B_matrix_2D(FullMatrix<double> &B_matrix,
 		double &JxW,
 		typename hp::DoFHandler<2>::active_cell_iterator &cell,
 		hp::FEValues<2> &hp_fe_values,
@@ -180,20 +333,21 @@ void ElasticTools::get_point_B_matrix_2D(FullMatrix<double> &B_matrix,
 }
 
 //The outer dimension of the vectors below denotes the number of faces
-void ElasticTools::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
+template <int dim>
+void ElasticTools<dim>::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
 		std::vector<std::vector<double> > &JxW,
 				unsigned int p_index,
 				unsigned int q_index,
-				hp::FECollection<2> &fe_collection,
-				hp::QCollection<1> &face_quadrature_collection,
-				hp::DoFHandler<2> &dofhandler){
+				hp::FECollection<dim> &fe_collection,
+				hp::QCollection<dim-1> &face_quadrature_collection,
+				hp::DoFHandler<dim> &dofhandler){
 
-	hp::FEFaceValues<2> hp_fe_face_values(fe_collection,
+	hp::FEFaceValues<dim> hp_fe_face_values(fe_collection,
 			face_quadrature_collection,
 			update_values | update_gradients |
 			update_quadrature_points | update_JxW_values);
 
-	typename hp::DoFHandler<2>::active_cell_iterator cell = dofhandler.begin_active();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dofhandler.begin_active();
 
 	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
 
@@ -205,12 +359,12 @@ void ElasticTools::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<dou
 	JxW.clear();
 	JxW.resize(B_matrix_vector.size());
 
-	std::vector<Point<2> > support_pts = cell->get_fe().get_unit_support_points();
+	std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
 
 	for (unsigned int iface = 0; iface < GeometryInfo<2>::faces_per_cell; ++iface){
 		hp_fe_face_values.reinit(cell, iface, q_index);
 
-		const FEFaceValues<2> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+		const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		unsigned int n_q_points = fe_face_values.n_quadrature_points;
 		FullMatrix<double> B_matrix(3, dofs_per_cell);
@@ -248,43 +402,6 @@ void ElasticTools::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<dou
 			B_matrix_vector[iface].push_back(B_matrix);
 			JxW[iface].push_back(fe_face_values.JxW(q_point));
 		}
-
-/*		for(unsigned int q_point = 0; q_point < n_q_points; ++q_point){
-			B_matrix = 0;
-			for (unsigned int k = 0; k < 3; ++k){
-				unsigned int k0_itr = 0, k1_itr = 1;
-				for(unsigned int i = 0; i < dofs_per_cell; ++i){
-					if (k == 2){
-						int t1, t2;
-						if (i % 2 == 0){
-							t1 = 1;
-							t2 = i + 1;
-						}
-						else{
-							t1 = 0;
-							t2 = i - 1;
-						}
-						B_matrix(k, i) = B_matrix(t1, t2);
-					}
-					else{
-						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
-						if (comp_i == 0 && k == 0){
-							B_matrix(0, k0_itr) = fe_face_values.shape_grad(i, q_point)[k];
-							k0_itr += 2;
-						}
-						else if (comp_i == 1 && k == 1){
-							B_matrix(1, k1_itr) = fe_face_values.shape_grad(i, q_point)[k];
-							k1_itr += 2;
-						}
-
-					}
-				}
-			}
-			B_matrix_vector[iface].push_back(B_matrix);
-
-			JxW[iface].push_back(fe_face_values.JxW(q_point));
-
-		}*/
 	}
 	//reverting to the actual fe index
 	cell->set_active_fe_index(real_p_index);
@@ -292,7 +409,8 @@ void ElasticTools::get_face_B_matrices_2D(std::vector<std::vector<FullMatrix<dou
 
 
 //The outer dimension of the vectors below denotes the number of faces
-void ElasticTools::get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
+template <int dim>
+void ElasticTools<dim>::get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<double> > > &B_matrix_vector,
 		std::vector<std::vector<double> > &JxW,
 				unsigned int q_index,
 				hp::DoFHandler<2>::active_cell_iterator &cell,
@@ -361,8 +479,8 @@ void ElasticTools::get_face_B_matrix_2D(std::vector<std::vector<FullMatrix<doubl
 }
 
 
-
-void ElasticTools::get_normalized_matrix(FullMatrix<double> &D_matrix,
+template <int dim>
+void ElasticTools<dim>::get_normalized_matrix(FullMatrix<double> &D_matrix,
 		std::vector<FullMatrix<double> > &B_matrix_vector,
 		std::vector<double> &JxW,
 		std::vector<FullMatrix<double> > &elem_stiffness_array){
@@ -383,20 +501,27 @@ void ElasticTools::get_normalized_matrix(FullMatrix<double> &D_matrix,
 	}
 }
 
-
-void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
-		hp::QCollection<2> &temp_q_coll,
-		hp::DoFHandler<2> &dofhandler){
+template <int dim>
+void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_coll,
+		hp::QCollection<dim> &temp_q_coll,
+		hp::DoFHandler<dim> &dofhandler){
 
 	this->fe_collection = &temp_fe_coll;
 	this->quadrature_collection = &temp_q_coll;
 
-	ElasticTools elastic_tool;
+	ElasticTools<dim> elastic_tool;
 
 	//Calculating the constitutive matrix
 	D_matrix = FullMatrix<double>(3, 3);
-	elastic_tool.get_D_plane_stress2D(D_matrix,
-			nu);
+	if (dim == 2){
+		elastic_tool.get_D_plane_stress2D(D_matrix,
+				nu);
+	}
+	else if (dim == 3){
+		D_matrix.reinit(6, 6);
+		elastic_tool.get_D_matrix3D(D_matrix, nu);
+
+	}
 
 	unsigned int max_p_degree = running_quadRuleVector->size();
 	//std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
@@ -404,45 +529,78 @@ void ElasticData::update_elastic_matrices(hp::FECollection<2> &temp_fe_coll,
 	B_matrix_list.resize(max_p_degree);
 	JxW.resize(max_p_degree);
 
-	for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
-		//Updating the sizes based on the new current quad rules
-		unsigned int p_index = degree - 1;
+	if (dim == 2){
+		for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
+			//Updating the sizes based on the new current quad rules
+			unsigned int p_index = degree - 1;
 
-		if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
-			continue;
-		B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
-		JxW[p_index].resize((*current_quadRuleVector)[p_index]);
-		elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
-		for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
-			unsigned int q_index = i - 1;
-			B_matrix_list[p_index][q_index].clear();
-			JxW[p_index][q_index].clear();
-			elastic_tool.get_B_matrix_2D(B_matrix_list[p_index][q_index],  JxW[p_index][q_index],
-					p_index, q_index,
-					*fe_collection, *quadrature_collection, dofhandler);
+			if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
+				continue;
+			B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
+			JxW[p_index].resize((*current_quadRuleVector)[p_index]);
+			elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
+			for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
+				unsigned int q_index = i - 1;
+				B_matrix_list[p_index][q_index].clear();
+				JxW[p_index][q_index].clear();
+				elastic_tool.get_B_matrix_2D(B_matrix_list[p_index][q_index],  JxW[p_index][q_index],
+						p_index, q_index,
+						*fe_collection, *quadrature_collection, dofhandler);
 
-			elastic_tool.get_normalized_matrix(D_matrix,
-					B_matrix_list[p_index][q_index],
-					JxW[p_index][q_index],
-					elem_stiffness_array[p_index][q_index]
-					);
+				elastic_tool.get_normalized_matrix(D_matrix,
+						B_matrix_list[p_index][q_index],
+						JxW[p_index][q_index],
+						elem_stiffness_array[p_index][q_index]
+						);
 
-			//if (degree == 3 && q_index == 3) std::cout<<elem_stiffness_array[p_index][q_index].size()<<std::endl;
+				//if (degree == 3 && q_index == 3) std::cout<<elem_stiffness_array[p_index][q_index].size()<<std::endl;
 
+			}
+			(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
 		}
-		(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
 	}
+	else if (dim == 3){
+		for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
+			//Updating the sizes based on the new current quad rules
+			unsigned int p_index = degree - 1;
+
+			if ((*running_quadRuleVector)[p_index] > (*current_quadRuleVector)[p_index])
+				continue;
+			B_matrix_list[p_index].resize((*current_quadRuleVector)[p_index]);
+			JxW[p_index].resize((*current_quadRuleVector)[p_index]);
+			elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
+			for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
+				unsigned int q_index = i - 1;
+				B_matrix_list[p_index][q_index].clear();
+				JxW[p_index][q_index].clear();
+				elastic_tool.get_B_matrix_3D(B_matrix_list[p_index][q_index],  JxW[p_index][q_index],
+						p_index, q_index,
+						*fe_collection, *quadrature_collection, dofhandler);
+
+				elastic_tool.get_normalized_matrix(D_matrix,
+						B_matrix_list[p_index][q_index],
+						JxW[p_index][q_index],
+						elem_stiffness_array[p_index][q_index]
+						);
+
+				//if (degree == 3 && q_index == 3) std::cout<<elem_stiffness_array[p_index][q_index].size()<<std::endl;
+
+			}
+			(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
+		}
+	}
+
 }
 
-
-void ElasticData::update_face_B_matrices(hp::FECollection<2> &temp_fe_coll,
-		hp::QCollection<1> &temp_face_q_coll,
-		hp::DoFHandler<2> &dofhandler){
+template <int dim>
+void ElasticData<dim>::update_face_B_matrices(hp::FECollection<dim> &temp_fe_coll,
+		hp::QCollection<dim-1> &temp_face_q_coll,
+		hp::DoFHandler<dim> &dofhandler){
 
 	this->fe_collection = &temp_fe_coll;
 	this->face_quadrature_collection = &temp_face_q_coll;
 
-	ElasticTools elastic_tool;
+	ElasticTools<dim> elastic_tool;
 
 	unsigned int max_p_degree = running_quadRuleVector->size();
 	//std::cout<<"Max p degree : "<<max_p_degree<<std::endl;
@@ -475,17 +633,18 @@ void ElasticData::update_face_B_matrices(hp::FECollection<2> &temp_fe_coll,
 	}
 }
 
-
-unsigned int ElasticData::get_quad_index(unsigned int quad_rule){
+template <int dim>
+unsigned int ElasticData<dim>::get_quad_index(unsigned int quad_rule){
 	return (quad_rule - 1);
 }
 
-unsigned int ElasticData::get_p_index(unsigned int p_order){
+template <int dim>
+unsigned int ElasticData<dim>::get_p_index(unsigned int p_order){
 	return (p_order - 1);
 }
 
-
-void ElasticData::check_linker(){
+template <int dim>
+void ElasticData<dim>::check_linker(){
 	std::vector<FullMatrix<double> > KEquads;
 	KEquads = elem_stiffness_array[0][1];
 	std::vector<double> JxWquads = JxW[0][1];
@@ -494,11 +653,12 @@ void ElasticData::check_linker(){
 	for(unsigned int i = 0 ; i < KEquads.size(); ++i){
 		output.add(KEquads[i], 1);
 	}
-	ElasticTools els;
+	ElasticTools<dim> els;
 	els.display_matrix(output);
 }
 
-void ElasticData::initialize_quadRuleVectors(std::vector<unsigned int> &temp_current,
+template <int dim>
+void ElasticData<dim>::initialize_quadRuleVectors(std::vector<unsigned int> &temp_current,
 		std::vector<unsigned int> &temp_running){
 	this->running_quadRuleVector = &temp_running;
 	this->current_quadRuleVector = &temp_current;

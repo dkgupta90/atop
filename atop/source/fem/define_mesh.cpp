@@ -21,7 +21,7 @@ using namespace dealii;
 
 //Constructor for getting only number of physical dimensions
 template <int dim>
-DefineMesh<dim>::DefineMesh(int obj_dofs_per_node){
+DefineMesh<dim>::DefineMesh(unsigned int obj_dofs_per_node){
 	dofs_per_node = obj_dofs_per_node;
 	input_file = "";
 	source_fn = NULL;
@@ -49,8 +49,13 @@ void DefineMesh<dim>::createMesh(
 		if (meshType == "subdivided_hyper_rectangle"){
 			Point<dim> point1, point2;
 			if (dim == 2){
-				point1 = Point<2>(coordinates[0][0], coordinates[1][0]);
-				point2 = Point<2>(coordinates[0][1], coordinates[1][1]);
+				point1 = Point<dim>(coordinates[0][0], coordinates[1][0]);
+				point2 = Point<dim>(coordinates[0][1], coordinates[1][1]);
+			}
+			else if (dim == 3){
+
+				point1 = Point<dim>(coordinates[0][0], coordinates[1][0], coordinates[2][0]);
+				point2 = Point<dim>(coordinates[0][1], coordinates[1][1], coordinates[2][1]);
 			}
 			GridGenerator::subdivided_hyper_rectangle(
 					*triangulation,
@@ -85,8 +90,13 @@ void DefineMesh<dim>::createMesh(
 		if (meshType == "subdivided_hyper_rectangle"){
 			Point<dim> point1, point2;
 			if (dim == 2){
-				point1 = Point<2>(coordinates[0][0], coordinates[1][0]);
-				point2 = Point<2>(coordinates[0][1], coordinates[1][1]);
+				point1 = Point<dim>(coordinates[0][0], coordinates[1][0]);
+				point2 = Point<dim>(coordinates[0][1], coordinates[1][1]);
+			}
+			else if (dim == 3){
+
+				point1 = Point<dim>(coordinates[0][0], coordinates[1][0], coordinates[2][0]);
+				point2 = Point<dim>(coordinates[0][1], coordinates[1][1], coordinates[2][1]);
 			}
 			GridGenerator::subdivided_hyper_rectangle(
 					obj_triangulation,
@@ -159,8 +169,13 @@ void DefineMesh<dim>::update_outputDesignMesh(Triangulation<dim> &design_triangu
 
 	if (dim == 2){
 
-		point1 = Point<2>(coordinates[0][0], coordinates[1][0]);
-		point2 = Point<2>(coordinates[0][1], coordinates[1][1]);
+		point1 = Point<dim>(coordinates[0][0], coordinates[1][0]);
+		point2 = Point<dim>(coordinates[0][1], coordinates[1][1]);
+	}
+	else if (dim == 3){
+
+		point1 = Point<dim>(coordinates[0][0], coordinates[1][0], coordinates[2][0]);
+		point2 = Point<dim>(coordinates[0][1], coordinates[1][1], coordinates[2][1]);
 	}
 	design_triangulation.clear();
 	GridGenerator::subdivided_hyper_rectangle(

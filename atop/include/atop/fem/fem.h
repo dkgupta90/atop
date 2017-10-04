@@ -180,6 +180,7 @@ namespace atop{
 
 	};
 	template class FEM<2>;
+	template class FEM<3>;
 }
 
 

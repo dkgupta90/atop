@@ -70,8 +70,10 @@ unsigned int get_boundary_indicator_force_inv(std::vector<double> X){
 int main(){
 
 	deallog.depth_console (2);
+	unsigned int dim = 3;
+
 	//Define the mesh
-	DefineMesh<2> mesh(2);
+	DefineMesh<3> mesh(3);
 	mesh.coupling = false;
 	mesh.elementType = "FE_Q";
 	mesh.density_elementType = "FE_DGQ";
@@ -80,7 +82,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.05, 1.0);
+			"dp-refinement", 0.1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -88,13 +90,13 @@ int main(){
 	penal.penal_power = 3.0;
 
 	//Define the physics of the problem
-	LinearElastic<2> material1;
+	LinearElastic<3> material1;
 	material1.E = 1.0;
 	material1.poisson = 0.3;
 	material1.planarType = "planar_stress";
 
 	//Define the optimization parameters
-	Optimizedesign<2> opt(mesh, penal, filter, "OC", 1);
+	Optimizedesign<3> opt(mesh, penal, filter, "OC", 1);
 	opt.problem_name = "minimum_compliance";
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
@@ -106,14 +108,13 @@ int main(){
 	mesh.point_l_vector.clear();
 
 	//Parameters for defining the test cases for dp-refinement
-	std::string test_problem = "cantilever2D";
 	//std::string test_problem = "cantilever2D";
-	unsigned int dim = 2;
+	std::string test_problem = "cantilever3D";
 
 	if (dim == 2){
 		if (test_problem == "cantilever2D"){
 			mesh.coordinates = {{0, 2}, {0, 1}};
-			mesh.subdivisions = {40, 20};
+			mesh.subdivisions = {20, 10};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
 			mesh.initial_el_order = 2;
@@ -133,7 +134,7 @@ int main(){
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
-				std::vector<double> point = {2.0, 0.5};
+				std::vector<double> point = {2.0, 0.0};
 				std::vector<double> source = {0, 1.0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 				   //empty dist load
@@ -194,7 +195,40 @@ int main(){
 		}
 	}
 	else if (dim ==3){
+		if (test_problem == "cantilever3D"){
+			mesh.coordinates = {{0, 2}, {0, 1}, {0, 1}};
+			mesh.subdivisions = {20, 10, 10};
+			mesh.meshType = "subdivided_hyper_rectangle";
 
+			mesh.initial_el_order = 2;
+			mesh.initial_density_el_order = 1;
+			mesh.max_el_order = 8;
+			mesh.max_density_el_order = 1;
+			mesh.initial_dcount_per_el = 64;
+			mesh.max_dcount_per_el = 512;
+			unsigned int d_per_line = round(pow(mesh.initial_dcount_per_el, 0.33333));
+			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0],
+					d_per_line*mesh.subdivisions[1], d_per_line*mesh.subdivisions[2]};
+
+
+			mesh.source_fn = source_function;
+
+			//Define loads
+			std::string loadType = "pointLoad";
+			if (loadType == "pointLoad"){
+				mesh.boundary_indicator = get_boundary_indicator;
+				//Define point force
+				std::vector<double> point = {2.0, 0.0, 0.5};
+				std::vector<double> source = {0.0, 1.0, 0.0};
+				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
+				   //empty dist load
+			}
+			else if (loadType == "distLoad"){
+
+				mesh.boundary_indicator = get_boundary_indicator_dist;
+				mesh.point_source_vector.clear();	//no point load
+			}
+		}
 	}
 
 	clock_t begin = clock();
@@ -217,7 +251,7 @@ int main(){
 	mesh.initial_el_order = 3;
 	unsigned int d_per_line = round(sqrt(opt.final_dcount_per_el));
 	std::cout<<d_per_line<<std::endl;
-	mesh.subdivisions = {d_per_line * 40, d_per_line * 20};
+	mesh.subdivisions = {d_per_line * 20, d_per_line * 10};
 	//filter.radius /= d_per_line;
 	mesh.initial_dcount_per_el = 1;
 	mesh.density_subdivisions = {mesh.initial_dcount_per_el*mesh.subdivisions[0], mesh.initial_dcount_per_el*mesh.subdivisions[1]};

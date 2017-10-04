@@ -67,6 +67,8 @@ namespace atop{
 
 		void update_projections(std::vector<CellInfo> &cell_info_vector,
 				hp::DoFHandler<2> &dof_handler);
+		void update_projections(std::vector<CellInfo> &cell_info_vector,
+				hp::DoFHandler<3> &dof_handler);
 
 		~Projection();
 

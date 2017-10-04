@@ -102,6 +102,7 @@ template <int dim>
 	};
 
 template class Optimizedesign<2>;
+template class Optimizedesign<3>;
 }
 
 

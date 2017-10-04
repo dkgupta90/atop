@@ -91,3 +91,21 @@ void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
 	}
 
 }
+
+void Projection::update_projections(std::vector<CellInfo> &cell_info_vector,
+		hp::DoFHandler<3> &dof_handler){
+
+	//Iterating over all the cells
+	typename hp::DoFHandler<3>::active_cell_iterator cell = dof_handler.begin_active(),
+			endc = dof_handler.end();
+	unsigned int cell_itr = 0;
+
+	for (; cell != endc; ++cell){
+
+		double d_factor = round((pow(cell_info_vector[cell_itr].pseudo_design_points.no_points, 0.333333)));
+		cell_info_vector[cell_itr].projection_radius = /*(radius/(cycle+1)) * pow(gamma, cycle);// */
+														radius * 0.26; //(radius*1.05)/d_factor; //0.2667; //(radius/d_factor) * pow(gamma, d_factor-1);
+		cell_itr++;
+	}
+
+}

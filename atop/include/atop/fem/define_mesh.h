@@ -67,7 +67,7 @@ namespace atop{
 
 
 		//Constructor for getting only number of physical dimensions
-		DefineMesh(int);
+		DefineMesh(unsigned int);
 
 		//Pointer to the source function supplied by the user
 		std::vector<double> (*source_fn)(std::vector<double>);
@@ -99,6 +99,7 @@ namespace atop{
 
 	};
 	template class DefineMesh<2>;
+	template class DefineMesh<3>;
 
 }
 

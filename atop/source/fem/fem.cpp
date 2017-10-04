@@ -110,7 +110,7 @@ FEM<dim>::FEM(
 
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+10; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+7; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}

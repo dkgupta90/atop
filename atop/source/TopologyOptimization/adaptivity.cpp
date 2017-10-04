@@ -578,7 +578,7 @@ void Adaptivity<dim>::improved_dp_coarsening_refinement(){
 */
 
 	// Update the p-order to reduce the qr-patterns based on solution of previous cycle
-	//run_qr_based_refinement();
+	run_qr_based_refinement();
 
 	cell_itr = 0;
 	cell = fem->dof_handler.begin_active(),
