@@ -174,7 +174,7 @@ void ElasticTools<dim>::get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matr
 			update_values | update_gradients |
 			update_quadrature_points | update_JxW_values);
 
-	typename hp::DoFHandler<3>::active_cell_iterator cell = dofhandler.begin_active();
+	typename hp::DoFHandler<dim>::active_cell_iterator cell = dofhandler.begin_active();
 
 	unsigned int real_p_index = cell->active_fe_index();	//saving back after the computation
 

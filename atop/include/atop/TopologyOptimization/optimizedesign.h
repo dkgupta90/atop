@@ -37,7 +37,7 @@ template <int dim>
 
 	std::vector<CellInfo> cell_info_vector;	//stores the information related to each analysis cell
 	std::vector<CellInfo> density_cell_info_vector;	//stores information related to each cell on design mesh
-	DefineMesh<dim>* mesh;
+	DefineMesh<dim> *mesh;
 	FEM<dim> *obj_fem;
 	unsigned int cycle, no_cycles;
 

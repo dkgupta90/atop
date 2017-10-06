@@ -268,25 +268,6 @@ void FEM<dim>::assemble_system(){
 	//update the pseudo-design field
     update_pseudo_designField();
 
-    //Manually updating the pseudo_densities
-/*    if (itr_count == 0){
-        for (unsigned int cell_itr = 0; cell_itr < (*cell_info_vector).size(); ++cell_itr){
-        	if (cell_itr != 1){
-        		for (unsigned int dpoint = 0; dpoint < (*cell_info_vector)[cell_itr].design_points.no_points; ++dpoint){
-        			(*cell_info_vector)[cell_itr].design_points.rho[dpoint] = 1.0;
-        			(*cell_info_vector)[cell_itr].pseudo_design_points.rho[dpoint] = 1.0;
-        		}
-        	}
-        	else{
-        		for (unsigned int dpoint = 0; dpoint < (*cell_info_vector)[cell_itr].design_points.no_points; ++dpoint){
-        			(*cell_info_vector)[cell_itr].design_points.rho[dpoint] = 0.55;
-        			(*cell_info_vector)[cell_itr].pseudo_design_points.rho[dpoint] = 0.55;
-
-        		}
-        	}
-        }
-    }*/
-
 
 	//Apply smoothing operation on the density values
 	density_field.smoothing(*cell_info_vector,
@@ -500,7 +481,7 @@ void FEM<dim>::reset(){
 		(*cell_info_itr).quad_rule = current_quad_rule[quad_index];
 		QGauss<dim> temp_quad(current_quad_rule[quad_index]);
 		(*cell_info_itr).n_q_points = temp_quad.size();
-		(*cell_info_itr).cell_area = 0.00001;
+		(*cell_info_itr).cell_area = 0.00001;	//for 3D, volume is referred to as area
 		(*cell_info_itr).density.resize((*cell_info_itr).n_q_points, 0.01);
 
 		// Initialize the designField for uncoupled meshes
@@ -542,7 +523,7 @@ void FEM<dim>::reset(){
 	unsigned int cell_itr = 0;
 	for(; cell != endc; ++cell){
 		cell->set_user_index(cell_itr + 1);
-		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area
+		(*cell_info_vector)[cell_itr].cell_area = cell->measure(); //defining cell area, volume for 3D
 		++cell_itr;
 	}
 
@@ -629,13 +610,26 @@ void FEM<dim>::initialize_cycle(){
 	projection->update_projections(*cell_info_vector,
 			dof_handler);
 	std::cout<<"Projections updated "<<std::endl;
-	density_field.create_neighbors(
-			*cell_info_vector,
-			hp_fe_values,
-			dof_handler,
-			design_handler,
-			*projection,
-			*mesh);
+
+	if (dim == 2){
+		density_field.create_neighbors(
+				*cell_info_vector,
+				hp_fe_values,
+				dof_handler,
+				design_handler,
+				*projection,
+				*mesh);
+	}
+	else if (dim == 3){
+		density_field.create_neighbors_3D(
+				*cell_info_vector,
+				hp_fe_values,
+				dof_handler,
+				design_handler,
+				*projection,
+				*mesh);
+	}
+
 
 	double time2 = clock();
 	time2 = (time2 - time1)/(double)CLOCKS_PER_SEC;

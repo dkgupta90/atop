@@ -205,7 +205,7 @@ void Optimizedesign<dim>::optimize(){
 			obj_oc.optimize(design_vector);
 		}
 		else if (opt_algorithm == "IpOpt"){
-			  // Create a new instance of your nlp
+/*			  // Create a new instance of your nlp
 			  //  (use a SmartPtr, not raw)
 			  SmartPtr<TNLP> mynlp = new IpOpt_IF(*this);
 
@@ -243,7 +243,7 @@ void Optimizedesign<dim>::optimize(){
 			  }
 			  else {
 			    std::cout << std::endl << std::endl << "*** The problem FAILED!" << std::endl;
-			  }
+			  }*/
 
 		}
 

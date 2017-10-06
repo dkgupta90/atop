@@ -70,7 +70,7 @@ namespace atop{
 		unsigned int max_design_points_per_cell;	//this is used to decide the uniform resolution of pseudo-design domain
 
 		//Object storing parameters related to the physics of the problem
-		ElasticData elastic_data;
+		ElasticData<dim> elastic_data;
 		ElectrostaticData<dim> electrostatic_data;
 		LinearElastic<dim> *linear_elastic;
 		LinearElectrostatic<dim> *linear_electrostatic;

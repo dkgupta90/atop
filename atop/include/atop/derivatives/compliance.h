@@ -34,7 +34,7 @@ namespace atop{
 		std::vector<CellInfo> *cell_info_vector;
 		std::vector<CellInfo> *density_cell_info_vector;
 		hp::FEValues<dim> *hp_fe_values;
-		ElasticData *elastic_data;
+		ElasticData<dim> *elastic_data;
 		FEM<dim> *fem;
 		DensityField<dim> *density_field;
 

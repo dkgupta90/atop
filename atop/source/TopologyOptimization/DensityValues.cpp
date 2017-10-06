@@ -64,7 +64,7 @@ void DensityField<dim>::create_neighbors(
 		const FEValues<dim> &fe_values1 = hp_fe_values.get_present_fe_values();
 
 		//Stores cell iterators for all neighbors of the current cell
-		std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+		std::vector<hp::DoFHandler<3>::active_cell_iterator> neighbor_iterators;
 		neighbor_iterators.clear();
 
 
@@ -106,7 +106,7 @@ void DensityField<dim>::create_neighbors(
 
 
 			unsigned int cell_itr2;
-			typename hp::DoFHandler<2>::active_cell_iterator cell2;
+			typename hp::DoFHandler<dim>::active_cell_iterator cell2;
 			//Iterate over all neighboring cells to check distance with Gauss points
 			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
 				cell2 = neighbor_iterators[ng_itr];
@@ -126,7 +126,7 @@ void DensityField<dim>::create_neighbors(
 							//converting vector to point coordinates
 							Point<dim> centroid = cell2->center();	//getting the centre for scaling the points
 							double side_length = pow(cell2->measure(), 1.0/dim);
-							for(unsigned int dimi = 0; dimi < dim; ++dimi){
+							for(unsigned int dimi = 0; dimi < 2; ++dimi){
 								point2(dimi) = centroid(dimi) +
 								(cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) * (side_length/2.0);
 							}
@@ -188,7 +188,204 @@ void DensityField<dim>::create_neighbors(
 
 
 			unsigned int density_cell_itr2;
-			typename hp::DoFHandler<2>::active_cell_iterator density_cell2;
+			typename hp::DoFHandler<dim>::active_cell_iterator density_cell2;
+			//Iterate over all neighboring cells to check distance with Gauss points
+			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
+
+				density_cell2 = neighbor_iterators[ng_itr];
+				density_cell_itr2 = density_cell2->user_index() - 1;
+				if (fabs(cell_info_vector[density_cell_itr2].cell_density - 100) < 1e-12){
+					//This one is only for the final output design in dp-adaptivity
+					continue;
+				}
+
+				double distance;
+
+				double exfactor1= 1;
+				double rmin1;
+
+				rmin1 = proj_radius * exfactor1;
+
+				for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+						distance  = 0.0;
+						distance = qpoints1[q_point1].distance(density_cell2->center());
+						if(distance > rmin1){
+							continue;
+						}
+						cell_info_vector[cell_itr1].neighbour_cells[q_point1].push_back(density_cell_itr2);
+						cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
+						cell_info_vector[cell_itr1].neighbour_cell_area[q_point1].push_back(density_cell2->measure());
+						cell_info_vector[cell_itr1].neighbour_cell_area_fraction[q_point1].push_back(cell_info_vector[density_cell_itr2].cell_area_fraction);
+				}
+			}
+
+
+			//std::cout<<cell_itr1<<"    "<<qpoints1.size()<<"   "<<cellprop[cell_itr1].neighbour_cells[0].size()<<std::endl;
+			calculate_weights(cell_info_vector,
+					cell_itr1,
+					proj_radius,
+					mesh);
+			++cell_itr1;
+		}
+	}
+}
+
+
+template <int dim>
+void DensityField<dim>::create_neighbors_3D(
+		std::vector<CellInfo> &cell_info_vector,
+		hp::FEValues<dim> &hp_fe_values,
+		hp::DoFHandler<dim> &dof_handler,
+		hp::DoFHandler<dim> &density_dof_handler,
+		Projection &projection,
+		DefineMesh<dim> &mesh
+		){
+
+
+	/*
+	 * Iterate over all the cells to check for neighbors
+	 * iterated over the cells in triangulation
+	 */
+	unsigned int cell_itr1 = 0;
+	typename hp::DoFHandler<3>::active_cell_iterator cell1 = dof_handler.begin_active(),
+				endc1= dof_handler.end();
+	for(; cell1 != endc1; ++cell1){
+
+		//Just a random check, can be deleted
+		if(cell_info_vector[cell_itr1].quad_rule == 0){
+			exit(0);
+		}
+
+		hp_fe_values.reinit(cell1,
+				cell_info_vector[cell_itr1].quad_rule - 1);	//to relate to quad_index
+		const FEValues<3> &fe_values1 = hp_fe_values.get_present_fe_values();
+
+		//Stores cell iterators for all neighbors of the current cell
+		std::vector<hp::DoFHandler<3>::active_cell_iterator> neighbor_iterators;
+		neighbor_iterators.clear();
+
+
+		//Computing the cell specific filter radius
+		double proj_radius = cell_info_vector[cell_itr1].projection_radius;
+		double drmin = proj_radius + sqrt(cell1->measure()); //added term is the distance from center of square element to the corner
+
+
+		//Computing the cell specific filter radius
+		//double proj_radius = projection.radius * pow(projection.gamma, (double)(cell1->level()));
+		//double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
+
+
+		//If the two meshes are decoupled, and design points are distributed w.r.t analysis mesh
+		if (mesh.coupling == false && mesh.adaptivityType == "adaptive_grayness"){
+
+			//Computing the cell specific filter radius
+			//proj_radius = cell_info_vector[cell_itr1].projection_radius;
+			//drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
+
+			//The following function gets the neighbors of the current cell lying within a distance of drmin
+			neighbor_iterators.push_back(cell1);
+			neighbor_search(cell1, cell1, neighbor_iterators, drmin);
+
+			//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+			if(neighbor_iterators.size() == 0){
+				std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
+			}
+			std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
+			cell_info_vector[cell_itr1].neighbour_points.clear();
+			cell_info_vector[cell_itr1].neighbour_distance.clear();
+			cell_info_vector[cell_itr1].neighbour_cell_area_fraction.clear();
+			cell_info_vector[cell_itr1].neighbour_points.resize(qpoints1.size());
+			cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
+			cell_info_vector[cell_itr1].neighbour_cell_area_fraction.resize(qpoints1.size());
+
+			//Defining the virtual cell area
+			cell_info_vector[cell_itr1].cell_area_fraction = (1.0/((double)cell_info_vector[cell_itr1].pseudo_design_points.no_points));
+
+
+			unsigned int cell_itr2;
+			typename hp::DoFHandler<3>::active_cell_iterator cell2;
+			//Iterate over all neighboring cells to check distance with Gauss points
+			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
+				cell2 = neighbor_iterators[ng_itr];
+				cell_itr2 = cell2->user_index() - 1;
+
+				double distance;
+
+				double rmin1;
+				rmin1 = proj_radius;
+
+				for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
+					//Iterating over all the psuedo-design points of cell 2
+					unsigned int ng_no_points = cell_info_vector[cell_itr2].pseudo_design_points.no_points;
+					for (unsigned int ngpt_itr = 0; ngpt_itr < ng_no_points; ++ngpt_itr){
+
+							Point<dim> point2;
+							//converting vector to point coordinates
+							Point<dim> centroid = cell2->center();	//getting the centre for scaling the points
+							double side_length = pow(cell2->measure(), 1.0/dim);
+							for(unsigned int dimi = 0; dimi < dim; ++dimi){
+								point2(dimi) = centroid(dimi) +
+								(cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) * (side_length/2.0);
+							}
+
+						distance = 0.0;
+						distance = qpoints1[q_point1].distance(point2);
+
+						if(distance > rmin1){
+							continue;
+						}
+
+						//std::cout<<"And I reached here"<<std::endl;
+						//Adding the point to the neighbour vector
+						cell_info_vector[cell_itr1].neighbour_points[q_point1].push_back(
+								std::make_pair(cell_itr2, ngpt_itr));
+
+						//Adding the respective distance
+						cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
+
+						//Adding the virtual area fraction
+						cell_info_vector[cell_itr1].neighbour_cell_area_fraction[q_point1].push_back(1.0/((double)cell_info_vector[cell_itr2].pseudo_design_points.no_points));
+
+
+					}
+				}
+			}
+
+			//computing the respective weights
+			calculate_weights(cell_info_vector,
+					cell_itr1,
+					proj_radius,
+					mesh);
+			++cell_itr1;
+		}
+		else{
+			//Indentifying the density cell which contains the centroid of this FE cell
+			typename hp::DoFHandler<3>::active_cell_iterator density_cell1;
+			//density_cell1 = GridTools::find_active_cell_around_point(density_dof_handler, cell1->center());
+			density_cell1 = cell1;
+
+			//The following function gets the neighbors of the current cell lying within a distance of drmin
+			neighbor_iterators.push_back(density_cell1);
+			neighbor_search(density_cell1, density_cell1, neighbor_iterators, drmin);
+
+			//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
+			if(neighbor_iterators.size() == 0){
+				std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
+			}
+			std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
+			cell_info_vector[cell_itr1].neighbour_cells.clear();
+			cell_info_vector[cell_itr1].neighbour_distance.clear();
+			cell_info_vector[cell_itr1].neighbour_cell_area.clear();
+			cell_info_vector[cell_itr1].neighbour_cell_area_fraction.clear();
+
+			cell_info_vector[cell_itr1].neighbour_cells.resize(qpoints1.size());
+			cell_info_vector[cell_itr1].neighbour_distance.resize(qpoints1.size());
+			cell_info_vector[cell_itr1].neighbour_cell_area.resize(qpoints1.size());
+			cell_info_vector[cell_itr1].neighbour_cell_area_fraction.resize(qpoints1.size());
+
+
+			unsigned int density_cell_itr2;
+			typename hp::DoFHandler<3>::active_cell_iterator density_cell2;
 			//Iterate over all neighboring cells to check distance with Gauss points
 			for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
 
@@ -232,8 +429,8 @@ void DensityField<dim>::create_neighbors(
 
 template <int dim>
 void DensityField<dim>::find_neighbors(
-		hp::DoFHandler<2>::active_cell_iterator &cell,
-		DoFHandler<2>::active_cell_iterator &new_cell,
+		hp::DoFHandler<dim>::active_cell_iterator &cell,
+		DoFHandler<dim>::active_cell_iterator &new_cell,
 		FEValues<dim> &fe_values,
 		CellInfo &temp_cell_info,
 		std::vector<CellInfo> &cell_info_vector
@@ -242,7 +439,7 @@ void DensityField<dim>::find_neighbors(
 	unsigned int cell_itr1 = cell->user_index() - 1;
 
 	//Stores cell iterators for all neighbors of the current cell
-	std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+	std::vector<hp::DoFHandler<dim>::active_cell_iterator> neighbor_iterators;
 	neighbor_iterators.clear();
 
 	//Computing the cell specific filter radius
@@ -270,7 +467,7 @@ void DensityField<dim>::find_neighbors(
 	temp_cell_info.cell_area_fraction = (1.0/((double)cell_info_vector[cell_itr1].pseudo_design_points.no_points));
 
 	unsigned int cell_itr2;
-	typename hp::DoFHandler<2>::active_cell_iterator cell2;
+	typename hp::DoFHandler<dim>::active_cell_iterator cell2;
 	//Iterate over all neighboring cells to check distance with Gauss points
 	for(unsigned int ng_itr = 0;  ng_itr < neighbor_iterators.size(); ++ng_itr){
 		cell2 = neighbor_iterators[ng_itr];
@@ -326,12 +523,12 @@ void DensityField<dim>::find_neighbors(
 }
 
 template <int dim>
-void DensityField<dim>::neighbor_search(hp::DoFHandler<2>::active_cell_iterator cell1,
-		hp::DoFHandler<2>::active_cell_iterator cell,
-		std::vector<hp::DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+void DensityField<dim>::neighbor_search(hp::DoFHandler<dim>::active_cell_iterator cell1,
+		hp::DoFHandler<dim>::active_cell_iterator cell,
+		std::vector<hp::DoFHandler<dim>::active_cell_iterator> &neighbor_iterators,
 		double rmin
 		){
-	for(unsigned int iface = 0; iface < GeometryInfo<2>::faces_per_cell; ++iface){
+	for(unsigned int iface = 0; iface < GeometryInfo<dim>::faces_per_cell; ++iface){
 		if(cell->at_boundary(iface)) continue;
 		if(cell->neighbor(iface)->active()){
 			if(cell1->center().distance(cell->neighbor(iface)->center()) < rmin){
@@ -975,7 +1172,7 @@ void DensityField<dim>::get_xPhys_for_face(std::vector<double> &face_xPhys,
 	//Getting all the neighbor cells for the current cell
 	double drmin = proj_radius + sqrt(cell->measure()); //added term is the distance from center of square element to the corner
 
-	std::vector<hp::DoFHandler<2>::active_cell_iterator> neighbor_iterators;
+	std::vector<hp::DoFHandler<dim>::active_cell_iterator> neighbor_iterators;
 	neighbor_iterators.clear();
 	//The following function gets the neighbors of the current cell lying within a distance of drmin
 	neighbor_iterators.push_back(cell);

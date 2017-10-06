@@ -42,7 +42,7 @@ void StressJumpIndicator<dim>::estimate(){
 			fem->dof_handler);
 
 	//Getting the D-matrix
-	ElasticTools elastic_tool;
+	ElasticTools<dim> elastic_tool;
 	FullMatrix<double> D_matrix (3, 3);
 	elastic_tool.get_D_plane_stress2D(D_matrix, 0.3);
 

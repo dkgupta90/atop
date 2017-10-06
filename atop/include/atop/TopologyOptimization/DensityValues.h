@@ -45,11 +45,20 @@ namespace atop{
 				DefineMesh<dim> &mesh
 				);
 
+
+		void create_neighbors_3D(std::vector<CellInfo> &cell_info_vector,
+				hp::FEValues<dim> &hp_fe_values,
+				hp::DoFHandler<dim> &dof_handler,
+				hp::DoFHandler<dim> &density_dof_handler,
+				Projection &projection,
+				DefineMesh<dim> &mesh
+				);
+
 		/*
 		 * This function is used to find neighbors of a certain cell to be used in Qr-indicator
 		 */
-		void find_neighbors(hp::DoFHandler<2>::active_cell_iterator &cell,
-				DoFHandler<2>::active_cell_iterator &new_Cell,
+		void find_neighbors(hp::DoFHandler<3>::active_cell_iterator &cell,
+				DoFHandler<3>::active_cell_iterator &new_Cell,
 				FEValues<dim> &fe_values,
 				CellInfo &temp_cell_info,
 				std::vector<CellInfo> &cell_info_vector);
@@ -170,7 +179,8 @@ namespace atop{
 
 	};
 
-	template class DensityField<2>;
+	//template class DensityField<2>;
+	template class DensityField<3>;
 }
 
 
