@@ -253,7 +253,7 @@ unsigned int dpAdaptivity<dim>::get_corrected_system_design_bound(
 	fem.boundary_info();
 	VectorTools::interpolate_boundary_values(fem.dof_handler,
 			42,
-			ZeroFunction<2>(),
+			ZeroFunction<dim>(),
 			fem.hanging_node_constraints);
 
 	//Applying the boundary conditions

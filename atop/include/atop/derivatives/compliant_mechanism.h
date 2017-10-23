@@ -44,7 +44,8 @@ namespace atop{
 	};
 
 
-	template class CompliantMechanism<2>;
+	//template class CompliantMechanism<2>;
+	template class CompliantMechanism<3>;
 }
 
 

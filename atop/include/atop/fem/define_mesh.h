@@ -98,7 +98,7 @@ namespace atop{
 				unsigned int);
 
 	};
-	template class DefineMesh<2>;
+	//template class DefineMesh<2>;
 	template class DefineMesh<3>;
 
 }

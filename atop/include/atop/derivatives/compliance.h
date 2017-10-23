@@ -44,7 +44,8 @@ namespace atop{
 	};
 
 
-	template class Compliance<2>;
+	//template class Compliance<2>;
+	template class Compliance<3>;
 }
 
 

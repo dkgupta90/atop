@@ -33,7 +33,8 @@ namespace atop{
 		std::vector<CellInfo> design_info_vector;
 	};
 
-	template class CreateDesign<2>;
+	//template class CreateDesign<2>;
+	template class CreateDesign<3>;
 }
 
 

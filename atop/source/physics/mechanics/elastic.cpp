@@ -520,6 +520,7 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 	else if (dim == 3){
 		D_matrix.reinit(6, 6);
 		elastic_tool.get_D_matrix3D(D_matrix, nu);
+		std::cout<<"D matrix initialized for 3D problems "<<std::endl;
 
 	}
 
@@ -560,7 +561,9 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 		}
 	}
 	else if (dim == 3){
+		std::cout<<"Constructing the K matrices for 3D problems "<<std::endl;
 		for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
+			std::cout<<degree<<std::endl;
 			//Updating the sizes based on the new current quad rules
 			unsigned int p_index = degree - 1;
 
@@ -588,6 +591,7 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 			}
 			(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
 		}
+		std::cout<<"Reached here "<<std::endl;
 	}
 
 }

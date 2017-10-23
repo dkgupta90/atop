@@ -57,7 +57,12 @@ namespace atop{
 		/*
 		 * This function is used to find neighbors of a certain cell to be used in Qr-indicator
 		 */
-		void find_neighbors(hp::DoFHandler<3>::active_cell_iterator &cell,
+/*		void find_neighbors(hp::DoFHandler<2>::active_cell_iterator &cell,
+				DoFHandler<2>::active_cell_iterator &new_Cell,
+				FEValues<dim> &fe_values,
+				CellInfo &temp_cell_info,
+				std::vector<CellInfo> &cell_info_vector);*/
+		void find_neighbors_3D(hp::DoFHandler<3>::active_cell_iterator &cell,
 				DoFHandler<3>::active_cell_iterator &new_Cell,
 				FEValues<dim> &fe_values,
 				CellInfo &temp_cell_info,
@@ -145,14 +150,20 @@ namespace atop{
 				std::vector<CellInfo> &cell_info_vector,
 				std::vector<CellInfo> &density_cell_info_vector);
 
-		void get_xPhys_for_face(std::vector<double> &face_xPhys,
-				hp::FECollection<dim> &temp_fe_coll,
-				hp::QCollection<dim-1> &temp_q_coll,
-				hp::DoFHandler<dim> &dofhandler,
+/*		void get_xPhys_for_face(std::vector<double> &face_xPhys,
+				hp::FECollection<2> &temp_fe_coll,
+				hp::QCollection<2-1> &temp_q_coll,
+				hp::DoFHandler<2> &dofhandler,
 				std::vector<CellInfo> &cell_info_vector,
-				typename hp::DoFHandler<dim>::active_cell_iterator &cell,
+				typename hp::DoFHandler<2>::active_cell_iterator &cell,
+				unsigned int face_itr);*/
+		void get_xPhys_for_face_3D(std::vector<double> &face_xPhys,
+				hp::FECollection<3> &temp_fe_coll,
+				hp::QCollection<3-1> &temp_q_coll,
+				hp::DoFHandler<3> &dofhandler,
+				std::vector<CellInfo> &cell_info_vector,
+				typename hp::DoFHandler<3>::active_cell_iterator &cell,
 				unsigned int face_itr);
-
 	private:
 
 		/**
@@ -160,10 +171,16 @@ namespace atop{
 		 * some unknown issues in creating the template for this function.
 		 * Currently, the implementation is only for dim = 2.
 		 */
-		void neighbor_search(
+/*		void neighbor_search(
 				hp::DoFHandler<2>::active_cell_iterator cell1,
 				hp::DoFHandler<2>::active_cell_iterator cell,
 				std::vector<hp::DoFHandler<2>::active_cell_iterator> &neighbor_iterators,
+				double rmin
+				);*/
+		void neighbor_search_3D(
+				hp::DoFHandler<3>::active_cell_iterator cell1,
+				hp::DoFHandler<3>::active_cell_iterator cell,
+				std::vector<hp::DoFHandler<3>::active_cell_iterator> &neighbor_iterators,
 				double rmin
 				);
 

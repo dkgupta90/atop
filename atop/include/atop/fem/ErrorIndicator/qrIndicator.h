@@ -45,19 +45,28 @@ namespace atop{
 				std::vector<unsigned int> &qr_p_value,
 				std::vector<CellInfo> &cell_info_vector);
 
-		void scalar_estimate(std::vector<double> &qr_error);
-		void estimate(std::vector<double> &qr_error);
-		double get_scalar_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
+		//void scalar_estimate(std::vector<double> &qr_error);
+		//void estimate(std::vector<double> &qr_error);
+
+		// To be uncommented for 2D problems
+/*		double get_scalar_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
 				Vector<double> &u_solution,
 				Vector<double> &f_solution,
 				unsigned int new_p);
 		double get_Jvalue(hp::DoFHandler<2>::active_cell_iterator cell,
 				Vector<double> &u_solution,
 				Vector<double> &f_solution,
+				unsigned int new_p);*/
+
+		void estimate_3D(std::vector<double> &qr_error);
+		double get_Jvalue_3D(hp::DoFHandler<3>::active_cell_iterator cell,
+				Vector<double> &u_solution,
+				Vector<double> &f_solution,
 				unsigned int new_p);
 
 	};
-	template class  QRIndicator<2>;
+	//template class  QRIndicator<2>;
+	template class QRIndicator<3>;
 
 }
 

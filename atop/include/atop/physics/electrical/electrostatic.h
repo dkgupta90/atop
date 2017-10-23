@@ -77,9 +77,12 @@ namespace atop{
 		LinearElectrostatic();
 	};
 
-	template class LinearElectrostatic<2>;
-	template class ElectrostaticData<2>;
-	template class ElectrostaticTools<2>;
+	//template class LinearElectrostatic<2>;
+	//template class ElectrostaticData<2>;
+	//template class ElectrostaticTools<2>;
+	template class LinearElectrostatic<3>;
+	template class ElectrostaticData<3>;
+	template class ElectrostaticTools<3>;
 }
 
 

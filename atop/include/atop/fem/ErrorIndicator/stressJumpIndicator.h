@@ -50,7 +50,8 @@ namespace atop{
 
 	};
 
-	template class StressJumpIndicator<2>;
+	//template class StressJumpIndicator<2>;
+	template class StressJumpIndicator<3>;
 }
 
 

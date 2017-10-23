@@ -28,7 +28,8 @@ namespace atop{
 
 	};
 
-	template class BoundaryValues<2>;
+	//template class BoundaryValues<2>;
+	template class BoundaryValues<3>;
 }
 
 #endif /* BOUNDARY_VALUES_H_ */

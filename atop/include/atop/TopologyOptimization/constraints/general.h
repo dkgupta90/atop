@@ -25,7 +25,8 @@ template <int dim>
 				DefineMesh<dim> &mesh);
 	};
 
-template class GeneralConstraints<2>;
+//template class GeneralConstraints<2>;
+template class GeneralConstraints<3>;
 }
 
 

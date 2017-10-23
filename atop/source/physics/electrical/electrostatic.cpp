@@ -100,7 +100,7 @@ void ElectrostaticTools<dim>::get_face_B_matrices_2D(std::vector<std::vector<Ful
 	for (unsigned int iface = 0; iface < GeometryInfo<dim>::faces_per_cell; ++iface){
 		hp_fe_face_values.reinit(cell, iface, q_index);
 
-		const FEFaceValues<2> &fe_face_values = hp_fe_face_values.get_present_fe_values();
+		const FEFaceValues<dim> &fe_face_values = hp_fe_face_values.get_present_fe_values();
 		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
 		unsigned int n_q_points = fe_face_values.n_quadrature_points;
 

@@ -339,11 +339,11 @@ double myvfunc(
 		const std::vector<double> &x,
 		std::vector<double> &grad,
 		void *my_func_data){
-	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
+	//Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
 	double objective = 0;
 	//Passing the cycle and iteration count information
 
-	if(opt_design2d != NULL){
+/*	if(opt_design2d != NULL){
 		//Solve the FEM problem
 		opt_design2d->obj_fem->cycle = opt_design2d->cycle;
 		opt_design2d->update_design_vector(opt_design2d->design_vector, x);
@@ -351,10 +351,15 @@ double myvfunc(
 		grad = (opt_design2d->grad_vector);
 		objective = opt_design2d->objective;
 		return objective;
-	}
+	}*/
 	Optimizedesign<3> *opt_design3d = static_cast<Optimizedesign<3>*>(my_func_data);
 	if(opt_design3d != NULL){
-
+		opt_design3d->obj_fem->cycle = opt_design3d->cycle;
+		opt_design3d->update_design_vector(opt_design3d->design_vector, x);
+		opt_design3d->run_system();
+		grad = (opt_design3d->grad_vector);
+		objective = opt_design3d->objective;
+		return objective;
 	}
 
 	return 0;
@@ -365,9 +370,9 @@ double myvconstraint(
 		const std::vector<double> &x,
 		std::vector<double> &grad,
 		void *my_func_data){
-	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
+	//Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(my_func_data);
 	double volume = 0.0;
-	if(opt_design2d != NULL){
+/*	if(opt_design2d != NULL){
 		//Solve the FEM problem
 		volume = opt_design2d->vol_constraint.volumeConstraint(
 				grad,
@@ -378,10 +383,19 @@ double myvconstraint(
 				);
 		std::cout<<"Constraint value : "<<volume<<std::endl;
 		return volume;
-	}
+	}*/
 	Optimizedesign<3> *opt_design3d = static_cast<Optimizedesign<3>*>(my_func_data);
 	if(opt_design3d != NULL){
-
+		//Solve the FEM problem
+		volume = opt_design3d->vol_constraint.volumeConstraint(
+				grad,
+				opt_design3d->cell_info_vector,
+				opt_design3d->density_cell_info_vector,
+				opt_design3d->obj_fem->density_field,
+				*(opt_design3d->mesh)
+				);
+		std::cout<<"Constraint value : "<<volume<<std::endl;
+		return volume;
 	}
 	return 0;
 }

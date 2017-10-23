@@ -89,7 +89,8 @@ namespace atop{
 
 
 
-	template class dpAdaptivity<2>;
+	//template class dpAdaptivity<2>;
+	template class dpAdaptivity<3>;
 }
 
 

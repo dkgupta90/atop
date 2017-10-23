@@ -72,7 +72,8 @@ namespace atop{
 		void run_qr_based_refinement();	// To refine the p-order based on qr-accuracy
 	};
 
-	template class Adaptivity<2>;
+	//template class Adaptivity<2>;
+	template class Adaptivity<3>;
 }
 
 

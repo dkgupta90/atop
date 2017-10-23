@@ -61,7 +61,8 @@ namespace atop{
 				const std::string &);
 	};
 
-	template class OutputData<2>;
+	//template class OutputData<2>;
+	template class OutputData<3>;
 }
 
 

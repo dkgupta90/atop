@@ -29,7 +29,8 @@ namespace atop{
 				std::vector<CellInfo>&);
 	};
 
-	template class GaussIntegration<2>;
+	//template class GaussIntegration<2>;
+	template class GaussIntegration<3>;
 }
 
 

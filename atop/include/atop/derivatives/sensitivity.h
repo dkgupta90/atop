@@ -47,7 +47,8 @@ namespace atop{
 		FEM<dim> *fem;
 	};
 
-	template class SensitivityAnalysis<2>;
+	//template class SensitivityAnalysis<2>;
+	template class SensitivityAnalysis<3>;
 }
 
 

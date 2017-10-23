@@ -44,7 +44,8 @@ namespace atop{
 	};
 
 
-	template class VoltageAverage<2>;
+	//template class VoltageAverage<2>;
+	template class VoltageAverage<3>;
 }
 
 #endif /* INCLUDE_ATOP_DERIVATIVES_AVERAGE_state_H_ */

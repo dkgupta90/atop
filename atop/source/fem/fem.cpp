@@ -268,7 +268,6 @@ void FEM<dim>::assemble_system(){
 	//update the pseudo-design field
     update_pseudo_designField();
 
-
 	//Apply smoothing operation on the density values
 	density_field.smoothing(*cell_info_vector,
 			*density_cell_info_vector,
@@ -621,7 +620,7 @@ void FEM<dim>::initialize_cycle(){
 				*mesh);
 	}
 	else if (dim == 3){
-		density_field.create_neighbors_3D(
+		density_field.create_neighbors(
 				*cell_info_vector,
 				hp_fe_values,
 				dof_handler,
@@ -676,6 +675,7 @@ void FEM<dim>::update_pseudo_designField(){
 		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designField(
 				(*cell_info_vector)[i].design_points.rho);
 	}
+	std::cout<<"Pseudo design field updated "<<std::endl;
 }
 
 template <int dim>

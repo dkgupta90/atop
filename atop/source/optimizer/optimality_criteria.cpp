@@ -31,7 +31,9 @@ void OC::optimize(
 	this->design_vector = &vec1;
 
 	double old_objective, objective = 9999999999;
-	Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(obj_data);
+	//Optimizedesign<2> *opt_design2d = static_cast<Optimizedesign<2>*>(obj_data);
+
+	Optimizedesign<3> *opt_design2d = static_cast<Optimizedesign<3>*>(obj_data);
 
 
 	bool exit_flag; // to impose certain minimum no. of iterations in the first cycle

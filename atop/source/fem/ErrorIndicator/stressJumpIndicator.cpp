@@ -96,13 +96,24 @@ void StressJumpIndicator<dim>::estimate(){
 
 			//Get the density values for all the quadrature points of the current face
 			face_xPhys.clear();
-			fem->density_field.get_xPhys_for_face(face_xPhys,
-					fem->fe_collection,
-					fem->face_quadrature_collection,
-					fem->dof_handler,
-					*cell_info_vector,
-					cell,
-					iface);
+			if (dim == 2){
+/*				fem->density_field.get_xPhys_for_face(face_xPhys,
+						fem->fe_collection,
+						fem->face_quadrature_collection,
+						fem->dof_handler,
+						*cell_info_vector,
+						cell,
+						iface);*/
+			}
+			else if (dim == 3){
+				fem->density_field.get_xPhys_for_face_3D(face_xPhys,
+						fem->fe_collection,
+						fem->face_quadrature_collection,
+						fem->dof_handler,
+						*cell_info_vector,
+						cell,
+						iface);
+			}
 
 
 			unsigned int n_fq_points = fem->elastic_data.face_B_matrix_list[p_index][q_index][iface].size();
@@ -162,13 +173,25 @@ void StressJumpIndicator<dim>::estimate(){
 
 				//Get the density values for all the quadrature points of the neighbour cell's current face
 				ng_face_xPhys.clear();
-				fem->density_field.get_xPhys_for_face(ng_face_xPhys,
-						fem->fe_collection,
-						fem->face_quadrature_collection,
-						fem->dof_handler,
-						*cell_info_vector,
-						ng_cell,
-						ng_iface);
+				if (dim == 2){
+/*					fem->density_field.get_xPhys_for_face(ng_face_xPhys,
+							fem->fe_collection,
+							fem->face_quadrature_collection,
+							fem->dof_handler,
+							*cell_info_vector,
+							ng_cell,
+							ng_iface);*/
+				}
+				else if (dim == 3){
+					fem->density_field.get_xPhys_for_face_3D(ng_face_xPhys,
+							fem->fe_collection,
+							fem->face_quadrature_collection,
+							fem->dof_handler,
+							*cell_info_vector,
+							ng_cell,
+							ng_iface);
+				}
+
 
 				//if the common face found in the neighbor cell
 				unsigned int ng_n_fq_points = fem->elastic_data.face_B_matrix_list[ng_p_index][ng_q_index][ng_iface].size();
