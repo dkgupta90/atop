@@ -82,7 +82,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.5, 1.0);
+			"dp-refinement", 0.1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -197,12 +197,12 @@ int main(){
 	else if (dim ==3){
 		if (test_problem == "cantilever3D"){
 			mesh.coordinates = {{0, 2}, {0, 1}, {0, 0.5}};
-			mesh.subdivisions = {4, 2, 1};
+			mesh.subdivisions = {20, 10, 5};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
 			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 8;
+			mesh.max_el_order = 5;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 64;
 			mesh.max_dcount_per_el = 512;

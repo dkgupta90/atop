@@ -1,0 +1,497 @@
+[33mcommit a75f2bfc513ae6993d7625885a64af72b5d6b67f[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Oct 23 11:25:17 2017 +0530
+
+    3D implementation, not yet complete, code breaking at several places
+
+[33mcommit c2631d15d795f98ebcf3e189b5aa04a1765dbe26[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Oct 6 09:59:49 2017 +0530
+
+    tailoring the code for 3D, 2D template initializations for some classes removed temporarily
+
+[33mcommit 00f0844c67f9d85228499835dd96de4214b07135[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Oct 4 18:56:41 2017 +0530
+
+    still implementing the 3D compliance problem
+
+[33mcommit cc134127f483b1ca61b2a5d22a57277bd77b4982[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Oct 3 14:10:12 2017 +0530
+
+    started 3d compliance minimization implementation
+
+[33mcommit 9eac8a7c4b744b7bbc1c99e7228289f206172459[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Sep 25 16:28:06 2017 +0530
+
+    thermal conduction example added, some issue related to speed
+
+[33mcommit cdd7ba37ff0cbb77f096b27920bd360d99e181f3[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Sep 20 23:22:14 2017 +0530
+
+    adding analysis based indicator for the analysis problem
+
+[33mcommit fbabf7632f77172011ec34d8a484b2bf112e2e21[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Sep 20 22:31:23 2017 +0530
+
+    thermal problem works atleast for one cycle
+
+[33mcommit 16edcb915c14d7cc1c8965e308abd03d55000d70[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Sep 15 21:49:25 2017 +0530
+
+    started to add derivative function for electrical compliance
+
+[33mcommit 4f3e8605dc5064c963f09b27bad63010ba2b4b6e[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Sep 15 17:35:04 2017 +0530
+
+    added functions related to scalar problem in boundary_values class
+
+[33mcommit 174848e2a3c6975ea68ee88174790e232748bdb3[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Sep 15 10:36:01 2017 +0530
+
+    FEM solving for electrostatic probably working
+
+[33mcommit 0f196a2b3569722068fff3f35f5d580e630fd135[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Sep 14 16:34:19 2017 +0530
+
+    error in FEm system exists, cannot be solved right now
+
+[33mcommit 8aaaf923358b9f5d00f8a9133467f499fdd7f8e0[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Sep 7 10:19:00 2017 +0200
+
+    electrostatic case, point stiffness matrices can now be generated
+
+[33mcommit 53ec6e54a936c48f3837f4fe62687394356d448e[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Sep 6 17:30:55 2017 +0200
+
+    adding functions for electrostatic problem, completely unfunctional at the moment
+
+[33mcommit bcffe1550da61cf37c7aafd5af50246a33a85613[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Sep 5 20:39:45 2017 +0200
+
+    started implementing 2d electrical conduction
+
+[33mcommit 4e73712324e396920a7bef0b0eefad7d2c18776a[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Aug 30 14:01:23 2017 +0200
+
+    test case of force cantilever, results generated for the paper, 0074, 0075
+
+[33mcommit f7041d5b9ea6a0ebd443130b478baf3d59400ee8[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Aug 29 10:03:15 2017 +0200
+
+    some error in force invertor problem, trying to fix
+
+[33mcommit 94224efe24540986d99594a17d16120167b1a256[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 28 19:13:01 2017 +0200
+
+    point load cantilever examples for paper saved in 0069 and 0070
+
+[33mcommit d366de79638f61d28afe1aed7946e5a36373a609[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Sun Aug 27 22:56:38 2017 +0200
+
+    cantilever distributed, results being generated, traditional MTO done, saved in 0067
+
+[33mcommit 03ff18db7d3230a3b105c5bf0cb1386170d86090[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Sun Aug 27 09:56:56 2017 +0200
+
+    sensitivity part very slow, started generating results for paper, thermal case still to be implemented
+
+[33mcommit fe4d3eb4857f722aa5395d63d70e071ec35dc885[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 24 10:18:19 2017 +0200
+
+    improving the adaptive part, to make max_el_order as a strict upper bound, incomplete
+
+[33mcommit 347d0f29c9c9f5823604557beafa36e11ff53241[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 24 07:04:57 2017 +0200
+
+    minor algorithmic bugs being removed, currently on initialize_cycle()
+
+[33mcommit b59f9bf3fdb72934bd7b35a61c4091cdf6057ed5[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 21 12:36:37 2017 +0200
+
+    BUG RESOLVED: qr_accuracy is now always positive fo every finite element
+
+[33mcommit 27dedb20c92200a18765ed78111afb461d26a56f[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Sun Aug 20 18:19:59 2017 +0200
+
+    multiple cycles tested with qr-indicator, seems to be working, cells to be still refined using this indicator
+
+[33mcommit ef2432fec15e2488573ec39948b27784653bfd6f[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Sun Aug 20 00:22:32 2017 +0200
+
+    qr-indicator based on local force estimation seems to be working
+
+[33mcommit 5ff3f8f637e8848cca64cef0da33383ffb1cc5f9[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Aug 18 18:58:32 2017 +0200
+
+    probably local force-based qr-indicator, still be to be tested
+
+[33mcommit 8c2c9ef9ef2826472b37c9d96abd66cce1edacc0[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 17 19:30:06 2017 +0200
+
+    f=inv(K)u locally based qr-indicator being implemented, some error pertains
+
+[33mcommit 64b596278ca3ceac238cefafc045fb20c872235c[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 17 12:33:01 2017 +0200
+
+    local displacements used to interpolate higher order ones
+
+[33mcommit af4254e8e7ad642733ae29de4a0c75712ded6501[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 17 11:47:39 2017 +0200
+
+    local u_solution used in get_function_values, different from mainstream
+
+[33mcommit 473098f41f8160c2cdffb61e39aaa6a38802793c[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Aug 16 10:49:59 2017 +0200
+
+    started adding f computation based qr-indicator
+
+[33mcommit 9514751da187aa6e388b59abfd9e3adc64983d31[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Aug 11 17:29:58 2017 +0200
+
+    qr-indicator working, however not able to flag the correct, switching to addition of 2d thermal problem
+
+[33mcommit a80a218deae8784d380c31cadd31bd892b249fad[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Aug 10 18:30:25 2017 +0200
+
+    qr-indicator seems to be not flagging the correct cells
+
+[33mcommit 08aacc78951547eb313f3498126f9a93232223c2[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Aug 9 23:45:46 2017 +0200
+
+    qr-indicator seems to be working, need to check if correct elements beign flagged
+
+[33mcommit 1079f2af939228c7a349b85500bfea55e97074df[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Aug 9 12:39:47 2017 +0200
+
+    still adding the filtering functionality for random p-value, to get J/Jstar
+
+[33mcommit 96e6ab7d9ccbdaa47489da4127b5be6b8eaf23c5[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Aug 9 12:30:28 2017 +0200
+
+    new functions added in densityvalues for calculating neighbor and their weights, also smoothing, for the qr-indicator
+
+[33mcommit 12786c591b1c71b0b7913c21550651606edd7158[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Aug 8 18:29:57 2017 +0200
+
+    able to interpolate solutions of higher/lower p-values at element level
+
+[33mcommit 414adfb051c9d88a263414c497eea79ae1d26b3d[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Aug 8 10:12:51 2017 +0200
+
+    changed remote url to github repo
+
+[33mcommit 90b840225c27fbc6c2c5d74c1fa5b5b021146327[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 7 21:05:17 2017 +0200
+
+    qr-indicator being added, INCOMPLETE
+
+[33mcommit 439855dca3d5668364b4aed7eab4b2e58191b52a[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 7 16:19:11 2017 +0200
+
+    incomplete qr-indicator
+
+[33mcommit 4a1bf800ffe9869e5cbba6408b1cf7767fa886f3[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 7 15:04:19 2017 +0200
+
+    some old code in densityvalues related to MovingDesignPoints approach has been deleted
+
+[33mcommit 1545eea59879123784d6597a77f789a60a53ad74[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 7 11:58:24 2017 +0200
+
+    Modified the density based indicator slightly, before starting addition of qr-indicator
+
+[33mcommit 5a97796c37aebb299a7e68ee49483eecec20c8a4[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Mon Aug 7 11:29:55 2017 +0200
+
+    gitignore file created and updated
+
+[33mcommit ad654a93875d5e88a0b985078b249c351d746c89[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Sun Aug 6 16:53:12 2017 +0200
+
+    Jstar criteria added for the J/Jstar check of final results
+
+[33mcommit e26b12267e8285afe3d93cbe3fb97b34d00fc0d8[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Jul 28 14:43:01 2017 +0200
+
+    dp_adap running, but some issue with integration- not sure if composite integration exists in this one it surely exists in qr-code
+
+[33mcommit 4875c3a26fae3963bad1be3357c0a2450eb8d080[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Jul 18 14:20:55 2017 +0200
+
+    new branch commit test
+
+[33mcommit fe15f1d4e64e7e516180cf3f22fa97394ef3a387[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Jul 18 13:50:35 2017 +0200
+
+    Started dp_adap
+
+[33mcommit f62bb1034aa9910d88b2f1bf6b0b6b9cfd395a36[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Jan 19 16:24:50 2017 +0100
+
+    updated upto previous dp-adaptive method, ipopt still incomplete, partially implemented
+
+[33mcommit 95aed9ee8ab600db01303181d161d6dd1e56816d[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Tue Jan 10 13:47:29 2017 +0100
+
+    Before IpOpt addition was started
+
+[33mcommit bb0734103f1943a010ae064ba5d8884f9e1c4eba[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Wed Dec 14 10:38:50 2016 +0100
+
+    2D compliabt mechanism added
+
+[33mcommit 0fea70eb885846fdcf7e1963c760d859584c906c[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Fri Nov 18 14:15:00 2016 +0100
+
+    modified p part added, d to be adjusted for arbit number
+
+[33mcommit 14c4cc1a8fc0e9c57d7f84a0b8c9c9cae5d17232[m
+Author: Deepak Gupta <me@deepakgupta.net.in>
+Date:   Thu Nov 17 12:11:13 2016 +0100
+
+    dp adptivity PERFECTLY working for d=1,4,9,16...
+
+[33mcommit 0d6857a17cbda49008d6457dbf42fb0272b9b873[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Fri Aug 19 11:03:19 2016 +0200
+
+    dp-adaptivity working with element level corrections
+
+[33mcommit ab179617b234afe45cb332868e8e9378c3e2be21[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Aug 2 14:56:33 2016 +0200
+
+    Gupta2016 bounds implemented, AMR to be implemented
+
+[33mcommit 4cf373ca20f5845dd0db036172a23ff3a419b3ae[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Sun Jul 24 18:50:49 2016 +0200
+
+    changed to hp model, still error with multiple design points
+
+[33mcommit 4c2bbc25ba0fe24f8f18109b77c83bd420dcb3db[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Wed Jul 20 22:15:14 2016 +0200
+
+    still changing old code to hp model
+
+[33mcommit e3e6079f46248057f4fdfbe47849836e3cc4b615[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Jul 19 10:34:29 2016 +0200
+
+    changing to the code to hp model
+
+[33mcommit c4dc5840d0aff670a3316b17884ddd3457918838[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Thu Jul 14 11:58:23 2016 +0200
+
+    Started making dp-adaptivity
+
+[33mcommit 63980276fbabfeceee32e29e1b7c31a48c220e6f[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Thu Jul 14 10:48:21 2016 +0200
+
+    Direct solver added, dp top for one cycle implemented, adaptivity still to be done
+
+[33mcommit 4b14bca6a17fda743c747b4886a9366bd61bdcf1[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Apr 25 10:47:31 2016 +0200
+
+    Single cycle p-atop perfectly working
+
+[33mcommit fadc85a5fc41b8245b6bf0cd30cdfaf07bf39699[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Apr 19 16:04:02 2016 +0200
+
+    started implementing p-refinement, heirarchical to be brought in later
+
+[33mcommit 028851100aced572c217a7256e0a337ec6075967[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Apr 19 11:31:41 2016 +0200
+
+    stopped working on mtop1 project and started p-atop
+
+[33mcommit a82b74275f44e09abbba14d55c67146106690bca[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Apr 5 11:52:31 2016 +0200
+
+    cublic spline based projection added, mtop concept still not working
+
+[33mcommit 7be7ef079b9ccd8749e07a18576c068451b0508b[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 22 18:17:14 2016 +0100
+
+    convergence issue unresolved
+
+[33mcommit 16217142b37807e4747d0c34f72dcb157832edc6[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 22 17:58:29 2016 +0100
+
+    something wrong with sensitivities
+
+[33mcommit ea2e1e4f193e98cc52fa9e3d012bf63bf30db42d[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 22 14:37:08 2016 +0100
+
+    some issue with finding neighbors, common to step-1 and mtop1
+
+[33mcommit 50d86d6f34e8677fc53cd2818488d982f780692f[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 22 00:25:38 2016 +0100
+
+    update_density_cell_info_vector() to be updated for movingDesignPoints
+
+[33mcommit 4f70ce1a2fb6594ddc4c9dd4dfd69e9a977e61ba[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Tue Feb 16 08:02:10 2016 +0100
+
+    Neighbors can be successfully found
+
+[33mcommit 35f6d14642dca64f1d81a8a83f01aa133bf779c6[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Sat Feb 13 00:03:20 2016 +0100
+
+    still working on create_neighbors for movingDesignPoints
+
+[33mcommit 8ade57ca43e506f455c61c5c52e6f3cae580528d[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Fri Feb 12 16:00:16 2016 +0100
+
+    upto FEM::setup_system working for movingDesignPoints
+
+[33mcommit 73ae7faae8072eeb958d597a95825edf8e6ae654[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Thu Feb 11 16:29:30 2016 +0100
+
+    Added update_desgin_bound() function, works for step-1
+
+[33mcommit 650495f7e7e12df00911a2d0ed8769ac753692bd[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Wed Feb 10 17:51:37 2016 +0100
+
+    Still to complete the update_bounds() function
+
+[33mcommit bc8b8bf3a17caf48e98b327a5c6ede5e9896f060[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 8 16:36:15 2016 +0100
+
+    correct no. of design variables displayed for mtop1...lot to go still
+
+[33mcommit d9ad7209912b7706cf4630883a50f9fe6ae003af[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 8 14:35:20 2016 +0100
+
+    Few comments added to atop for improved readability
+
+[33mcommit 9ec39f60a65e8f5dc55e80e9515b9bb0ba3a407a[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 8 12:21:45 2016 +0100
+
+    mtop1 configured, bosy contains step-1.cpp content
+
+[33mcommit d7c4759e827e0c6ec1173053d0a54fc52256ac26[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 8 11:14:00 2016 +0100
+
+    Empty project mtop1 added
+
+[33mcommit a98547f6e709ead1f44cd0e3f8cba3666ab1a366[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Feb 8 11:09:39 2016 +0100
+
+    Rechecked step 1 and 2 and they run successfully
+
+[33mcommit 5a85f50beb6ecb10785d3a412a0fb5e96b914f77[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Thu Sep 3 18:23:18 2015 +0200
+
+    example step-2 implemented with OC, some convergence error with MMA
+
+[33mcommit e21c2dec054ee13455bcc87bac6dec8d56722521[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Thu Sep 3 14:02:02 2015 +0200
+
+    adaptivity working well with MMA as well as OC now, penalization continuation not included
+
+[33mcommit 2013c7029d48e2113441dbc5d08ea89911679787[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Wed Sep 2 13:02:15 2015 +0200
+
+    coupled mesh adaptivity with MMA working, OC has issues
+
+[33mcommit 3a978359a9311304e221d89f8dfc7a58b12c232b[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Aug 31 18:29:35 2015 +0200
+
+    adaptive refinement partially working -- few algorithm related errors are there
+
+[33mcommit f9c4b362152c39e739329f93286d14a27231e5cb[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Wed Aug 26 10:55:52 2015 +0200
+
+    Improved simple ATOP for storing FE and density results separate (partial code for adaptive refinement added)
+
+[33mcommit ecf345de2b7c705b1e837784fde6e68f29652ee1[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Fri Aug 21 10:13:13 2015 +0200
+
+    Fully functioning ATOP library with simple MBB problem implemented -- No mesh adaptivity yet, replicates the 88 line code at best
+
+[33mcommit f98ab6550339e89d06366f16f28853b48648cb59[m
+Author: Deepak Gupta <d.k.gupta@tudelft.nl>
+Date:   Mon Jun 1 12:14:21 2015 +0200
+
+    After restructuring the whole atop workspace
+
+[33mcommit 8dbd573bfaef04c6ea178dd94603513a8a3e5ddd[m
+Author: dkgupta <me@deepakgupta.net.in>
+Date:   Tue Apr 14 11:53:50 2015 +0200
+
+    Perfect running version of ATOP backed up from topopt (old work)

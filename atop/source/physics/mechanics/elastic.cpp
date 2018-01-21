@@ -12,6 +12,8 @@
 #include <deal.II/fe/fe_system.h>
 #include <deal.II/fe/fe_q.h>
 #include<deal.II/hp/fe_values.h>
+#include <atop/math_tools/algebra/integration.h>
+
 
 using namespace atop;
 using namespace dealii;
@@ -561,8 +563,28 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 		}
 	}
 	else if (dim == 3){
+
+		/*
+		* Deciding the minimum allowed qrule for each each p value
+		* Here we consider the minimum allowed qrule for any  pvalue to
+		* be equal to the one needed for the p-2 order polynomial with maximum
+		* permissible order of the density field.
+		*
+		*/
+		std::vector<unsigned int> min_qrule(max_p_degree);
 		std::cout<<"Constructing the K matrices for 3D problems "<<std::endl;
 		for (unsigned int degree = 1; degree <= max_p_degree; ++degree){
+
+			//Updating min_qrule
+			if (degree <=2){
+				min_qrule[degree-1] = 1;
+			}
+			else{
+
+				unsigned int max_dpoints = pow((degree-2) + 1, 3) - 6;
+				GaussIntegration<dim> obj_int;
+				min_qrule[degree - 1] = obj_int.get_quadRule(max_dpoints, degree);	//although d calculated on p-2, we use p here
+			}
 			std::cout<<degree<<std::endl;
 			//Updating the sizes based on the new current quad rules
 			unsigned int p_index = degree - 1;
@@ -573,6 +595,10 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 			JxW[p_index].resize((*current_quadRuleVector)[p_index]);
 			elem_stiffness_array[p_index].resize((*current_quadRuleVector)[p_index]);
 			for (unsigned int i = (*running_quadRuleVector)[p_index]; i <= (*current_quadRuleVector)[p_index]; ++i){
+				if (i < min_qrule[degree - 1]){
+					std::cout<<degree<<" "<<i<<std::endl;
+					continue;
+				}
 				unsigned int q_index = i - 1;
 				B_matrix_list[p_index][q_index].clear();
 				JxW[p_index][q_index].clear();
