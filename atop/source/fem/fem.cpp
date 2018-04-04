@@ -649,6 +649,8 @@ void FEM<dim>::initialize_pseudo_designField(){
 		unsigned temp_max_design = 0;
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 			if ((*cell_info_vector)[i].design_points.no_points > temp_max_design)
+
+				// The code below might have to be corrected for 3D
 				temp_max_design = (*cell_info_vector)[i].design_points.no_points;
 		}
 		max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);	//this refers top pseudo-points
@@ -656,6 +658,7 @@ void FEM<dim>::initialize_pseudo_designField(){
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 			(*cell_info_vector)[i].pseudo_design_points.no_points = max_design_points_per_cell;
 			(*cell_info_vector)[i].pseudo_design_points.initialize_field(dim, max_design_points_per_cell, 1, volfrac);
+			std::cout<<"No. of pseudo design points per cell : "<<(*cell_info_vector)[i].pseudo_design_points.no_points<<std::endl;
 
 		}
 	}
