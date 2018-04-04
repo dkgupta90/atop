@@ -1153,6 +1153,7 @@ double DensityField<dim>::get_vol_fraction(
 		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
 			//std::cout<<"Q"<<qpoint+1<<" : "<<cell_info_vector[i].density_weights[qpoint]<<std::endl;
 			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
+			std::cout<<"Density : "<<cell_info_vector[i].density[qpoint]<<std::endl;
 		}
 		double area_fraction = cell_info_vector[i].cell_area / max_cell_area;
 		volume += (cell_info_vector[i].cell_density * area_fraction);

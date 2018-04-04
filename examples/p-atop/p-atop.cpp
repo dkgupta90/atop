@@ -101,7 +101,7 @@ int main(){
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
 	opt.problemType(material1);
-	opt.volfrac = 0.45; //Maximum permissible volume fraction
+	opt.volfrac = 1.0; //Maximum permissible volume fraction
 
 	//Initializing the compulsory variables
 	mesh.point_stiffness_vector.clear();
@@ -202,10 +202,10 @@ int main(){
 
 			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 8;
+			mesh.max_el_order = 2;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 64;
-			mesh.max_dcount_per_el = 512;
+			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(pow(mesh.initial_dcount_per_el, 0.33333));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0],
 					d_per_line*mesh.subdivisions[1], d_per_line*mesh.subdivisions[2]};
