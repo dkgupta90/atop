@@ -264,8 +264,8 @@ void DensityField<dim>::create_neighbors(
 				//The following function gets the neighbors of the current cell lying within a distance of drmin
 				neighbor_iterators.push_back(cell1);
 				neighbor_search_3D(cell1, cell1, neighbor_iterators, drmin);
+				//std::cout<<"Neighbor cell count for "<<cell_itr1<<" : "<<neighbor_iterators.size()<<std::endl;
 
-				//std::cout<<"Cell : "<<cell_itr1<<"      No. of neighbors : "<<neighbor_iterators.size()<<std::endl;
 				if(neighbor_iterators.size() == 0){
 					std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
 				}
@@ -293,6 +293,7 @@ void DensityField<dim>::create_neighbors(
 
 					double rmin1;
 					rmin1 = proj_radius;
+					//std::cout<<"Spanning radius : "<<rmin1<<std::endl;
 
 					for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
 						//Iterating over all the psuedo-design points of cell 2
@@ -306,16 +307,19 @@ void DensityField<dim>::create_neighbors(
 								for(unsigned int dimi = 0; dimi < dim; ++dimi){
 									point2(dimi) = centroid(dimi) +
 									(cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) * (side_length/2.0);
+									if ((cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) == 0){
+										std::cout<<"Coordinate of pseudo-design center found to be zero...ERROR!!"<<std::endl;
+										exit(0);
+									}
+
 								}
 
 							distance = 0.0;
 							distance = qpoints1[q_point1].distance(point2);
-
 							if(distance > rmin1){
 								continue;
 							}
-
-							//std::cout<<"And I reached here"<<std::endl;
+							std::cout<<"Added to "<<cell_itr1<<"  qpoint "<<q_point1<<std::endl;
 							//Adding the point to the neighbour vector
 							cell_info_vector[cell_itr1].neighbour_points[q_point1].push_back(
 									std::make_pair(cell_itr2, ngpt_itr));
@@ -750,7 +754,7 @@ void DensityField<dim>::smoothing(
 		for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
 			double xPhys = 0.0;
 			unsigned int cell_itr2, ng_pt_itr;
-			std::cout<<"No. of neighbor points: "<<cell_info_vector[cell_itr].neighbour_points[qpoint].size()<<std::endl;
+			//std::cout<<"No. of neighbor points: "<<cell_info_vector[cell_itr].neighbour_points[qpoint].size()<<std::endl;
 			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
 				cell_itr2 = cell_info_vector[cell_itr].neighbour_points[qpoint][i].first;
 				ng_pt_itr = cell_info_vector[cell_itr].neighbour_points[qpoint][i].second;
@@ -761,8 +765,8 @@ void DensityField<dim>::smoothing(
 					//	cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr]<<std::endl;
 			}
 			cell_info_vector[cell_itr].density[qpoint] = xPhys;
-			if (xPhys != 0)
-				std::cout<<"Non-zero xphys : "<<xPhys<<std::endl;
+/*			if (xPhys != 0)
+				std::cout<<"Non-zero xphys : "<<xPhys<<std::endl;*/
 			//std::cout<<cell_itr<<"   "<<cell_info_vector[cell_itr].density[qpoint]<<std::endl;
 			//std::cout<<"xPhys : "<<xPhys<<std::endl;
 		}
