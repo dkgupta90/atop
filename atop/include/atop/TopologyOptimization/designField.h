@@ -42,6 +42,7 @@ namespace atop{
 		void update_pseudo_designField(
 				std::vector<double> &rho);
 		bool isPerfectSquare(unsigned int);
+		bool isPerfectCube(unsigned int);
 
 
 	};

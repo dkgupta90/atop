@@ -397,7 +397,7 @@ void FEM<dim>::output_results(){
 
 	OutputData<dim> out_soln;
 	out_soln.write_fe_solution(filename, dof_handler,
-			system_rhs, solution_names);
+			solution, solution_names);
 
 	//Writing the density solution
 	filename = "density-";
@@ -652,9 +652,15 @@ void FEM<dim>::initialize_pseudo_designField(){
 
 				// The code below might have to be corrected for 3D
 				temp_max_design = (*cell_info_vector)[i].design_points.no_points;
-				std::cout<<"Temp no design points "<<temp_max_design<<std::endl;
 		}
-		max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);	//this refers top pseudo-points
+
+		if (dim == 2){
+			max_design_points_per_cell = pow(ceil(sqrt((double)temp_max_design) - 0.000000001), 2);	//this refers top pseudo-points
+		}
+		else{
+			max_design_points_per_cell = pow(ceil(pow((double)temp_max_design, 0.333) - 0.000000001), 3);
+		}
+		//std::cout<<"Max design points in this cycle : "<<max_design_points_per_cell<<std::endl;
 		//Updating the distribution and number of design points per cell
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 			(*cell_info_vector)[i].pseudo_design_points.no_points = max_design_points_per_cell;
@@ -679,9 +685,6 @@ void FEM<dim>::update_pseudo_designField(){
 				(*cell_info_vector)[i].design_points.rho);
 	}
 
-	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
-		std::cout<<"Pseudo design vector size : "<<(*cell_info_vector)[i].pseudo_design_points.no_points<<std::endl;
-	}
 	std::cout<<"Pseudo design field updated "<<std::endl;
 }
 
@@ -841,7 +844,6 @@ void FEM<dim>::assembly(){
 			//std::cout<<fe_values.JxW(q_point)<<std::endl;
 		}
 
-		//std::cout<<total_weight<<std::endl;
 
 		//Calculating cell_rhs
 		for(unsigned int i = 0; i < dofs_per_cell; ++i){

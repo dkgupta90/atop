@@ -54,6 +54,7 @@ void DesignField::update_field_manual(unsigned int ctr){
 	unsigned int dim = pointX[0].size();	//getting the no. of dimensions of the problem
 	unsigned int no_points = pointX.size();
 	if (dim == 2){
+		std::cout<<"Entered into dimension 2"<<std::endl;
 		if (isPerfectSquare(no_points) == true){
 			unsigned int dxcount = (unsigned int)(round(sqrt(no_points)));
 			double dx = 2.0/(dxcount);
@@ -90,6 +91,25 @@ void DesignField::update_field_manual(unsigned int ctr){
 				//std::cout<<pt<<" "<<pointX[pt][0]<<"   "<<pointX[pt][1]<<std::endl;
 			}
 
+		}
+	}
+	else if (dim == 3){
+		if (isPerfectCube(no_points) == true){
+			unsigned int dxcount = (unsigned int)(round(pow(no_points, 0.33333)));
+
+			// This is th part where the regularly spaced points need to be assigned
+			double dx = 2.0/(dxcount);
+
+			for (unsigned int i = 0; i < dxcount; i++){
+				for (unsigned int j = 0; j < dxcount; j++){
+					for (unsigned int k = 0; k < dxcount; ++k){
+						pointX[(i*dxcount + j)*dxcount + k][0] = -1 + (k+0.5)*dx;
+						pointX[(i*dxcount + j)*dxcount + k][1] = -1 + (j+0.5)*dx;
+						pointX[(i*dxcount + j)*dxcount + k][2] = -1 + (i+0.5)*dx;
+					}
+
+				}
+			}
 		}
 	}
 }
@@ -228,6 +248,17 @@ bool DesignField::isPerfectSquare(unsigned int no_design_points){
 		return true;
 	}
 	else{
+		return false;
+	}
+}
+
+bool DesignField::isPerfectCube(unsigned int no_design_points){
+	double cuberoot = pow((double)no_design_points, 0.3333333);
+	if (fabs(cuberoot - (double)(floor(cuberoot + 0.000001))) < 1e-4){
+		return true;
+	}
+	else{
+		std::cout<<"Returning false"<<std::endl;
 		return false;
 	}
 }

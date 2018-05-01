@@ -269,7 +269,6 @@ void DensityField<dim>::create_neighbors(
 				if(neighbor_iterators.size() == 0){
 					std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
 				}
-				std::cout<<"No. of neighbors found : "<<neighbor_iterators.size()<<std::endl;
 				std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
 				cell_info_vector[cell_itr1].neighbour_points.clear();
 				cell_info_vector[cell_itr1].neighbour_distance.clear();
@@ -319,7 +318,6 @@ void DensityField<dim>::create_neighbors(
 							if(distance > rmin1){
 								continue;
 							}
-							std::cout<<"Added to "<<cell_itr1<<"  qpoint "<<q_point1<<std::endl;
 							//Adding the point to the neighbour vector
 							cell_info_vector[cell_itr1].neighbour_points[q_point1].push_back(
 									std::make_pair(cell_itr2, ngpt_itr));

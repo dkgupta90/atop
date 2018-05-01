@@ -101,7 +101,7 @@ int main(){
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
 	opt.problemType(material1);
-	opt.volfrac = 1.0; //Maximum permissible volume fraction
+	opt.volfrac = 0.45; //Maximum permissible volume fraction
 
 	//Initializing the compulsory variables
 	mesh.point_stiffness_vector.clear();
@@ -194,10 +194,10 @@ int main(){
 			}
 		}
 	}
-	else if (dim ==3){
+	else if (dim == 3){
 		if (test_problem == "cantilever3D"){
-			mesh.coordinates = {{0, 2}, {0, 1}, {0, 0.5}};
-			mesh.subdivisions = {4, 2, 1};
+			mesh.coordinates = {{0, 4}, {0, 2}, {0, 1}};
+			mesh.subdivisions = {8, 4, 2};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
 			mesh.initial_el_order = 2;
@@ -210,7 +210,6 @@ int main(){
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0],
 					d_per_line*mesh.subdivisions[1], d_per_line*mesh.subdivisions[2]};
 
-
 			mesh.source_fn = source_function;
 
 			//Define loads
@@ -218,7 +217,7 @@ int main(){
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
-				std::vector<double> point = {2.0, 0.0, 0.5};
+				std::vector<double> point = {4, 0.0, 0.5};
 				std::vector<double> source = {0.0, 1.0, 0.0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 				   //empty dist load
