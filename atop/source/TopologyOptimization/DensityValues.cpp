@@ -258,18 +258,8 @@ void DensityField<dim>::create_neighbors(
 			double proj_radius = cell_info_vector[cell_itr1].projection_radius;
 			double drmin = proj_radius + pow(cell1->measure(), 0.3333); //added term is the distance from center of square element to the corner
 
-
-			//Computing the cell specific filter radius
-			//double proj_radius = projection.radius * pow(projection.gamma, (double)(cell1->level()));
-			//double drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
-
-
 			//If the two meshes are decoupled, and design points are distributed w.r.t analysis mesh
 			if (mesh.coupling == false && mesh.adaptivityType == "adaptive_grayness"){
-
-				//Computing the cell specific filter radius
-				//proj_radius = cell_info_vector[cell_itr1].projection_radius;
-				//drmin = proj_radius + sqrt(cell1->measure()/2); //added term is the distance from center of square element to the corner
 
 				//The following function gets the neighbors of the current cell lying within a distance of drmin
 				neighbor_iterators.push_back(cell1);
@@ -279,6 +269,7 @@ void DensityField<dim>::create_neighbors(
 				if(neighbor_iterators.size() == 0){
 					std::cout<<"Strange condition : NO NEIGHBOR FOUND  for cell : "<<cell_itr1<<std::endl;
 				}
+				std::cout<<"No. of neighbors found : "<<neighbor_iterators.size()<<std::endl;
 				std::vector<Point<dim> > qpoints1 = fe_values1.get_quadrature_points();
 				cell_info_vector[cell_itr1].neighbour_points.clear();
 				cell_info_vector[cell_itr1].neighbour_distance.clear();
@@ -755,16 +746,24 @@ void DensityField<dim>::smoothing(
 
 		cell_info_vector[cell_itr].density.clear();
 		cell_info_vector[cell_itr].density.resize(cell_info_vector[cell_itr].n_q_points);
+		//std::cout<<"No. of gauss points : "<<cell_info_vector[cell_itr].n_q_points<<"  "<<cell_info_vector[cell_itr].neighbour_points.size()<<std::endl;
 		for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
 			double xPhys = 0.0;
 			unsigned int cell_itr2, ng_pt_itr;
+			std::cout<<"No. of neighbor points: "<<cell_info_vector[cell_itr].neighbour_points[qpoint].size()<<std::endl;
 			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
 				cell_itr2 = cell_info_vector[cell_itr].neighbour_points[qpoint][i].first;
 				ng_pt_itr = cell_info_vector[cell_itr].neighbour_points[qpoint][i].second;
 				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
 						  * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
+				//std::cout<<"xPhys : "<<xPhys<<std::endl;
+				//std::cout<<"Weight : "<<cell_info_vector[cell_itr].neighbour_weights[qpoint][i]<<"   value: "<<
+					//	cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr]<<std::endl;
 			}
 			cell_info_vector[cell_itr].density[qpoint] = xPhys;
+			if (xPhys != 0)
+				std::cout<<"Non-zero xphys : "<<xPhys<<std::endl;
+			//std::cout<<cell_itr<<"   "<<cell_info_vector[cell_itr].density[qpoint]<<std::endl;
 			//std::cout<<"xPhys : "<<xPhys<<std::endl;
 		}
 	}
@@ -1153,7 +1152,7 @@ double DensityField<dim>::get_vol_fraction(
 		for(unsigned int qpoint = 0; qpoint < cell_info_vector[i].density_weights.size(); ++qpoint){
 			//std::cout<<"Q"<<qpoint+1<<" : "<<cell_info_vector[i].density_weights[qpoint]<<std::endl;
 			cell_info_vector[i].cell_density += cell_info_vector[i].density_weights[qpoint] * cell_info_vector[i].density[qpoint];
-			std::cout<<"Density : "<<cell_info_vector[i].density[qpoint]<<std::endl;
+			//std::cout<<"qpoint: "<<qpoint<<";   Density : "<<cell_info_vector[i].density[qpoint]<<std::endl;
 		}
 		double area_fraction = cell_info_vector[i].cell_area / max_cell_area;
 		volume += (cell_info_vector[i].cell_density * area_fraction);

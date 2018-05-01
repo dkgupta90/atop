@@ -658,7 +658,6 @@ void FEM<dim>::initialize_pseudo_designField(){
 		for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 			(*cell_info_vector)[i].pseudo_design_points.no_points = max_design_points_per_cell;
 			(*cell_info_vector)[i].pseudo_design_points.initialize_field(dim, max_design_points_per_cell, 1, volfrac);
-			std::cout<<"No. of pseudo design points per cell : "<<(*cell_info_vector)[i].pseudo_design_points.no_points<<std::endl;
 
 		}
 	}
@@ -677,6 +676,10 @@ void FEM<dim>::update_pseudo_designField(){
 	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
 		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designField(
 				(*cell_info_vector)[i].design_points.rho);
+	}
+
+	for (unsigned int i = 0; i < (*cell_info_vector).size(); ++i){
+		std::cout<<"Pseudo design vector size : "<<(*cell_info_vector)[i].pseudo_design_points.no_points<<std::endl;
 	}
 	std::cout<<"Pseudo design field updated "<<std::endl;
 }
