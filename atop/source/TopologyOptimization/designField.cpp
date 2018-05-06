@@ -102,7 +102,7 @@ void DesignField::update_field_manual(unsigned int ctr){
 
 			for (unsigned int i = 0; i < dxcount; i++){
 				for (unsigned int j = 0; j < dxcount; j++){
-					for (unsigned int k = 0; k < dxcount; ++k){
+					for (unsigned int k = 0; k < dxcount; k++){
 						pointX[(i*dxcount + j)*dxcount + k][0] = -1 + (k+0.5)*dx;
 						pointX[(i*dxcount + j)*dxcount + k][1] = -1 + (j+0.5)*dx;
 						pointX[(i*dxcount + j)*dxcount + k][2] = -1 + (i+0.5)*dx;

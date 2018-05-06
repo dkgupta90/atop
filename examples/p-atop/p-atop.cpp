@@ -82,7 +82,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.5, 1.0);
+			"dp-refinement", 0.1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -197,14 +197,14 @@ int main(){
 	else if (dim == 3){
 		if (test_problem == "cantilever3D"){
 			mesh.coordinates = {{0, 4}, {0, 2}, {0, 1}};
-			mesh.subdivisions = {8, 4, 2};
+			mesh.subdivisions = {40, 20, 10};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 2;
+			mesh.initial_el_order = 1;
 			mesh.initial_density_el_order = 1;
 			mesh.max_el_order = 2;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 64;
+			mesh.initial_dcount_per_el = 1;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(pow(mesh.initial_dcount_per_el, 0.33333));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0],
@@ -217,10 +217,16 @@ int main(){
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
-				std::vector<double> point = {4, 0.0, 0.5};
+				std::vector<double> point = {4, 1.0, 0.5};
 				std::vector<double> source = {0.0, 1.0, 0.0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 				   //empty dist load
+				point = {4, 1.0, 0.0};
+				source = {0.0, 1.0, 0.0};
+				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
+				point = {4, 1.0, 1.0};
+				source = {0.0, 1.0, 0.0};
+				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 			}
 			else if (loadType == "distLoad"){
 

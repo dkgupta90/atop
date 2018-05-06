@@ -119,7 +119,6 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 		xmin = 0, ymin = 0, zmin = 0;
 		xmax = 4, ymax = 2, zmax = 1;
 		if (std::fabs(p(0) - (xmin)) < 1e-12){
-			std::cout<<"Reached here in boundary values"<<std::endl;
 			values(0) = 0;
 			values(1) = 0;
 			values(2) = 0;

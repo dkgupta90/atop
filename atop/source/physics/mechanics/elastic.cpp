@@ -218,6 +218,7 @@ void ElasticTools<dim>::get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matr
 							}
 
 						}
+						B_matrix(k, i) = B_matrix(t1, t2);
 					}
 					else if (k == 4){
 						unsigned int t1, t2;
@@ -239,6 +240,7 @@ void ElasticTools<dim>::get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matr
 							}
 
 						}
+						B_matrix(k, i) = B_matrix(t1, t2);
 					}
 					else if (k == 5){
 						unsigned int t1, t2;
@@ -260,6 +262,7 @@ void ElasticTools<dim>::get_B_matrix_3D(std::vector<FullMatrix<double> > &B_matr
 							}
 
 						}
+						B_matrix(k, i) = B_matrix(t1, t2);
 					}
 				}
 				//for k = 0, 1, 2

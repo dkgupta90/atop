@@ -353,13 +353,6 @@ void FEM<dim>::solve(){
 	//system_matrix.vmult(system_rhs, solution);
 	std::cout<<"FEM system solved "<<std::endl;
 
-/*	double sumQ = 0.0;
-	for (unsigned int i = 0; i < system_rhs.size(); ++i){
-		sumQ += system_rhs[i];
-	}
-	double Power = sumQ * 0.5;
-	std::cout<<"Power  : "<<Power<<std::endl;
-	exit(0);*/
 }
 
 template <int dim>
@@ -684,8 +677,6 @@ void FEM<dim>::update_pseudo_designField(){
 		(*cell_info_vector)[i].pseudo_design_points.update_pseudo_designField(
 				(*cell_info_vector)[i].design_points.rho);
 	}
-
-	std::cout<<"Pseudo design field updated "<<std::endl;
 }
 
 template <int dim>
@@ -840,6 +831,7 @@ void FEM<dim>::assembly(){
 
 			cell_matrix.add((*cell_info_vector)[cell_itr].E_values[q_point],
 					normalized_matrix);
+			//std::cout<<(*(cell_info_vector))[cell_itr].E_values[q_point]<<std::endl;
 			total_weight += fe_values.JxW(q_point);
 			//std::cout<<fe_values.JxW(q_point)<<std::endl;
 		}
@@ -1017,6 +1009,7 @@ void FEM<dim>::add_point_source_to_rhs(){
 		deallog.depth_console (2);
 
 	unsigned int no_sources = (mesh->point_source_vector).size();
+	std::cout<<"No of sources "<<no_sources<<std::endl;
 	for(unsigned int s = 0; s < no_sources; ++s){
 		std::vector<double> load_point = mesh->point_source_vector[s].first;
 		std::vector<double> load = mesh->point_source_vector[s].second;

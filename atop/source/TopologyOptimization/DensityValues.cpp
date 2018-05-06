@@ -306,10 +306,10 @@ void DensityField<dim>::create_neighbors(
 								for(unsigned int dimi = 0; dimi < dim; ++dimi){
 									point2(dimi) = centroid(dimi) +
 									(cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) * (side_length/2.0);
-									if ((cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) == 0){
+/*									if ((cell_info_vector[cell_itr2].pseudo_design_points.pointX[ngpt_itr][dimi]) == 0){
 										std::cout<<"Coordinate of pseudo-design center found to be zero...ERROR!!"<<std::endl;
 										exit(0);
-									}
+									}*/
 
 								}
 
