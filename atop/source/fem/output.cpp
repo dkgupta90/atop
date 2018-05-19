@@ -122,6 +122,7 @@ void OutputData<dim>::read_xPhys_from_file(std::vector<CellInfo> & cell_info_vec
 	//check if the mesh and the data from the file comply
 	rfile>>no_cells;
 	if (no_cells != cell_info_vector.size()){
+		std::cout<<no_cells<<"  "<<cell_info_vector.size()<<std::endl;
 		std::cerr<<" Dimensional mismatch  in OutputData::read_xPhys_from_file\n";
 		exit(0);
 	}

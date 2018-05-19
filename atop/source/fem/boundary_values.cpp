@@ -117,8 +117,8 @@ void BoundaryValues<dim>::vector_value(const Point<dim> &p,
 	else if (dim == 3){
 		// Defining the boundaries for the current 3D case
 		xmin = 0, ymin = 0, zmin = 0;
-		xmax = 4, ymax = 2, zmax = 1;
-		if (std::fabs(p(0) - (xmin)) < 1e-12){
+		xmax = 1, ymax = 1, zmax = 1;
+		if (std::fabs(p(1) - (ymin)) < 1e-12){
 			values(0) = 0;
 			values(1) = 0;
 			values(2) = 0;

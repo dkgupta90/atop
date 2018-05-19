@@ -247,7 +247,7 @@ void Optimizedesign<dim>::optimize(){
 
 		}
 
-
+		std::cout<<"Finished optimizing the design "<<std::endl;
 
 		timer.pause();
 		//Creating the final design mesh for the cycle

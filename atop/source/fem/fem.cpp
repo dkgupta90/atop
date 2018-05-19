@@ -110,7 +110,7 @@ FEM<dim>::FEM(
 
 
 	//Quadrature collection for FE
-	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+7; ++qrule){
+	for (unsigned int qrule = 1; qrule <= mesh->max_el_order+6; ++qrule){
 		quadrature_collection.push_back(QGauss<dim>(qrule));
 		face_quadrature_collection.push_back(QGauss<dim-1>(qrule));
 	}
@@ -180,10 +180,14 @@ void FEM<dim>::setup_system(){
 	std::cout<<"Started setting up the FEM system ...."<<std::endl;
 	boundary_values.clear();
 	//FE mesh
+	std::cout<<"Reached here"<<std::endl;
 	dof_handler.distribute_dofs(fe_collection);
 	hanging_node_constraints.clear();
+	std::cout<<"Reached here"<<std::endl;
+
 	DoFTools::make_hanging_node_constraints(dof_handler,
 			hanging_node_constraints);
+	std::cout<<"Reached here"<<std::endl;
 
 	//Applying the boundary conditions
 	boundary_info();
@@ -281,10 +285,7 @@ void FEM<dim>::assemble_system(){
 /*	OutputData<dim> out_soln;
 	out_soln.read_xPhys_from_file(*cell_info_vector,
 			"output_design/density_1_46.dat");*/
-
-
-
-	//Updating the physics of the problem
+	//Updating the physics of the problemoutput
 
 	update_physics();
 	std::cout<<"Physics updated"<<std::endl;
@@ -855,15 +856,13 @@ void FEM<dim>::assembly(){
               for (unsigned int q_point=0; q_point<n_face_q_points; ++q_point)
                 {
                   for (unsigned int i=0; i<dofs_per_cell; ++i){
-                	  std::vector<double> distLoad = {0.0, 0.0};
+                	  std::vector<double> distLoad = {0.0, 1.0, 0.0};
           			const unsigned int component_i = cell->get_fe().system_to_component_index(i).first;
                     cell_rhs(i) += (distLoad[component_i] *
                                    fe_face_values.shape_value(i,q_point) *
                                     fe_face_values.JxW(q_point));
                   }
-                	//std::cout<<q_point<<"  "<<fe_face_values.JxW(q_point)<<std::endl;
-
-                }
+               }
             }
 
           if (cell->face(face_number)->at_boundary() && (cell->face(face_number)->boundary_id() == 63)){
@@ -950,7 +949,7 @@ void FEM<dim>::assembly(){
 
 
 	double volfrac = density_field.get_vol_fraction(*cell_info_vector);
-	std::cout<<"Volfrac : "<<volfrac<<std::endl;
+	//std::cout<<"Volfrac in the design: "<<volfrac<<std::endl;
 
 
 	//Normalizing the nodal density vector
@@ -1150,65 +1149,123 @@ void FEM<dim>::add_point_to_l_vector(){
 template <int dim>
 void FEM<dim>::add_boundary_constraints(){
 
+	if (dim == 2){
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
 
-	typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
-			endc = dof_handler.end();
+		//Iterating over all the cells
+		for (; cell != endc; ++cell){
+			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+			std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(local_dof_indices);
 
-	//Iterating over all the cells
-	for (; cell != endc; ++cell){
-		const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
-		std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
-		cell->get_dof_indices(local_dof_indices);
+			std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
 
-		std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+			//Iterate over all the faces to check for boundary_id
 
-		//Iterate over all the faces to check for boundary_id
+			bool indic52 = false;
 
-		bool indic52 = false;
+			for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
 
-		for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
+				if (cell->face(f)->boundary_id() == 52 || cell->face(f)->boundary_id() == 53 || cell->face(f)->boundary_id() == 54){
+					indic52 = true;
+					break;
+				}
+			}
 
-			if (cell->face(f)->boundary_id() == 52 || cell->face(f)->boundary_id() == 53 || cell->face(f)->boundary_id() == 54){
-				indic52 = true;
-				break;
+			if (indic52 == true){
+
+				//Iterate over all the support points and check
+				for (unsigned int i = 0; i < dofs_per_cell; ++i){
+					if (dim == 2){
+						//Below linear mapping from unit to real cell is assumed, might have to be corrected later
+						Point<dim> temp_points = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
+						unsigned int boundary_indic = mesh->boundary_indicator({temp_points(0),
+								temp_points(1)});
+						if (boundary_indic == 52){
+							unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+							//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
+
+							if (comp_i == 1){
+								hanging_node_constraints.add_line(local_dof_indices[i]);
+								//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							}
+
+						}
+						else if (boundary_indic == 53){
+							unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+							//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
+
+							if (comp_i == 0){
+								hanging_node_constraints.add_line(local_dof_indices[i]);
+								//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
+							}
+						}
+						else if (boundary_indic == 54){
+								hanging_node_constraints.add_line(local_dof_indices[i]);
+						}
+					}
+				}
 			}
 		}
+	}
+	else if (dim == 3){
+		typename hp::DoFHandler<dim>::active_cell_iterator cell = dof_handler.begin_active(),
+				endc = dof_handler.end();
 
-		if (indic52 == true){
+		//Iterating over all the cells
+		for (; cell != endc; ++cell){
+			const unsigned int dofs_per_cell = cell->get_fe().dofs_per_cell;
+			std::vector<types::global_dof_index> local_dof_indices(dofs_per_cell);
+			cell->get_dof_indices(local_dof_indices);
 
-			//Iterate over all the support points and check
-			for (unsigned int i = 0; i < dofs_per_cell; ++i){
-				if (dim == 2){
+			std::vector<Point<dim> > support_pts = cell->get_fe().get_unit_support_points();
+
+			//Iterate over all the faces to check for boundary_id
+
+			bool indic352 = false;
+
+			for (unsigned int f = 0; f < GeometryInfo<dim>::faces_per_cell; ++f){
+
+				if (cell->face(f)->boundary_id() == 352 || cell->face(f)->boundary_id() == 353 ||
+						cell->face(f)->boundary_id() == 354 || cell->face(f)->boundary_id() == 355 ||
+						cell->face(f)->boundary_id() == 356){
+					indic352 = true;
+					break;
+				}
+			}
+
+			if (indic352 == true){
+
+				//Iterate over all the support points and check
+				for (unsigned int i = 0; i < dofs_per_cell; ++i){
 					//Below linear mapping from unit to real cell is assumed, might have to be corrected later
 					Point<dim> temp_points = MappingQ<dim>(1).transform_unit_to_real_cell(cell, support_pts[i]);
 					unsigned int boundary_indic = mesh->boundary_indicator({temp_points(0),
-							temp_points(1)});
-					if (boundary_indic == 52){
+							temp_points(1), temp_points(2)});
+
+					if (boundary_indic == 352 || boundary_indic == 353){
 						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
-						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
-
-						if (comp_i == 1){
-							hanging_node_constraints.add_line(local_dof_indices[i]);
-							//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
-						}
-
-					}
-					else if (boundary_indic == 53){
-						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
-						//std::cout<<temp_points[0]<<"   "<<temp_points[1]<<"    "<<boundary_indic<<std::endl;
-
 						if (comp_i == 0){
 							hanging_node_constraints.add_line(local_dof_indices[i]);
-							//std::cout<<hanging_node_constraints.n_constraints()<<std::endl;
 						}
 					}
-					else if (boundary_indic == 54){
+
+					else if (boundary_indic == 354 || boundary_indic == 355){
+						unsigned int comp_i = cell->get_fe().system_to_component_index(i).first;
+						if (comp_i == 2){
+							hanging_node_constraints.add_line(local_dof_indices[i]);
+						}
+					}
+					else if (boundary_indic == 356){
+							// constraining all the DOFs
 							hanging_node_constraints.add_line(local_dof_indices[i]);
 					}
 				}
 			}
 		}
 	}
+
 }
 
 //Function for setting boundary indicators for the domain

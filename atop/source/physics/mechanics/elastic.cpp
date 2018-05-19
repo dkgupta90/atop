@@ -593,6 +593,23 @@ void ElasticData<dim>::update_elastic_matrices(hp::FECollection<dim> &temp_fe_co
 
 			}
 			(*running_quadRuleVector)[p_index] = (*current_quadRuleVector)[p_index] + 1;
+
+			//Below code is a temp trick to reduce memmory for single p tests
+			if (degree != max_p_degree){
+				B_matrix_list[p_index].clear();
+				JxW[p_index].clear();
+				elem_stiffness_array[p_index].clear();
+
+			}
+			if (degree == max_p_degree){
+				for (unsigned int qq = 0; qq < B_matrix_list[p_index].size(); ++qq){
+					if (qq + 1 < (max_p_degree + 1)){
+						B_matrix_list[p_index][qq].clear();
+						JxW[p_index][qq].clear();
+						elem_stiffness_array[p_index][qq].clear();
+					}
+				}
+			}
 		}
 		std::cout<<"Reached here "<<std::endl;
 	}

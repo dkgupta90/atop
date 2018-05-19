@@ -45,10 +45,29 @@ unsigned int get_boundary_indicator(std::vector<double> X){
 unsigned int get_boundary_indicator_dist(std::vector<double> X){
 	//This function defines the boundary indicators
 
-	if (fabs(X[1] - 1) < 1e-12)
+	if (fabs(X[0] - 1) < 1e-12)
 		return 62;	//for adding distributed load
 	else if (fabs(X[0] - 0) < 1e-12)	//fixed Dirichlet b.c.
 		return 42;
+	else
+		return 9999;
+
+}
+
+unsigned int get_boundary_indicator_dist3d(std::vector<double> X){
+	//This function defines the boundary indicators
+	if (fabs(X[1] - 1) < 1e-12)
+		return 62;	//for adding distributed load
+	else if (fabs(X[0] - 0) < 1e-12)
+		return 352;
+	else if (fabs(X[0] - 1) < 1e-12)
+		return 353;
+	else if (fabs(X[2] - 0) < 1e-12)
+		return 354;
+	else if (fabs(X[2] - 1) < 1e-12)
+		return 355;
+	else if (fabs(X[1] - 0) < 1e-12)	//fixed Dirichlet b.c.
+		return 42; //. contraining all the DOFs
 	else
 		return 9999;
 
@@ -82,7 +101,7 @@ int main(){
 
 
 	Projection filter("density_filter",
-			"dp-refinement", 0.1, 1.0);
+			"dp-refinement", 1, 1.0);
 
 	//Define the penalization scheme
 	Penalize penal("SIMP");
@@ -101,7 +120,7 @@ int main(){
 	//opt.problem_name = "compliant_mechanism";
 	opt.is_problem_self_adjoint = true;
 	opt.problemType(material1);
-	opt.volfrac = 0.45; //Maximum permissible volume fraction
+	opt.volfrac = 0.30; //Maximum permissible volume fraction
 
 	//Initializing the compulsory variables
 	mesh.point_stiffness_vector.clear();
@@ -119,13 +138,12 @@ int main(){
 
 			mesh.initial_el_order = 2;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 8;
+			mesh.max_el_order = 2;
 			mesh.max_density_el_order = 1;
 			mesh.initial_dcount_per_el = 16;
 			mesh.max_dcount_per_el = 64;
 			unsigned int d_per_line = round(sqrt(mesh.initial_dcount_per_el));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0], d_per_line*mesh.subdivisions[1]};
-
 
 			mesh.source_fn = source_function;
 
@@ -196,16 +214,18 @@ int main(){
 	}
 	else if (dim == 3){
 		if (test_problem == "cantilever3D"){
-			mesh.coordinates = {{0, 4}, {0, 2}, {0, 1}};
-			mesh.subdivisions = {40, 20, 10};
+			//mesh.coordinates = {{0, 4}, {0, 2}, {0, 1}};
+			//mesh.subdivisions = {16, 8, 4};
+			mesh.coordinates = {{0, 1}, {0, 1}, {0, 1}};
+			mesh.subdivisions = {1, 1, 1};
 			mesh.meshType = "subdivided_hyper_rectangle";
 
-			mesh.initial_el_order = 1;
+			mesh.initial_el_order = 5;
 			mesh.initial_density_el_order = 1;
-			mesh.max_el_order = 2;
+			mesh.max_el_order = mesh.initial_el_order;
 			mesh.max_density_el_order = 1;
-			mesh.initial_dcount_per_el = 1;
-			mesh.max_dcount_per_el = 64;
+			mesh.initial_dcount_per_el = 216;
+			mesh.max_dcount_per_el = mesh.initial_dcount_per_el;
 			unsigned int d_per_line = round(pow(mesh.initial_dcount_per_el, 0.33333));
 			mesh.density_subdivisions = {d_per_line*mesh.subdivisions[0],
 					d_per_line*mesh.subdivisions[1], d_per_line*mesh.subdivisions[2]};
@@ -213,7 +233,7 @@ int main(){
 			mesh.source_fn = source_function;
 
 			//Define loads
-			std::string loadType = "pointLoad";
+			std::string loadType = "distLoad";
 			if (loadType == "pointLoad"){
 				mesh.boundary_indicator = get_boundary_indicator;
 				//Define point force
@@ -221,16 +241,10 @@ int main(){
 				std::vector<double> source = {0.0, 1.0, 0.0};
 				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 				   //empty dist load
-				point = {4, 1.0, 0.0};
-				source = {0.0, 1.0, 0.0};
-				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
-				point = {4, 1.0, 1.0};
-				source = {0.0, 1.0, 0.0};
-				mesh.point_source_vector.push_back(std::make_pair(point, source)); //make pairs and push
 			}
 			else if (loadType == "distLoad"){
 
-				mesh.boundary_indicator = get_boundary_indicator_dist;
+				mesh.boundary_indicator = get_boundary_indicator_dist3d;
 				mesh.point_source_vector.clear();	//no point load
 			}
 		}
@@ -254,12 +268,14 @@ int main(){
 	filename += ".dat";
 	opt.tempfname = filename;
 	mesh.initial_el_order = 3;
-	unsigned int d_per_line = round(sqrt(opt.final_dcount_per_el));
+	mesh.max_el_order = mesh.initial_el_order;
+	unsigned int d_per_line = round(pow(opt.final_dcount_per_el, 1.0/dim));
 	std::cout<<d_per_line<<std::endl;
-	mesh.subdivisions = {d_per_line * 20, d_per_line * 10};
+	mesh.subdivisions = {d_per_line * 1, d_per_line * 1, d_per_line * 1};
 	//filter.radius /= d_per_line;
 	mesh.initial_dcount_per_el = 1;
-	mesh.density_subdivisions = {mesh.initial_dcount_per_el*mesh.subdivisions[0], mesh.initial_dcount_per_el*mesh.subdivisions[1]};
+	mesh.density_subdivisions = {mesh.initial_dcount_per_el*mesh.subdivisions[0], mesh.initial_dcount_per_el*mesh.subdivisions[1],
+										mesh.initial_dcount_per_el*mesh.subdivisions[2]};
 	opt.no_cycles = 1;
 	opt.optimize();
 	double objTO = opt.objective;

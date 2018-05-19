@@ -34,8 +34,8 @@ void CreateDesign<dim>::assemble_design(
 	this->fem = &obj_fem;
 
 	//Update the cells in the design mesh
-	unsigned int design_per_dim = round(sqrt(fem->max_design_points_per_cell));
-	std::cout<<design_per_dim<<std::endl;
+	unsigned int design_per_dim = round(pow(fem->max_design_points_per_cell, 1.0/dim));
+	//std::cout<<design_per_dim<<std::endl;
 	fem->mesh->update_outputDesignMesh(fem->design_triangulation,
 			design_per_dim);
 

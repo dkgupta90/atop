@@ -238,6 +238,13 @@ void DensityField<dim>::create_neighbors(
 		unsigned int cell_itr1 = 0;
 		typename hp::DoFHandler<3>::active_cell_iterator cell1 = dof_handler.begin_active(),
 					endc1= dof_handler.end();
+
+
+/*		for (unsigned int i = 0; i < cell_info_vector[cell_itr1].pseudo_design_points.no_points; ++i){
+			std::cout<<cell_info_vector[cell_itr1].pseudo_design_points.pointX[i][0]<<"   "<<
+					cell_info_vector[cell_itr1].pseudo_design_points.pointX[i][1]<<"   "<<
+					cell_info_vector[cell_itr1].pseudo_design_points.pointX[i][2]<<std::endl;
+		}*/
 		for(; cell1 != endc1; ++cell1){
 
 			//Just a random check, can be deleted
@@ -294,6 +301,7 @@ void DensityField<dim>::create_neighbors(
 					rmin1 = proj_radius;
 					//std::cout<<"Spanning radius : "<<rmin1<<std::endl;
 
+					std::cout<<"Q points "<<qpoints1.size()<<std::endl;
 					for(unsigned int q_point1 = 0; q_point1 < qpoints1.size(); ++q_point1){
 						//Iterating over all the psuedo-design points of cell 2
 						unsigned int ng_no_points = cell_info_vector[cell_itr2].pseudo_design_points.no_points;
@@ -318,18 +326,20 @@ void DensityField<dim>::create_neighbors(
 							if(distance > rmin1){
 								continue;
 							}
+							//std::cout<<"Selected Ng density value "<<cell_info_vector[cell_itr2].pseudo_design_points.rho[ngpt_itr]<<std::endl;
 							//Adding the point to the neighbour vector
 							cell_info_vector[cell_itr1].neighbour_points[q_point1].push_back(
 									std::make_pair(cell_itr2, ngpt_itr));
+							//std::cout<<"Distance : "<<distance<<"   "<<rmin1<<std::endl;
 
 							//Adding the respective distance
 							cell_info_vector[cell_itr1].neighbour_distance[q_point1].push_back(distance);
-
 							//Adding the virtual area fraction
 							cell_info_vector[cell_itr1].neighbour_cell_area_fraction[q_point1].push_back(1.0/((double)cell_info_vector[cell_itr2].pseudo_design_points.no_points));
 
 
 						}
+						//std::cout<<"No. of neigggggghs : "<<cell_info_vector[cell_itr1].neighbour_distance[q_point1].size()<<std::endl;
 					}
 				}
 
@@ -522,7 +532,7 @@ void DensityField<dim>::find_neighbors_3D(
 
 	//Computing the cell specific filter radius
 	double proj_radius = cell_info_vector[cell_itr1].projection_radius;
-	double drmin = proj_radius + sqrt(cell->measure()); //added term is the distance from center of square element to the corner
+	double drmin = proj_radius + pow(cell->measure(), 1.0/dim); //added term is the distance from center of square element to the corner
 
 	//The following function gets the neighbors of the current cell lying within a distance of drmin
 	neighbor_iterators.push_back(cell);
@@ -670,6 +680,7 @@ void DensityField<dim>::calculate_weights(std::vector<CellInfo> &cell_info_vecto
 	unsigned int n_q_points = cell_info_vector[cell_itr1].neighbour_distance.size();
 	cell_info_vector[cell_itr1].neighbour_weights.resize(n_q_points);
 	for(unsigned int qpoint = 0; qpoint < n_q_points; ++qpoint){
+		//std::cout<<"No. of neighs : "<<cell_info_vector[cell_itr1].neighbour_distance[qpoint].size()<<std::endl;
 		cell_info_vector[cell_itr1].neighbour_weights[qpoint].resize(cell_info_vector[cell_itr1].neighbour_distance[qpoint].size());
 		double sum_weights = 0;
 		for(unsigned int i = 0 ; i < cell_info_vector[cell_itr1].neighbour_distance[qpoint].size(); ++i){
@@ -748,21 +759,25 @@ void DensityField<dim>::smoothing(
 
 		cell_info_vector[cell_itr].density.clear();
 		cell_info_vector[cell_itr].density.resize(cell_info_vector[cell_itr].n_q_points);
+
 		//std::cout<<"No. of gauss points : "<<cell_info_vector[cell_itr].n_q_points<<"  "<<cell_info_vector[cell_itr].neighbour_points.size()<<std::endl;
 		for(unsigned int qpoint = 0 ; qpoint < cell_info_vector[cell_itr].neighbour_points.size(); ++qpoint){
+			//std::cout<<"No. of neighbors : "<<cell_info_vector[cell_itr].neighbour_weights[qpoint].size()<<std::endl;
 			double xPhys = 0.0;
 			unsigned int cell_itr2, ng_pt_itr;
 			//std::cout<<"No. of neighbor points: "<<cell_info_vector[cell_itr].neighbour_points[qpoint].size()<<std::endl;
 			for(unsigned int i = 0; i < cell_info_vector[cell_itr].neighbour_weights[qpoint].size(); ++i){
 				cell_itr2 = cell_info_vector[cell_itr].neighbour_points[qpoint][i].first;
 				ng_pt_itr = cell_info_vector[cell_itr].neighbour_points[qpoint][i].second;
-				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i]
-						  * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
+/*				std::cout<<cell_info_vector[cell_itr].neighbour_weights[qpoint][i]<<"  "<<
+						cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr]<<std::endl;*/
+				xPhys += cell_info_vector[cell_itr].neighbour_weights[qpoint][i] * cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr];
 				//std::cout<<"xPhys : "<<xPhys<<std::endl;
 				//std::cout<<"Weight : "<<cell_info_vector[cell_itr].neighbour_weights[qpoint][i]<<"   value: "<<
 					//	cell_info_vector[cell_itr2].pseudo_design_points.rho[ng_pt_itr]<<std::endl;
 			}
 			cell_info_vector[cell_itr].density[qpoint] = xPhys;
+			//std::cout<<"xPhys : "<<xPhys<<std::endl;
 /*			if (xPhys != 0)
 				std::cout<<"Non-zero xphys : "<<xPhys<<std::endl;*/
 			//std::cout<<cell_itr<<"   "<<cell_info_vector[cell_itr].density[qpoint]<<std::endl;
@@ -1196,12 +1211,12 @@ void DensityField<dim>::update_density_cell_info_vector(
 			}
 		}
 
-		for (unsigned int i = 0; i < density_cell_info_vector.size(); ++i){
+/*		for (unsigned int i = 0; i < density_cell_info_vector.size(); ++i){
 			std::cout<<density_cell_info_vector[i].density[0]<<" "<<
 					density_cell_info_vector[i].projection_fact<<" "<<
 					density_cell_info_vector[i].pointX[0]<<" "<<
 					density_cell_info_vector[i].pointX[1]<<" "<<std::endl;
-		}
+		}*/
 	}
 
 
@@ -1370,7 +1385,7 @@ void DensityField<dim>::get_xPhys_for_face_3D(std::vector<double> &face_xPhys,
 	double proj_radius = cell_info_vector[cell_itr].projection_radius;
 
 	//Getting all the neighbor cells for the current cell
-	double drmin = proj_radius + sqrt(cell->measure()); //added term is the distance from center of square element to the corner
+	double drmin = proj_radius + pow(cell->measure(), 1.0/dim); //added term is the distance from center of square element to the corner
 
 	std::vector<hp::DoFHandler<3>::active_cell_iterator> neighbor_iterators;
 	neighbor_iterators.clear();

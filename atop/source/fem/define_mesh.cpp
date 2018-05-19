@@ -180,7 +180,7 @@ void DefineMesh<dim>::update_outputDesignMesh(Triangulation<dim> &design_triangu
 	design_triangulation.clear();
 	GridGenerator::subdivided_hyper_rectangle(
 			design_triangulation,
-			{design_per_dim*subdivisions[0], design_per_dim*subdivisions[1]},
+			{design_per_dim*subdivisions[0], design_per_dim*subdivisions[1], design_per_dim*subdivisions[2]},
 			point1,
 			point2,
 			false

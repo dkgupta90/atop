@@ -185,7 +185,7 @@ void DesignField::update_pseudo_designWeights(unsigned int max_design_points_per
 
 		//Below, 2.0 is used as the length of the cell, since all the design points defined within the cell
 		//assume that the cell is 2X2 in length and are relative to it with center at 0,0.
-		double rmin = (((double)2.0)/(d_factor*sqrt(2.0))) * 1.05;	//5% tolerance added
+		double rmin = (((double)2.0 * sqrt(3.0))/(d_factor*2)) * 1.05;	//5% tolerance added
 		/*
 		 * This is a 2 dimensional vector with the first dimension iterating over the number of pseudo-design points
 		 * and the second dimension iterating over the number of actual non-uniformly distributed design points
@@ -202,6 +202,7 @@ void DesignField::update_pseudo_designWeights(unsigned int max_design_points_per
 				double distance = 0.0;
 				distance = pow(pointX[j][0] - dp_PointX[k][0], 2);
 				distance += pow(pointX[j][1] - dp_PointX[k][1], 2);
+				distance += pow(pointX[j][2] - dp_PointX[k][2], 2);
 				distance = sqrt(distance);
 				if (rmin <= distance)	continue;
 
@@ -254,7 +255,7 @@ bool DesignField::isPerfectSquare(unsigned int no_design_points){
 
 bool DesignField::isPerfectCube(unsigned int no_design_points){
 	double cuberoot = pow((double)no_design_points, 0.3333333);
-	if (fabs(cuberoot - (double)(floor(cuberoot + 0.000001))) < 1e-4){
+	if (fabs(cuberoot - (double)(round(cuberoot + 0.000001))) < 1e-4){
 		return true;
 	}
 	else{
